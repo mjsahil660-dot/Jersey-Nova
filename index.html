@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jersey Nova - Order Management</title>
+    <title>Jersey Nova - Advance Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap');
@@ -15,140 +15,155 @@
 <body class="p-2 md:p-8">
 
     <!-- Login Section -->
-    <div id="login-section" class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md mt-20">
+    <div id="login-section" class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md mt-10">
         <h2 class="text-2xl font-bold mb-4 text-center text-blue-700">Jersey Nova Admin</h2>
         <input type="password" id="admin-pass" placeholder="পাসওয়ার্ড দিন" class="w-full p-2 border rounded mb-4 focus:outline-blue-500">
         <button onclick="checkLogin()" class="w-full bg-blue-600 text-white py-2 rounded font-bold">লগইন করুন</button>
-        <p id="login-error" class="text-red-500 text-sm mt-2 hidden text-center">ভুল পাসওয়ার্ড!</p>
     </div>
 
     <!-- Main Dashboard -->
     <div id="dashboard" class="hidden max-w-6xl mx-auto">
         
         <!-- Summary Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 no-print">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 no-print">
             <div class="bg-blue-600 text-white p-4 rounded-lg shadow">
-                <p class="text-xs md:text-sm">মোট অর্ডার</p>
-                <h3 id="total-orders" class="text-xl md:text-2xl font-bold">০ পিস</h3>
+                <p class="text-xs">মোট অর্ডার</p>
+                <h3 id="total-orders" class="text-xl font-bold">০ পিস</h3>
             </div>
             <div class="bg-orange-500 text-white p-4 rounded-lg shadow">
-                <p class="text-xs md:text-sm">ফ্যাক্টরি খরচ</p>
-                <h3 id="total-factory-cost" class="text-xl md:text-2xl font-bold">৳ ০</h3>
+                <p class="text-xs">ফ্যাক্টরি খরচ</p>
+                <h3 id="total-factory-cost" class="text-xl font-bold">৳ ০</h3>
             </div>
             <div class="bg-green-600 text-white p-4 rounded-lg shadow">
-                <p class="text-xs md:text-sm">মোট লাভ</p>
-                <h3 id="total-profit" class="text-xl md:text-2xl font-bold">৳ ০</h3>
+                <p class="text-xs">মোট নিট লাভ</p>
+                <h3 id="total-profit" class="text-xl font-bold">৳ ০</h3>
             </div>
-            <div class="bg-yellow-500 text-white p-4 rounded-lg shadow">
-                <p class="text-xs md:text-sm">পেন্ডিং</p>
-                <h3 id="pending-count" class="text-xl md:text-2xl font-bold">০</h3>
+            <div class="bg-purple-600 text-white p-4 rounded-lg shadow">
+                <p class="text-xs">পেন্ডিং কালেকশন</p>
+                <h3 id="total-due" class="text-xl font-bold">৳ ০</h3>
             </div>
         </div>
 
-        <!-- Order Form -->
+        <!-- Advanced Order Form -->
         <div class="bg-white p-6 rounded-xl shadow mb-8 no-print">
-            <h2 class="text-xl font-bold mb-4 border-b pb-2 text-blue-700">নতুন অর্ডার এন্ট্রি</h2>
+            <h2 class="text-xl font-bold mb-4 border-b pb-2 text-blue-700">অ্যাডভান্স অর্ডার এন্ট্রি</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-2 border rounded">
                 <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-2 border rounded">
                 <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-2 border rounded">
-                <input type="number" id="cust-price" placeholder="বিক্রয় মূল্য (৳)" class="p-2 border rounded">
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="unit-price" oninput="calculateTotal()" placeholder="প্রতি পিস দাম (৳)" class="p-2 border rounded bg-blue-50">
+                    <input type="number" id="quantity" oninput="calculateTotal()" placeholder="কোয়ান্টিটি (পিস)" class="p-2 border rounded bg-blue-50">
+                </div>
+
+                <input type="number" id="delivery-charge" oninput="calculateTotal()" placeholder="ডেলিভারি চার্জ (৳)" class="p-2 border rounded">
+                
+                <div class="bg-gray-100 p-2 rounded font-bold text-center">
+                    টোটাল বিল: ৳ <span id="display-total">০</span>
+                </div>
+
+                <input type="number" id="advance-paid" oninput="calculateTotal()" placeholder="অ্যাডভান্স জমা (৳)" class="p-2 border rounded bg-green-50">
+                
+                <div class="bg-red-50 p-2 rounded font-bold text-red-600 text-center">
+                    বাকি (ক্যাশ অন ডেলিভারি): ৳ <span id="display-due">০</span>
+                </div>
+
                 <input type="number" id="factory-cost" placeholder="ফ্যাক্টরি খরচ (৳)" class="p-2 border rounded">
-                <input type="number" id="delivery-cost" placeholder="অন্যান্য খরচ (৳)" class="p-2 border rounded">
-                <button onclick="createOrder()" class="md:col-span-3 bg-blue-700 text-white py-3 rounded font-bold hover:bg-blue-800 transition">ক্রিয়েট অর্ডার নাও</button>
+                
+                <button onclick="createOrder()" class="md:col-span-3 bg-blue-700 text-white py-3 rounded font-bold hover:bg-blue-800 shadow-lg">অর্ডার সেভ করুন</button>
             </div>
         </div>
 
-        <!-- Order List Table -->
+        <!-- Order List -->
         <div class="bg-white rounded-xl shadow overflow-x-auto no-print">
-            <table class="w-full text-left border-collapse min-w-[600px]">
-                <thead class="bg-gray-100 border-b">
+            <table class="w-full text-left border-collapse min-w-[800px]">
+                <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="p-4">নাম ও ফোন</th>
-                        <th class="p-4">ঠিকানা ও দাম</th>
-                        <th class="p-4">লাভ (৳)</th>
-                        <th class="p-4 text-center">স্ট্যাটাস</th>
-                        <th class="p-4 text-center">অ্যাকশন</th>
+                        <th class="p-3 text-sm">নাম/ফোন</th>
+                        <th class="p-3 text-sm">অর্ডার (পিস)</th>
+                        <th class="p-3 text-sm">মোট বিল</th>
+                        <th class="p-3 text-sm text-green-400">অ্যাডভান্স</th>
+                        <th class="p-3 text-sm text-yellow-400">বাকি (COD)</th>
+                        <th class="p-3 text-sm">লাভ</th>
+                        <th class="p-3 text-center text-sm">স্ট্যাটাস</th>
+                        <th class="p-3 text-center text-sm">অ্যাকশন</th>
                     </tr>
                 </thead>
                 <tbody id="order-list-body"></tbody>
             </table>
         </div>
 
-        <!-- Invoice Area -->
-        <div id="invoice-box" class="hidden p-8 bg-white border-2 border-dashed border-blue-500 rounded-lg max-w-sm mx-auto mt-10 shadow-2xl">
+        <!-- Invoice Area (Invoice for Screenshot) -->
+        <div id="invoice-box" class="hidden p-6 bg-white border-2 border-blue-600 rounded-lg max-w-sm mx-auto mt-10 relative shadow-2xl">
             <div class="text-center mb-4">
                 <h1 class="text-2xl font-bold text-blue-700">JERSEY NOVA</h1>
-                <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Order Confirmation Slip</p>
+                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Official Invoice</p>
             </div>
-            <div id="invoice-content" class="text-sm space-y-2 text-gray-700"></div>
-            <div class="mt-6 border-t pt-4 text-center">
-                <p class="text-xs text-gray-500 italic">আমাদের ওপর আস্থা রাখার জন্য ধন্যবাদ!</p>
+            <div id="invoice-content" class="text-sm space-y-2 border-t pt-4"></div>
+            <div class="mt-6 text-center border-t pt-2 text-[10px] text-gray-400">
+                অর্ডারটি কনফার্ম করার জন্য ধন্যবাদ।
             </div>
-            <button onclick="closeInvoice()" class="mt-4 w-full bg-gray-200 text-gray-700 py-2 rounded text-xs font-bold no-print">বন্ধ করুন</button>
+            <button onclick="closeInvoice()" class="mt-4 w-full bg-gray-200 py-1 rounded text-xs no-print">বন্ধ করুন</button>
         </div>
     </div>
 
     <script>
-        // --- সেটিংস ---
-        const SCRIPT_URL = "এখানে_আপনার_গুগল_স্ক্রিপ্ট_URL_দিন"; 
-        const ADMIN_PASS = "sahil882"; // আপনার পাসওয়ার্ড এখানে দিন
-
-        let orders = JSON.parse(localStorage.getItem('jn_orders')) || [];
+        const ADMIN_PASS = "admin123"; 
+        let orders = JSON.parse(localStorage.getItem('jn_orders_v2')) || [];
 
         function checkLogin() {
-            const inputPass = document.getElementById('admin-pass').value;
-            if(inputPass === ADMIN_PASS) {
+            if(document.getElementById('admin-pass').value === ADMIN_PASS) {
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
                 renderOrders();
-            } else {
-                document.getElementById('login-error').classList.remove('hidden');
-            }
+            } else { alert("ভুল পাসওয়ার্ড!"); }
         }
 
-        async function saveToGoogleSheet(data) {
-            if(SCRIPT_URL.includes("এখানে")) return; // URL না দিলে কাজ করবে না
-            try {
-                fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    cache: 'no-cache',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-            } catch (e) { console.log(e); }
+        function calculateTotal() {
+            const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const qty = parseFloat(document.getElementById('quantity').value) || 0;
+            const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
+            const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
+
+            const totalBill = (uprice * qty) + dCharge;
+            const dueAmount = totalBill - advance;
+
+            document.getElementById('display-total').innerText = totalBill;
+            document.getElementById('display-due').innerText = dueAmount;
         }
 
         function createOrder() {
             const name = document.getElementById('cust-name').value;
             const phone = document.getElementById('cust-phone').value;
             const address = document.getElementById('cust-address').value;
-            const price = parseFloat(document.getElementById('cust-price').value) || 0;
+            const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const qty = parseFloat(document.getElementById('quantity').value) || 0;
+            const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
+            const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
             const fCost = parseFloat(document.getElementById('factory-cost').value) || 0;
-            const dCost = parseFloat(document.getElementById('delivery-cost').value) || 0;
-            
-            if(!name || !phone) return alert("দয়া করে নাম ও ফোন নাম্বার দিন!");
+
+            if(!name || !phone || qty <= 0) return alert("সঠিক তথ্য দিন!");
+
+            const totalBill = (uprice * qty) + dCharge;
+            const dueAmount = totalBill - advance;
+            const profit = totalBill - (fCost + dCharge); // লাভ = মোট বিল - (ফ্যাক্টরি খরচ + ডেলিভারি খরচ)
 
             const newOrder = {
                 id: Date.now(),
-                name, phone, address, price, fCost, dCost,
-                profit: price - (fCost + dCost),
+                name, phone, address, qty, uprice, dCharge, totalBill, advance, dueAmount, fCost, profit,
                 status: 'Pending',
                 date: new Date().toLocaleDateString('bn-BD')
             };
 
-            orders.unshift(newOrder); // নতুন অর্ডার সবার উপরে দেখাবে
+            orders.unshift(newOrder);
             saveAndRefresh();
-            saveToGoogleSheet(newOrder);
             clearForm();
         }
 
         function toggleStatus(id) {
             orders = orders.map(o => {
-                if(o.id === id) {
-                    o.status = (o.status === 'Pending') ? 'Success/Paid' : 'Pending';
-                }
+                if(o.id === id) o.status = (o.status === 'Pending') ? 'Success/Paid' : 'Pending';
                 return o;
             });
             saveAndRefresh();
@@ -157,78 +172,76 @@
         function generateInvoice(id) {
             const order = orders.find(o => o.id === id);
             const content = `
-                <div class="flex justify-between"><span>তারিখ:</span> <span>${order.date}</span></div>
-                <div class="flex justify-between"><span>কাস্টমার:</span> <strong>${order.name}</strong></div>
-                <div class="flex justify-between"><span>ফোন:</span> <span>${order.phone}</span></div>
-                <div class="flex justify-between font-semibold border-t pt-2 mt-2 text-lg text-blue-800">
-                    <span>মোট দেয়:</span> <span>৳ ${order.price}</span>
-                </div>
-                <div class="text-[10px] text-gray-500 mt-2">ঠিকানা: ${order.address}</div>
-                <div class="mt-2 text-center"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold">${order.status}</span></div>
+                <p><strong>তারিখ:</strong> ${order.date}</p>
+                <p><strong>কাস্টমার:</strong> ${order.name}</p>
+                <p><strong>ফোন:</strong> ${order.phone}</p>
+                <p><strong>ঠিকানা:</strong> ${order.address}</p>
+                <hr class="my-2">
+                <div class="flex justify-between"><span>জার্সি (${order.qty} পিস):</span> <span>৳ ${order.uprice * order.qty}</span></div>
+                <div class="flex justify-between"><span>ডেলিভারি চার্জ:</span> <span>৳ ${order.dCharge}</span></div>
+                <div class="flex justify-between font-bold border-t mt-1 pt-1 text-blue-700"><span>মোট বিল:</span> <span>৳ ${order.totalBill}</span></div>
+                <div class="flex justify-between text-green-600"><span>অ্যাডভান্স জমা:</span> <span>- ৳ ${order.advance}</span></div>
+                <div class="flex justify-between font-bold border-t mt-1 pt-1 text-red-600 text-lg"><span>বাকি (COD):</span> <span>৳ ${order.dueAmount}</span></div>
+                <div class="mt-4 text-center"><span class="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-xs font-bold">${order.status}</span></div>
             `;
             document.getElementById('invoice-content').innerHTML = content;
             document.getElementById('invoice-box').classList.remove('hidden');
             window.scrollTo(0, document.body.scrollHeight);
         }
 
-        function closeInvoice() {
-            document.getElementById('invoice-box').classList.add('hidden');
-        }
+        function closeInvoice() { document.getElementById('invoice-box').classList.add('hidden'); }
 
         function deleteOrder(id) {
-            if(confirm("অর্ডারটি মুছে ফেলতে চান?")) {
+            if(confirm("মুছে ফেলতে চান?")) {
                 orders = orders.filter(o => o.id !== id);
                 saveAndRefresh();
             }
         }
 
         function saveAndRefresh() {
-            localStorage.setItem('jn_orders', JSON.stringify(orders));
+            localStorage.setItem('jn_orders_v2', JSON.stringify(orders));
             renderOrders();
         }
 
         function clearForm() {
-            document.querySelectorAll('input').forEach(input => {
-                if(input.id !== 'admin-pass') input.value = '';
-            });
+            document.querySelectorAll('input:not(#admin-pass)').forEach(i => i.value = '');
+            document.getElementById('display-total').innerText = '0';
+            document.getElementById('display-due').innerText = '0';
         }
 
         function renderOrders() {
             const tbody = document.getElementById('order-list-body');
             tbody.innerHTML = '';
-            
-            let totalProfit = 0;
-            let totalFactory = 0;
-            let pendingCount = 0;
+            let tProfit = 0, tFactory = 0, tDue = 0;
 
-            orders.forEach(order => {
-                totalFactory += order.fCost;
-                if(order.status === 'Pending') pendingCount++;
-                totalProfit += order.profit;
+            orders.forEach(o => {
+                tProfit += o.profit;
+                tFactory += o.fCost;
+                if(o.status === 'Pending') tDue += o.dueAmount;
 
                 const row = `
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-4 font-bold text-gray-700 text-sm">${order.name}<br><span class="text-xs font-normal text-gray-500">${order.phone}</span></td>
-                        <td class="p-4 text-xs md:text-sm text-gray-600">${order.address}<br><span class="font-bold text-black">৳ ${order.price}</span></td>
-                        <td class="p-4 text-green-600 font-bold">৳ ${order.profit}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="toggleStatus(${order.id})" class="px-2 py-1 rounded-full text-[10px] font-bold ${order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}">
-                                ${order.status}
-                            </button>
+                    <tr class="border-b text-sm">
+                        <td class="p-3 font-bold">${o.name}<br><span class="text-xs font-normal text-gray-500">${o.phone}</span></td>
+                        <td class="p-3">${o.qty} পিস<br><span class="text-xs">@ ৳ ${o.uprice}</span></td>
+                        <td class="p-3 font-bold">৳ ${o.totalBill}</td>
+                        <td class="p-3 text-green-600 font-bold">৳ ${o.advance}</td>
+                        <td class="p-3 text-red-600 font-bold">৳ ${o.dueAmount}</td>
+                        <td class="p-3 text-blue-600 font-bold">৳ ${o.profit}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="toggleStatus(${o.id})" class="px-2 py-1 rounded-full text-[10px] font-bold ${o.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}">${o.status}</button>
                         </td>
-                        <td class="p-4 text-center space-x-2 whitespace-nowrap">
-                            <button onclick="generateInvoice(${order.id})" class="bg-blue-50 text-blue-600 p-1 rounded hover:underline text-xs">স্লিপ</button>
-                            <button onclick="deleteOrder(${order.id})" class="text-red-400 hover:text-red-600 p-1 text-xs">মুছুন</button>
+                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
+                            <button onclick="generateInvoice(${o.id})" class="text-blue-600 text-xs hover:underline">স্লিপ</button>
+                            <button onclick="deleteOrder(${o.id})" class="text-red-400 text-xs">X</button>
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
                 tbody.innerHTML += row;
             });
 
             document.getElementById('total-orders').innerText = orders.length + " পিস";
-            document.getElementById('total-factory-cost').innerText = "৳ " + totalFactory;
-            document.getElementById('total-profit').innerText = "৳ " + totalProfit;
-            document.getElementById('pending-count').innerText = pendingCount;
+            document.getElementById('total-factory-cost').innerText = "৳ " + tFactory;
+            document.getElementById('total-profit').innerText = "৳ " + tProfit;
+            document.getElementById('total-due').innerText = "৳ " + tDue;
         }
     </script>
 </body>
