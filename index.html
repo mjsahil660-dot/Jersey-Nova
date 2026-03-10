@@ -17,7 +17,7 @@
     <!-- Login Section -->
     <div id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl mt-16">
         <h2 class="text-3xl font-bold mb-6 text-center text-blue-800 tracking-tight">Jersey Nova</h2>
-        <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+        <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
         <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-3 rounded-lg font-bold text-lg hover:bg-blue-800 transition">ড্যাশবোর্ডে প্রবেশ করুন</button>
     </div>
 
@@ -77,13 +77,18 @@
             </div>
         </div>
 
+        <!-- SEARCH BAR ADDED HERE -->
+        <div class="mb-4 no-print max-w-md">
+            <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="ফোন নাম্বার দিয়ে খুঁজুন..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm" style="font-size: 14px;">
+        </div>
+
         <!-- Data Table -->
         <div class="bg-white rounded-2xl shadow-sm overflow-x-auto no-print border border-gray-100">
-            <table class="w-full text-left min-w-[900px]">
+            <table class="w-full text-left min-w-[900px]" id="order-table">
                 <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold">
                     <tr>
                         <th class="p-4">কাস্টমার</th>
-                        <th class="p-4 text-center">কোয়ান্টিটি</th>
+                        <th class="p-4 text-center">কোয়ান্টিটি</th>
                         <th class="p-4">ফ্যাক্টরি বিল</th>
                         <th class="p-4 text-green-600">অ্যাডভান্স</th>
                         <th class="p-4 text-red-600">COD (বাকি)</th>
@@ -119,7 +124,23 @@
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
                 renderOrders();
-            } else { alert("ভুল পাসওয়ার্ড!"); }
+            } else { alert("ভুল পাসওয়ার্ড!"); }
+        }
+
+        // SEARCH FUNCTION ADDED HERE
+        function searchOrders() {
+            let input = document.getElementById('search-input').value.toLowerCase();
+            let table = document.getElementById('order-list-body');
+            let rows = table.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                let phoneText = rows[i].getElementsByTagName('td')[0].innerText.toLowerCase();
+                if (phoneText.includes(input)) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
         }
 
         function calculateStats() {
@@ -149,7 +170,7 @@
             const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
 
-            if(!name || !phone || qty <= 0) return alert("দয়া করে সঠিক তথ্য দিন!");
+            if(!name || !phone || qty <= 0) return alert("দয়া করে সঠিক তথ্য দিন!");
 
             const totalBill = (qty * uprice) + dCharge;
             const totalFactoryCost = qty * fRate;
