@@ -12,27 +12,36 @@
     <meta name="theme-color" content="#1e40af">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library for Invoice to Image -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
-    <!-- Firebase SDK (Added for Realtime Sync) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
         body { font-family: 'Hind Siliguri', sans-serif; background: #f8fafc; -webkit-tap-highlight-color: transparent; }
         .hidden { display: none; }
         @media print { .no-print { display: none; } }
         
+        /* Logo Styling */
         .logo-container {
-            width: 80px; height: 80px; margin: 0 auto 15px;
-            background: #1e40af; border-radius: 22px;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 32px; font-weight: 900;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background: #1e40af;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 900;
             box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.3);
             overflow: hidden;
         }
-        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body class="p-2 md:p-6">
@@ -40,6 +49,7 @@
     <!-- Login Section -->
     <div id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-2xl mt-16 border border-gray-100">
         <div class="text-center mb-6">
+            <!-- Logo Box with Fallback -->
             <div class="logo-container">
                 <img src="https://kommodo.ai/i/39UkV5Eijxw5bf15mDqs" alt="JN" onerror="this.style.display='none'">
                 <span id="logo-text">JN</span>
@@ -47,12 +57,15 @@
             <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
             <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Smart Manager v4.0</p>
         </div>
+        
         <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
         <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">ড্যাশবোর্ডে প্রবেশ করুন</button>
     </div>
 
     <!-- Main Dashboard -->
     <div id="dashboard" class="hidden max-w-6xl mx-auto">
+        
+        <!-- Stats Summary -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 no-print">
             <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-blue-600">
                 <p class="text-[10px] text-gray-500 uppercase font-black">মোট অর্ডার</p>
@@ -72,91 +85,101 @@
             </div>
         </div>
 
-        <!-- Form -->
+        <!-- Order Entry Form -->
         <div class="bg-white p-6 rounded-3xl shadow-sm mb-8 no-print border border-gray-100">
-            <h2 id="form-title" class="text-xl font-bold mb-5 text-blue-700 flex items-center border-b pb-3">🆕 নতুন অর্ডার এন্ট্রি</h2>
+            <h2 id="form-title" class="text-xl font-bold mb-5 text-blue-700 flex items-center border-b pb-3">
+                🆕 নতুন অর্ডার এন্ট্রি
+            </h2>
             <input type="hidden" id="edit-id">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-3 border rounded-xl outline-none focus:border-blue-500">
                 <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border rounded-xl outline-none focus:border-blue-500">
                 <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-3 border rounded-xl outline-none focus:border-blue-500">
+                
                 <div class="grid grid-cols-2 gap-3">
                     <input type="number" id="quantity" oninput="calculateStats()" placeholder="জার্সি (পিস)" class="p-3 border rounded-xl bg-blue-50 font-bold">
                     <input type="number" id="unit-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-blue-50 font-bold">
                 </div>
+
                 <div class="grid grid-cols-2 gap-3">
                     <input type="number" id="factory-rate" oninput="calculateStats()" placeholder="ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold">
                     <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border rounded-xl">
                 </div>
+
                 <input type="number" id="advance-paid" oninput="calculateStats()" placeholder="অ্যাডভান্স জমা (৳)" class="p-3 border rounded-xl bg-green-50 font-bold">
+                
+                <!-- Calculation View -->
                 <div class="md:col-span-3 grid grid-cols-3 gap-2 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-300">
                     <div class="text-center"><p class="text-[10px] text-gray-500 font-bold">মোট বিল</p><p class="text-lg font-bold">৳ <span id="display-total">০</span></p></div>
                     <div class="text-center text-red-600"><p class="text-[10px] text-gray-500 font-bold">বাকি (COD)</p><p class="text-lg font-bold">৳ <span id="display-due">০</span></p></div>
                     <div class="text-center text-green-700"><p class="text-[10px] text-gray-500 font-bold">নিট লাভ</p><p class="text-lg font-bold">৳ <span id="display-profit">০</span></p></div>
                 </div>
+
                 <button id="save-btn" onclick="saveOrder()" class="md:col-span-3 bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition shadow-lg">অর্ডার সেভ করুন</button>
             </div>
         </div>
 
-        <!-- Table -->
+        <!-- Search & Backup Tools -->
         <div class="flex flex-col md:flex-row justify-between gap-4 mb-4 no-print items-center">
-            <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন নাম্বার খুঁজুন..." class="w-full md:max-w-xs p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm">
+            <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন নাম্বার দিয়ে খুঁজুন..." class="w-full md:max-w-xs p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm">
+            
+            <div class="flex gap-2">
+                <button onclick="exportData()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-black transition">Backup</button>
+                <label class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase cursor-pointer hover:bg-indigo-700 transition">
+                    Import <input type="file" class="hidden" onchange="importData(event)">
+                </label>
+            </div>
         </div>
 
+        <!-- Data Table -->
         <div class="bg-white rounded-3xl shadow-sm overflow-x-auto no-print border border-gray-100">
             <table class="w-full text-left min-w-[1000px]" id="order-table">
                 <thead class="bg-gray-50 text-gray-400 uppercase text-[10px] font-black tracking-widest">
-                    <tr><th class="p-5">কাস্টমার প্রোফাইল</th><th class="p-5 text-center">কোয়ান্টিটি</th><th class="p-5 text-red-500">COD (বাকি)</th><th class="p-5">লাভ</th><th class="p-5 text-center">স্ট্যাটাস</th><th class="p-5 text-center">অ্যাকশন</th></tr>
+                    <tr>
+                        <th class="p-5">কাস্টমার প্রোফাইল</th>
+                        <th class="p-5 text-center">কোয়ান্টিটি</th>
+                        <th class="p-5 text-red-500">COD (বাকি)</th>
+                        <th class="p-5">লাভ</th>
+                        <th class="p-5 text-center">স্ট্যাটাস</th>
+                        <th class="p-5 text-center">অ্যাকশন</th>
+                    </tr>
                 </thead>
                 <tbody id="order-list-body" class="divide-y divide-gray-50"></tbody>
             </table>
         </div>
 
-        <!-- Invoice Modal -->
+        <!-- Modal for Invoice -->
         <div id="invoice-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div class="bg-white rounded-3xl max-w-sm w-full p-2 relative">
-                <div id="invoice-capture-area" class="p-6 bg-white border-2 border-blue-600 rounded-2xl">
+                <div id="invoice-capture-area" class="p-6 bg-white border-2 border-blue-600 rounded-2xl shadow-xl">
                     <div class="text-center border-b-2 border-blue-100 pb-4 mb-4">
                         <h1 class="text-3xl font-black text-blue-800 italic">JERSEY NOVA</h1>
                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Premium Sports Apparel</p>
                     </div>
                     <div id="invoice-content" class="text-sm space-y-3"></div>
+                    <div class="mt-6 pt-4 border-t border-dashed text-center">
+                        <p class="text-[10px] text-gray-400 font-bold italic">Thank you for choosing Jersey Nova!</p>
+                    </div>
                 </div>
+                
                 <div class="flex flex-col gap-2 mt-4 p-2">
-                    <button onclick="downloadInvoiceImage()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">📸 ডাউনলোড ইমেজ</button>
-                    <button onclick="closeInvoice()" class="w-full bg-gray-100 text-gray-500 py-2 rounded-xl font-bold text-xs">বন্ধ করুন</button>
+                    <button onclick="downloadInvoiceImage()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 shadow-md">📸 ইনভয়েস ইমেজ ডাউনলোড করুন</button>
+                    <button onclick="closeInvoice()" class="w-full bg-gray-100 text-gray-500 py-2 rounded-xl font-bold text-xs hover:bg-gray-200 transition">বন্ধ করুন</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- Firebase Configuration ---
-        const firebaseConfig = {
-            databaseURL: "https://jersey-nova-default-rtdb.firebaseio.com/" 
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('orders');
-
         const ADMIN_PASS = "admin123"; 
-        let orders = [];
+        let orders = JSON.parse(localStorage.getItem('jn_v4_data')) || [];
 
         function checkLogin() {
             if(document.getElementById('admin-pass').value === ADMIN_PASS) {
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
-                startSync(); // লগইন হলে ডাটা সিঙ্ক শুরু হবে
-            } else { alert("ভুল পাসওয়ার্ড!"); }
-        }
-
-        // 🔄 Realtime Auto-Refresh (Firebase Listener)
-        function startSync() {
-            db.on('value', (snapshot) => {
-                const data = snapshot.val();
-                orders = data ? Object.values(data).reverse() : [];
                 renderOrders();
-                console.log("ডাটা অটো-রিফ্রেশ হয়েছে!");
-            });
+            } else { alert("ভুল পাসওয়ার্ড!"); }
         }
 
         function calculateStats() {
@@ -165,80 +188,56 @@
             const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
             const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
+
             const totalBill = (qty * uprice) + dCharge;
+            const dueAmount = totalBill - advance;
+            const totalFactoryCost = qty * fRate;
+            const profit = totalBill - (totalFactoryCost + dCharge);
+
             document.getElementById('display-total').innerText = totalBill;
-            document.getElementById('display-due').innerText = totalBill - advance;
-            document.getElementById('display-profit').innerText = totalBill - ((qty * fRate) + dCharge);
+            document.getElementById('display-due').innerText = dueAmount;
+            document.getElementById('display-profit').innerText = profit;
         }
 
         function saveOrder() {
             const editId = document.getElementById('edit-id').value;
-            const id = editId ? editId : Date.now().toString();
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            const addr = document.getElementById('cust-address').value;
             const qty = parseFloat(document.getElementById('quantity').value) || 0;
             const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
             const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
             const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
 
+            if(!name || !phone || qty <= 0) return alert("সঠিক তথ্য দিন!");
+
+            const totalBill = (qty * uprice) + dCharge;
+            const totalFactoryCost = qty * fRate;
+            
             const orderData = {
-                id: id,
-                name: document.getElementById('cust-name').value,
-                phone: document.getElementById('cust-phone').value,
-                addr: document.getElementById('cust-address').value,
-                qty, uprice, fRate, dCharge, advance,
-                totalBill: (qty * uprice) + dCharge,
-                due: ((qty * uprice) + dCharge) - advance,
-                totalFactoryCost: qty * fRate,
-                profit: ((qty * uprice) + dCharge) - ((qty * fRate) + dCharge),
+                id: editId ? parseInt(editId) : Date.now(),
+                name, phone, addr, qty, uprice, fRate, dCharge, totalBill, advance,
+                due: totalBill - advance,
+                totalFactoryCost: totalFactoryCost,
+                profit: totalBill - (totalFactoryCost + dCharge),
                 status: editId ? orders.find(o => o.id == editId).status : 'Pending',
                 date: editId ? orders.find(o => o.id == editId).date : new Date().toLocaleDateString('bn-BD')
             };
 
-            if(!orderData.name || !orderData.phone || qty <= 0) return alert("তথ্য দিন!");
+            if(editId) {
+                orders = orders.map(o => o.id == editId ? orderData : o);
+                resetFormUI();
+            } else {
+                orders.unshift(orderData);
+            }
 
-            db.child(id).set(orderData).then(() => {
-                clearForm();
-                if(editId) resetFormUI();
-            });
+            saveData();
+            clearForm();
         }
 
-        function renderOrders() {
-            const tbody = document.getElementById('order-list-body');
-            tbody.innerHTML = '';
-            let tProf = 0, tFact = 0, tDue = 0;
-            orders.forEach(o => {
-                tProf += o.profit; tFact += o.totalFactoryCost;
-                if(o.status === 'Pending') tDue += o.due;
-                tbody.innerHTML += `
-                    <tr class="hover:bg-blue-50 border-b border-gray-50">
-                        <td class="p-5"><span class="font-black text-gray-800">${o.name}</span><br><span class="text-[11px] font-bold text-gray-400">${o.phone}</span></td>
-                        <td class="p-5 text-center font-black text-blue-600">${o.qty}</td>
-                        <td class="p-5 text-red-600 font-black">৳ ${o.due}</td>
-                        <td class="p-5 font-black text-gray-700 italic">৳ ${o.profit}</td>
-                        <td class="p-5 text-center"><button onclick="toggleStatus('${o.id}')" class="px-3 py-1 rounded-full text-[9px] font-black border-2 ${o.status === 'Pending' ? 'bg-yellow-50 text-yellow-600 border-yellow-200' : 'bg-green-50 text-green-600 border-green-200'}">${o.status}</button></td>
-                        <td class="p-5"><div class="flex items-center justify-center space-x-3">
-                            <button onclick="sendWhatsAppMsg('${o.id}')">💬</button>
-                            <button onclick="openInvoice('${o.id}')" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-[10px] font-black">ইনভয়েস</button>
-                            <button onclick="editOrder('${o.id}')">✏️</button>
-                            <button onclick="deleteOrder('${o.id}')" class="text-red-300">✕</button>
-                        </div></td>
-                    </tr>`;
-            });
-            document.getElementById('total-orders').innerText = orders.length;
-            document.getElementById('total-factory-cost').innerText = "৳ " + tFact;
-            document.getElementById('total-profit').innerText = "৳ " + tProf;
-            document.getElementById('total-due').innerText = "৳ " + tDue;
-        }
-
-        function toggleStatus(id) {
-            const o = orders.find(x => x.id == id);
-            db.child(id).update({ status: o.status === 'Pending' ? 'Paid' : 'Pending' });
-        }
-
-        function deleteOrder(id) { if(confirm("মুছে ফেলবেন?")) db.child(id).remove(); }
-        
         function editOrder(id) {
-            const o = orders.find(x => x.id == id);
+            const o = orders.find(x => x.id === id);
             document.getElementById('edit-id').value = o.id;
             document.getElementById('cust-name').value = o.name;
             document.getElementById('cust-phone').value = o.phone;
@@ -248,22 +247,131 @@
             document.getElementById('factory-rate').value = o.fRate;
             document.getElementById('delivery-charge').value = o.dCharge;
             document.getElementById('advance-paid').value = o.advance;
-            document.getElementById('form-title').innerText = "✏️ সংশোধন";
-            document.getElementById('save-btn').innerText = "আপডেট";
-            calculateStats(); window.scrollTo(0,0);
+
+            document.getElementById('form-title').innerText = "✏️ অর্ডার সংশোধন";
+            document.getElementById('save-btn').innerText = "আপডেট করুন";
+            document.getElementById('save-btn').classList.replace('bg-blue-700', 'bg-orange-600');
+            calculateStats();
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        function clearForm() { document.querySelectorAll('input:not(#admin-pass)').forEach(i => i.value = ''); }
-        function resetFormUI() { document.getElementById('edit-id').value = ""; document.getElementById('form-title').innerText = "🆕 নতুন অর্ডার এন্ট্রি"; document.getElementById('save-btn').innerText = "অর্ডার সেভ করুন"; }
-        function searchOrders() { let val = document.getElementById('search-input').value.toLowerCase(); document.querySelectorAll('#order-list-body tr').forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? "" : "none"); }
-        function sendWhatsAppMsg(id) { const o = orders.find(x => x.id == id); window.open(`https://wa.me/88${o.phone}?text=Order Confirmed! Due: ${o.due}`, '_blank'); }
-        function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
+        function resetFormUI() {
+            document.getElementById('edit-id').value = "";
+            document.getElementById('form-title').innerText = "🆕 নতুন অর্ডার এন্ট্রি";
+            document.getElementById('save-btn').innerText = "অর্ডার সেভ করুন";
+            document.getElementById('save-btn').classList.replace('bg-orange-600', 'bg-blue-700');
+        }
+
+        function toggleStatus(id) {
+            orders = orders.map(o => {
+                if(o.id === id) o.status = (o.status === 'Pending') ? 'Paid' : 'Pending';
+                return o;
+            });
+            saveData();
+        }
+
+        function sendWhatsAppMsg(id) {
+            const o = orders.find(x => x.id === id);
+            const msg = `আসসালামু আলাইকুম ${o.name}!\nআপনার অর্ডারটি কনফার্ম হয়েছে।\nবাকি টাকা (COD): ৳${o.due}\nধন্যবাদ - Jersey Nova`;
+            window.open(`https://wa.me/88${o.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
         function openInvoice(id) {
-            const o = orders.find(x => x.id == id);
-            document.getElementById('invoice-content').innerHTML = `<p class='font-bold'>${o.name}</p><p>${o.phone}</p><div class='bg-blue-50 p-2 mt-2 rounded'>Total: ${o.totalBill}<br>Due: ${o.due}</div>`;
+            const o = orders.find(x => x.id === id);
+            const content = `
+                <div class="flex justify-between text-[9px] text-gray-400 font-bold uppercase"><span>Date: ${o.date}</span> <span>Order ID: #${o.id.toString().slice(-4)}</span></div>
+                <div class="mt-4">
+                    <p class="font-black text-xl text-blue-900 leading-tight">${o.name}</p>
+                    <p class="text-sm font-bold text-gray-600">${o.phone}</p>
+                    <p class="text-[11px] text-gray-500 mt-1">${o.addr}</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-xl mt-4 space-y-2">
+                    <div class="flex justify-between text-xs font-bold"><span>Jersey (${o.qty} pcs)</span> <span>৳ ${o.qty * o.uprice}</span></div>
+                    <div class="flex justify-between text-xs font-bold"><span>Delivery Charge</span> <span>৳ ${o.dCharge}</span></div>
+                    <div class="flex justify-between font-black border-t border-blue-100 pt-2 text-blue-700"><span>Total Bill</span> <span>৳ ${o.totalBill}</span></div>
+                    <div class="flex justify-between text-green-600 text-[10px] font-black italic"><span>Advance Paid</span> <span>- ৳ ${o.advance}</span></div>
+                </div>
+                <div class="bg-blue-800 p-4 rounded-xl mt-3 flex justify-between items-center text-white shadow-lg">
+                    <span class="text-[9px] font-black uppercase tracking-wider">Cash on Delivery</span>
+                    <span class="text-2xl font-black">৳ ${o.due}</span>
+                </div>
+            `;
+            document.getElementById('invoice-content').innerHTML = content;
             document.getElementById('invoice-modal').classList.remove('hidden');
         }
-        async function downloadInvoiceImage() { const canvas = await html2canvas(document.getElementById('invoice-capture-area')); const link = document.createElement('a'); link.download = 'invoice.png'; link.href = canvas.toDataURL(); link.click(); }
+
+        async function downloadInvoiceImage() {
+            const area = document.getElementById('invoice-capture-area');
+            const canvas = await html2canvas(area, { scale: 3 });
+            const link = document.createElement('a');
+            link.download = `JerseyNova_Invoice_${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
+
+        function renderOrders() {
+            const tbody = document.getElementById('order-list-body');
+            tbody.innerHTML = '';
+            let tProf = 0, tFact = 0, tDue = 0;
+
+            orders.forEach(o => {
+                tProf += o.profit; tFact += o.totalFactoryCost;
+                if(o.status === 'Pending') tDue += o.due;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-blue-50 transition border-b border-gray-50">
+                        <td class="p-5">
+                            <span class="font-black text-gray-800">${o.name}</span><br>
+                            <span class="text-[11px] font-bold text-gray-400">${o.phone}</span>
+                        </td>
+                        <td class="p-5 text-center font-black text-blue-600">${o.qty}</td>
+                        <td class="p-5 text-red-600 font-black tracking-tight">৳ ${o.due}</td>
+                        <td class="p-5 font-black text-gray-700 italic">৳ ${o.profit}</td>
+                        <td class="p-5 text-center">
+                            <button onclick="toggleStatus(${o.id})" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter border-2 ${o.status === 'Pending' ? 'bg-yellow-50 text-yellow-600 border-yellow-200' : 'bg-green-50 text-green-600 border-green-200'}">
+                                ${o.status}
+                            </button>
+                        </td>
+                        <td class="p-5">
+                            <div class="flex items-center justify-center space-x-3">
+                                <button onclick="sendWhatsAppMsg(${o.id})" class="text-xl" title="WhatsApp Message">💬</button>
+                                <button onclick="openInvoice(${o.id})" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase">ইনভয়েস</button>
+                                <button onclick="editOrder(${o.id})" class="text-gray-400 hover:text-blue-600">✏️</button>
+                                <button onclick="deleteOrder(${o.id})" class="text-gray-200 hover:text-red-500">✕</button>
+                            </div>
+                        </td>
+                    </tr>`;
+            });
+
+            document.getElementById('total-orders').innerText = orders.length;
+            document.getElementById('total-factory-cost').innerText = "৳ " + tFact;
+            document.getElementById('total-profit').innerText = "৳ " + tProf;
+            document.getElementById('total-due').innerText = "৳ " + tDue;
+        }
+
+        function searchOrders() {
+            let val = document.getElementById('search-input').value.toLowerCase();
+            let rows = document.querySelectorAll('#order-list-body tr');
+            rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? "" : "none");
+        }
+        function exportData() {
+            const blob = new Blob([JSON.stringify(orders)], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = "JerseyNova_Backup.json"; a.click();
+        }
+        function importData(e) {
+            const reader = new FileReader();
+            reader.onload = (f) => { orders = JSON.parse(f.target.result); saveData(); alert("Backup Restored!"); };
+            reader.readAsText(e.target.files[0]);
+        }
+        function deleteOrder(id) { if(confirm("মুছে ফেলতে চান?")) { orders = orders.filter(x => x.id !== id); saveData(); } }
+        function saveData() { localStorage.setItem('jn_v4_data', JSON.stringify(orders)); renderOrders(); }
+        function clearForm() { 
+            document.querySelectorAll('input:not(#admin-pass)').forEach(i => i.value = ''); 
+            document.querySelectorAll('#display-total, #display-due, #display-profit').forEach(s => s.innerText = '0');
+        }
     </script>
 </body>
 </html>
