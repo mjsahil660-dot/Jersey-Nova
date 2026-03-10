@@ -3,114 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jersey Nova - Advance Dashboard</title>
+    <title>Jersey Nova - Smart Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap');
-        body { font-family: 'Hind Siliguri', sans-serif; background: #f3f4f6; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f0f2f5; }
         .hidden { display: none; }
         @media print { .no-print { display: none; } }
     </style>
 </head>
-<body class="p-2 md:p-8">
+<body class="p-2 md:p-6">
 
     <!-- Login Section -->
-    <div id="login-section" class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md mt-10">
-        <h2 class="text-2xl font-bold mb-4 text-center text-blue-700">Jersey Nova Admin</h2>
-        <input type="password" id="admin-pass" placeholder="পাসওয়ার্ড দিন" class="w-full p-2 border rounded mb-4 focus:outline-blue-500">
-        <button onclick="checkLogin()" class="w-full bg-blue-600 text-white py-2 rounded font-bold">লগইন করুন</button>
+    <div id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl mt-16">
+        <h2 class="text-3xl font-bold mb-6 text-center text-blue-800 tracking-tight">Jersey Nova</h2>
+        <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+        <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-3 rounded-lg font-bold text-lg hover:bg-blue-800 transition">ড্যাশবোর্ডে প্রবেশ করুন</button>
     </div>
 
     <!-- Main Dashboard -->
     <div id="dashboard" class="hidden max-w-6xl mx-auto">
         
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 no-print">
-            <div class="bg-blue-600 text-white p-4 rounded-lg shadow">
-                <p class="text-xs">মোট অর্ডার</p>
-                <h3 id="total-orders" class="text-xl font-bold">০ পিস</h3>
+        <!-- Stats Summary -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 no-print">
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-600">
+                <p class="text-[10px] text-gray-500 uppercase font-bold">মোট অর্ডার</p>
+                <h3 id="total-orders" class="text-xl font-bold text-gray-800">০</h3>
             </div>
-            <div class="bg-orange-500 text-white p-4 rounded-lg shadow">
-                <p class="text-xs">ফ্যাক্টরি খরচ</p>
-                <h3 id="total-factory-cost" class="text-xl font-bold">৳ ০</h3>
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-500">
+                <p class="text-[10px] text-gray-500 uppercase font-bold">মোট ফ্যাক্টরি বিল</p>
+                <h3 id="total-factory-cost" class="text-xl font-bold text-gray-800">৳ ০</h3>
             </div>
-            <div class="bg-green-600 text-white p-4 rounded-lg shadow">
-                <p class="text-xs">মোট নিট লাভ</p>
-                <h3 id="total-profit" class="text-xl font-bold">৳ ০</h3>
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-600">
+                <p class="text-[10px] text-gray-500 uppercase font-bold">নিট প্রফিট</p>
+                <h3 id="total-profit" class="text-xl font-bold text-green-700">৳ ০</h3>
             </div>
-            <div class="bg-purple-600 text-white p-4 rounded-lg shadow">
-                <p class="text-xs">পেন্ডিং কালেকশন</p>
-                <h3 id="total-due" class="text-xl font-bold">৳ ০</h3>
-            </div>
-        </div>
-
-        <!-- Advanced Order Form -->
-        <div class="bg-white p-6 rounded-xl shadow mb-8 no-print">
-            <h2 class="text-xl font-bold mb-4 border-b pb-2 text-blue-700">অ্যাডভান্স অর্ডার এন্ট্রি</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-2 border rounded">
-                <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-2 border rounded">
-                <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-2 border rounded">
-                
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="number" id="unit-price" oninput="calculateTotal()" placeholder="প্রতি পিস দাম (৳)" class="p-2 border rounded bg-blue-50">
-                    <input type="number" id="quantity" oninput="calculateTotal()" placeholder="কোয়ান্টিটি (পিস)" class="p-2 border rounded bg-blue-50">
-                </div>
-
-                <input type="number" id="delivery-charge" oninput="calculateTotal()" placeholder="ডেলিভারি চার্জ (৳)" class="p-2 border rounded">
-                
-                <div class="bg-gray-100 p-2 rounded font-bold text-center">
-                    টোটাল বিল: ৳ <span id="display-total">০</span>
-                </div>
-
-                <input type="number" id="advance-paid" oninput="calculateTotal()" placeholder="অ্যাডভান্স জমা (৳)" class="p-2 border rounded bg-green-50">
-                
-                <div class="bg-red-50 p-2 rounded font-bold text-red-600 text-center">
-                    বাকি (ক্যাশ অন ডেলিভারি): ৳ <span id="display-due">০</span>
-                </div>
-
-                <input type="number" id="factory-cost" placeholder="ফ্যাক্টরি খরচ (৳)" class="p-2 border rounded">
-                
-                <button onclick="createOrder()" class="md:col-span-3 bg-blue-700 text-white py-3 rounded font-bold hover:bg-blue-800 shadow-lg">অর্ডার সেভ করুন</button>
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-500">
+                <p class="text-[10px] text-gray-500 uppercase font-bold">পেন্ডিং কালেকশন</p>
+                <h3 id="total-due" class="text-xl font-bold text-red-600">৳ ০</h3>
             </div>
         </div>
 
-        <!-- Order List -->
-        <div class="bg-white rounded-xl shadow overflow-x-auto no-print">
-            <table class="w-full text-left border-collapse min-w-[800px]">
-                <thead class="bg-gray-800 text-white">
+        <!-- Order Entry Form -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm mb-8 no-print border border-gray-100">
+            <h2 class="text-xl font-bold mb-5 text-blue-700 flex items-center border-b pb-3">
+                🆕 নতুন অর্ডার এন্ট্রি
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-3 border rounded-lg outline-none focus:border-blue-500">
+                <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border rounded-lg outline-none focus:border-blue-500">
+                <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-3 border rounded-lg outline-none focus:border-blue-500">
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="quantity" oninput="calculateStats()" placeholder="জার্সি (পিস)" class="p-3 border rounded-lg bg-blue-50 font-bold">
+                    <input type="number" id="unit-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border rounded-lg bg-blue-50 font-bold">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="factory-rate" oninput="calculateStats()" placeholder="ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-lg bg-orange-50 font-bold">
+                    <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border rounded-lg">
+                </div>
+
+                <input type="number" id="advance-paid" oninput="calculateStats()" placeholder="অ্যাডভান্স জমা (৳)" class="p-3 border rounded-lg bg-green-50 font-bold">
+                
+                <!-- Calculation View -->
+                <div class="md:col-span-3 grid grid-cols-3 gap-2 bg-gray-50 p-4 rounded-xl border border-dashed border-gray-300">
+                    <div class="text-center"><p class="text-[10px] text-gray-500">মোট বিল</p><p class="text-lg font-bold">৳ <span id="display-total">০</span></p></div>
+                    <div class="text-center text-red-600"><p class="text-[10px] text-gray-500">ডেলিভারি ম্যান নেবে</p><p class="text-lg font-bold">৳ <span id="display-due">০</span></p></div>
+                    <div class="text-center text-green-700"><p class="text-[10px] text-gray-500">আপনার লাভ</p><p class="text-lg font-bold">৳ <span id="display-profit">০</span></p></div>
+                </div>
+
+                <button onclick="createOrder()" class="md:col-span-3 bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">অর্ডার সেভ করুন</button>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="bg-white rounded-2xl shadow-sm overflow-x-auto no-print border border-gray-100">
+            <table class="w-full text-left min-w-[900px]">
+                <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold">
                     <tr>
-                        <th class="p-3 text-sm">নাম/ফোন</th>
-                        <th class="p-3 text-sm">অর্ডার (পিস)</th>
-                        <th class="p-3 text-sm">মোট বিল</th>
-                        <th class="p-3 text-sm text-green-400">অ্যাডভান্স</th>
-                        <th class="p-3 text-sm text-yellow-400">বাকি (COD)</th>
-                        <th class="p-3 text-sm">লাভ</th>
-                        <th class="p-3 text-center text-sm">স্ট্যাটাস</th>
-                        <th class="p-3 text-center text-sm">অ্যাকশন</th>
+                        <th class="p-4">কাস্টমার</th>
+                        <th class="p-4 text-center">কোয়ান্টিটি</th>
+                        <th class="p-4">ফ্যাক্টরি বিল</th>
+                        <th class="p-4 text-green-600">অ্যাডভান্স</th>
+                        <th class="p-4 text-red-600">COD (বাকি)</th>
+                        <th class="p-4">নিট লাভ</th>
+                        <th class="p-4 text-center">অবস্থা</th>
+                        <th class="p-4 text-center">অ্যাকশন</th>
                     </tr>
                 </thead>
-                <tbody id="order-list-body"></tbody>
+                <tbody id="order-list-body" class="divide-y divide-gray-100"></tbody>
             </table>
         </div>
 
-        <!-- Invoice Area (Invoice for Screenshot) -->
-        <div id="invoice-box" class="hidden p-6 bg-white border-2 border-blue-600 rounded-lg max-w-sm mx-auto mt-10 relative shadow-2xl">
-            <div class="text-center mb-4">
-                <h1 class="text-2xl font-bold text-blue-700">JERSEY NOVA</h1>
-                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Official Invoice</p>
+        <!-- Digital Invoice Slip -->
+        <div id="invoice-box" class="hidden p-8 bg-white border-2 border-blue-600 rounded-3xl max-w-sm mx-auto mt-10 shadow-2xl relative">
+            <div class="text-center border-b pb-4 mb-4">
+                <h1 class="text-3xl font-black text-blue-800 tracking-tighter italic">JERSEY NOVA</h1>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Premium Quality Apparel</p>
             </div>
-            <div id="invoice-content" class="text-sm space-y-2 border-t pt-4"></div>
-            <div class="mt-6 text-center border-t pt-2 text-[10px] text-gray-400">
-                অর্ডারটি কনফার্ম করার জন্য ধন্যবাদ।
+            <div id="invoice-content" class="text-sm space-y-3"></div>
+            <div class="mt-8 pt-4 border-t-2 border-dotted text-center">
+                <p class="text-[11px] text-gray-400 font-semibold italic uppercase">Thank you for your order!</p>
             </div>
-            <button onclick="closeInvoice()" class="mt-4 w-full bg-gray-200 py-1 rounded text-xs no-print">বন্ধ করুন</button>
+            <button onclick="closeInvoice()" class="mt-6 w-full bg-gray-100 text-gray-600 py-2 rounded-lg font-bold text-xs no-print hover:bg-gray-200 transition">বন্ধ করুন</button>
         </div>
     </div>
 
     <script>
         const ADMIN_PASS = "admin123"; 
-        let orders = JSON.parse(localStorage.getItem('jn_orders_v2')) || [];
+        let orders = JSON.parse(localStorage.getItem('jn_v4_data')) || [];
 
         function checkLogin() {
             if(document.getElementById('admin-pass').value === ADMIN_PASS) {
@@ -120,44 +122,50 @@
             } else { alert("ভুল পাসওয়ার্ড!"); }
         }
 
-        function calculateTotal() {
-            const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
+        function calculateStats() {
             const qty = parseFloat(document.getElementById('quantity').value) || 0;
+            const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
             const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
 
-            const totalBill = (uprice * qty) + dCharge;
+            const totalBill = (qty * uprice) + dCharge;
             const dueAmount = totalBill - advance;
+            const totalFactoryCost = qty * fRate;
+            const profit = totalBill - (totalFactoryCost + dCharge);
 
             document.getElementById('display-total').innerText = totalBill;
             document.getElementById('display-due').innerText = dueAmount;
+            document.getElementById('display-profit').innerText = profit;
         }
 
         function createOrder() {
             const name = document.getElementById('cust-name').value;
             const phone = document.getElementById('cust-phone').value;
-            const address = document.getElementById('cust-address').value;
-            const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const addr = document.getElementById('cust-address').value;
             const qty = parseFloat(document.getElementById('quantity').value) || 0;
+            const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
             const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
-            const fCost = parseFloat(document.getElementById('factory-cost').value) || 0;
 
-            if(!name || !phone || qty <= 0) return alert("সঠিক তথ্য দিন!");
+            if(!name || !phone || qty <= 0) return alert("দয়া করে সঠিক তথ্য দিন!");
 
-            const totalBill = (uprice * qty) + dCharge;
-            const dueAmount = totalBill - advance;
-            const profit = totalBill - (fCost + dCharge); // লাভ = মোট বিল - (ফ্যাক্টরি খরচ + ডেলিভারি খরচ)
-
+            const totalBill = (qty * uprice) + dCharge;
+            const totalFactoryCost = qty * fRate;
+            
             const newOrder = {
                 id: Date.now(),
-                name, phone, address, qty, uprice, dCharge, totalBill, advance, dueAmount, fCost, profit,
+                name, phone, addr, qty, uprice, fRate, dCharge, totalBill, advance,
+                due: totalBill - advance,
+                totalFactoryCost: totalFactoryCost,
+                profit: totalBill - (totalFactoryCost + dCharge),
                 status: 'Pending',
                 date: new Date().toLocaleDateString('bn-BD')
             };
 
             orders.unshift(newOrder);
-            saveAndRefresh();
+            saveData();
             clearForm();
         }
 
@@ -166,23 +174,28 @@
                 if(o.id === id) o.status = (o.status === 'Pending') ? 'Success/Paid' : 'Pending';
                 return o;
             });
-            saveAndRefresh();
+            saveData();
         }
 
         function generateInvoice(id) {
-            const order = orders.find(o => o.id === id);
+            const o = orders.find(x => x.id === id);
             const content = `
-                <p><strong>তারিখ:</strong> ${order.date}</p>
-                <p><strong>কাস্টমার:</strong> ${order.name}</p>
-                <p><strong>ফোন:</strong> ${order.phone}</p>
-                <p><strong>ঠিকানা:</strong> ${order.address}</p>
-                <hr class="my-2">
-                <div class="flex justify-between"><span>জার্সি (${order.qty} পিস):</span> <span>৳ ${order.uprice * order.qty}</span></div>
-                <div class="flex justify-between"><span>ডেলিভারি চার্জ:</span> <span>৳ ${order.dCharge}</span></div>
-                <div class="flex justify-between font-bold border-t mt-1 pt-1 text-blue-700"><span>মোট বিল:</span> <span>৳ ${order.totalBill}</span></div>
-                <div class="flex justify-between text-green-600"><span>অ্যাডভান্স জমা:</span> <span>- ৳ ${order.advance}</span></div>
-                <div class="flex justify-between font-bold border-t mt-1 pt-1 text-red-600 text-lg"><span>বাকি (COD):</span> <span>৳ ${order.dueAmount}</span></div>
-                <div class="mt-4 text-center"><span class="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-xs font-bold">${order.status}</span></div>
+                <div class="flex justify-between text-[10px] text-gray-400"><span>Date: ${o.date}</span> <span>Order: #${o.id.toString().slice(-4)}</span></div>
+                <div class="mt-4">
+                    <p class="font-bold text-lg text-gray-800 leading-tight">${o.name}</p>
+                    <p class="text-xs text-gray-500">${o.phone}</p>
+                    <p class="text-[11px] text-gray-500 mt-1">${o.addr}</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-2xl mt-4 space-y-2">
+                    <div class="flex justify-between text-xs font-semibold"><span>Jersey (${o.qty} pcs)</span> <span>৳ ${o.qty * o.uprice}</span></div>
+                    <div class="flex justify-between text-xs font-semibold"><span>Delivery Charge</span> <span>৳ ${o.dCharge}</span></div>
+                    <div class="flex justify-between font-black border-t pt-2 text-blue-700"><span>Total Bill</span> <span>৳ ${o.totalBill}</span></div>
+                    <div class="flex justify-between text-green-600 text-[11px] font-bold"><span>Advance Paid</span> <span>- ৳ ${o.advance}</span></div>
+                </div>
+                <div class="bg-blue-800 p-4 rounded-2xl mt-3 flex justify-between items-center text-white">
+                    <span class="text-[10px] font-bold uppercase tracking-wider">Cash on Delivery</span>
+                    <span class="text-2xl font-black">৳ ${o.due}</span>
+                </div>
             `;
             document.getElementById('invoice-content').innerHTML = content;
             document.getElementById('invoice-box').classList.remove('hidden');
@@ -190,57 +203,45 @@
         }
 
         function closeInvoice() { document.getElementById('invoice-box').classList.add('hidden'); }
-
-        function deleteOrder(id) {
-            if(confirm("মুছে ফেলতে চান?")) {
-                orders = orders.filter(o => o.id !== id);
-                saveAndRefresh();
-            }
-        }
-
-        function saveAndRefresh() {
-            localStorage.setItem('jn_orders_v2', JSON.stringify(orders));
-            renderOrders();
-        }
-
-        function clearForm() {
-            document.querySelectorAll('input:not(#admin-pass)').forEach(i => i.value = '');
-            document.getElementById('display-total').innerText = '0';
-            document.getElementById('display-due').innerText = '0';
+        function deleteOrder(id) { if(confirm("অর্ডারটি মুছে ফেলতে চান?")) { orders = orders.filter(x => x.id !== id); saveData(); } }
+        function saveData() { localStorage.setItem('jn_v4_data', JSON.stringify(orders)); renderOrders(); }
+        function clearForm() { 
+            document.querySelectorAll('input:not(#admin-pass)').forEach(i => i.value = ''); 
+            document.querySelectorAll('#display-total, #display-due, #display-profit').forEach(s => s.innerText = '0');
         }
 
         function renderOrders() {
             const tbody = document.getElementById('order-list-body');
             tbody.innerHTML = '';
-            let tProfit = 0, tFactory = 0, tDue = 0;
+            let tProf = 0, tFact = 0, tDue = 0;
 
             orders.forEach(o => {
-                tProfit += o.profit;
-                tFactory += o.fCost;
-                if(o.status === 'Pending') tDue += o.dueAmount;
+                tProf += o.profit; tFact += o.totalFactoryCost;
+                if(o.status === 'Pending') tDue += o.due;
 
-                const row = `
-                    <tr class="border-b text-sm">
-                        <td class="p-3 font-bold">${o.name}<br><span class="text-xs font-normal text-gray-500">${o.phone}</span></td>
-                        <td class="p-3">${o.qty} পিস<br><span class="text-xs">@ ৳ ${o.uprice}</span></td>
-                        <td class="p-3 font-bold">৳ ${o.totalBill}</td>
-                        <td class="p-3 text-green-600 font-bold">৳ ${o.advance}</td>
-                        <td class="p-3 text-red-600 font-bold">৳ ${o.dueAmount}</td>
-                        <td class="p-3 text-blue-600 font-bold">৳ ${o.profit}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="toggleStatus(${o.id})" class="px-2 py-1 rounded-full text-[10px] font-bold ${o.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}">${o.status}</button>
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-50">
+                        <td class="p-4 text-sm font-bold text-gray-700">${o.name}<br><span class="text-[10px] font-normal text-gray-400">${o.phone}</span></td>
+                        <td class="p-4 text-center font-bold text-blue-600 text-sm">${o.qty} <span class="text-[10px] text-gray-400 font-normal">পিস</span></td>
+                        <td class="p-4 text-sm font-semibold">৳ ${o.totalFactoryCost}</td>
+                        <td class="p-4 text-sm text-green-600 font-bold">৳ ${o.advance}</td>
+                        <td class="p-4 text-sm text-red-600 font-bold tracking-tight">৳ ${o.due}</td>
+                        <td class="p-4 text-sm font-black text-gray-800">৳ ${o.profit}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="toggleStatus(${o.id})" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${o.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' : 'bg-green-100 text-green-700 border border-green-200'}">
+                                ${o.status}
+                            </button>
                         </td>
-                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
-                            <button onclick="generateInvoice(${o.id})" class="text-blue-600 text-xs hover:underline">স্লিপ</button>
-                            <button onclick="deleteOrder(${o.id})" class="text-red-400 text-xs">X</button>
+                        <td class="p-4 text-center space-x-2">
+                            <button onclick="generateInvoice(${o.id})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase">স্লিপ</button>
+                            <button onclick="deleteOrder(${o.id})" class="text-gray-200 hover:text-red-500 font-bold">✕</button>
                         </td>
                     </tr>`;
-                tbody.innerHTML += row;
             });
 
-            document.getElementById('total-orders').innerText = orders.length + " পিস";
-            document.getElementById('total-factory-cost').innerText = "৳ " + tFactory;
-            document.getElementById('total-profit').innerText = "৳ " + tProfit;
+            document.getElementById('total-orders').innerText = orders.length;
+            document.getElementById('total-factory-cost').innerText = "৳ " + tFact;
+            document.getElementById('total-profit').innerText = "৳ " + tProf;
             document.getElementById('total-due').innerText = "৳ " + tDue;
         }
     </script>
