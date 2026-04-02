@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jersey Nova - Premium Smart Manager</title>
     
-    <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1e40af">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Library for Invoice to Image -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
-    <!-- Firebase Library (নতুন যোগ করা হয়েছে) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
@@ -48,9 +45,8 @@
         }
     </style>
 </head>
-<body class="p-2 md:p-6">
+<body class="p-2 md:p-6" onload="initForm()">
 
-    <!-- Login Section -->
     <div id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-2xl mt-16 border border-gray-100">
         <div class="text-center mb-6">
             <div class="logo-container">
@@ -58,20 +54,22 @@
                 <span id="logo-text">JN</span>
             </div>
             <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
-            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Smart Manager v4.0</p>
+            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Smart Manager v4.1</p>
         </div>
         
         <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
         <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">ড্যাশবোর্ডে প্রবেশ করুন</button>
     </div>
 
-    <!-- Main Dashboard -->
     <div id="dashboard" class="hidden max-w-6xl mx-auto">
-        <!-- Stats Summary -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 no-print">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6 no-print">
             <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-blue-600">
                 <p class="text-[10px] text-gray-500 uppercase font-black">মোট অর্ডার</p>
                 <h3 id="total-orders" class="text-2xl font-bold text-gray-800">০</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-indigo-500">
+                <p class="text-[10px] text-gray-500 uppercase font-black">মোট বিক্রি</p>
+                <h3 id="total-sales" class="text-2xl font-bold text-indigo-700">৳ ০</h3>
             </div>
             <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-orange-500">
                 <p class="text-[10px] text-gray-500 uppercase font-black">ফ্যাক্টরি বিল</p>
@@ -87,46 +85,53 @@
             </div>
         </div>
 
-        <!-- Order Entry Form -->
         <div class="bg-white p-6 rounded-3xl shadow-sm mb-8 no-print border border-gray-100">
             <h2 id="form-title" class="text-xl font-bold mb-5 text-blue-700 flex items-center border-b pb-3">
                 🆕 নতুন অর্ডার এন্ট্রি
             </h2>
             <input type="hidden" id="edit-id">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                <input type="date" id="order-date" class="p-3 border rounded-xl outline-none focus:border-blue-500 text-gray-600 bg-gray-50 cursor-pointer">
                 <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-3 border rounded-xl outline-none focus:border-blue-500">
                 <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border rounded-xl outline-none focus:border-blue-500">
                 <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-3 border rounded-xl outline-none focus:border-blue-500">
                 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="md:col-span-2 grid grid-cols-2 gap-3">
                     <input type="number" id="quantity" oninput="calculateStats()" placeholder="জার্সি (পিস)" class="p-3 border rounded-xl bg-blue-50 font-bold">
                     <input type="number" id="unit-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-blue-50 font-bold">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="md:col-span-2 grid grid-cols-2 gap-3">
                     <input type="number" id="factory-rate" oninput="calculateStats()" placeholder="ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold">
                     <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border rounded-xl">
                 </div>
 
-                <input type="number" id="advance-paid" oninput="calculateStats()" placeholder="অ্যাডভান্স জমা (৳)" class="p-3 border rounded-xl bg-green-50 font-bold">
+                <div class="md:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input type="number" id="other-cost" oninput="calculateStats()" placeholder="ডলার / অন্যান্য খরচ (৳)" class="p-3 border rounded-xl bg-red-50 font-bold text-red-600">
+                    <input type="number" id="advance-paid" oninput="calculateStats()" placeholder="অ্যাডভান্স জমা (৳)" class="p-3 border rounded-xl bg-green-50 font-bold">
+                </div>
                 
-                <div class="md:col-span-3 grid grid-cols-3 gap-2 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-300">
+                <div class="md:col-span-4 grid grid-cols-3 gap-2 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-300">
                     <div class="text-center"><p class="text-[10px] text-gray-500 font-bold">মোট বিল</p><p class="text-lg font-bold">৳ <span id="display-total">০</span></p></div>
                     <div class="text-center text-red-600"><p class="text-[10px] text-gray-500 font-bold">বাকি (COD)</p><p class="text-lg font-bold">৳ <span id="display-due">০</span></p></div>
                     <div class="text-center text-green-700"><p class="text-[10px] text-gray-500 font-bold">নিট লাভ</p><p class="text-lg font-bold">৳ <span id="display-profit">০</span></p></div>
                 </div>
 
-                <button id="save-btn" onclick="saveOrder()" class="md:col-span-3 bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition shadow-lg">অর্ডার সেভ করুন</button>
+                <button id="save-btn" onclick="saveOrder()" class="md:col-span-4 bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition shadow-lg">অর্ডার সেভ করুন</button>
             </div>
         </div>
 
-        <!-- Table & Modal - (আপনার কোড অনুযায়ী সব সেম আছে) -->
         <div class="flex flex-col md:flex-row justify-between gap-4 mb-4 no-print items-center">
-            <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন নাম্বার দিয়ে খুঁজুন..." class="w-full md:max-w-xs p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm">
+            <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন নাম্বার দিয়ে খুঁজুন..." class="w-full md:w-64 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm">
+                <input type="date" id="filter-date" onchange="searchOrders()" class="w-full md:w-40 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm text-gray-600 cursor-pointer" title="তারিখ অনুযায়ী খুঁজুন">
+                <button onclick="clearDateFilter()" class="bg-gray-200 text-gray-600 px-3 py-2 rounded-xl text-xs font-bold hover:bg-gray-300">Clear</button>
+            </div>
+            
             <div class="flex gap-2">
                 <button onclick="exportData()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-black transition">Backup</button>
                 <label class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase cursor-pointer hover:bg-indigo-700 transition">
-                    Import <input type="file" class="hidden" onchange="importData(event)">
+                    Import <input type="file" class="hidden" accept=".json" onchange="importData(event)">
                 </label>
             </div>
         </div>
@@ -135,7 +140,7 @@
             <table class="w-full text-left min-w-[1000px]" id="order-table">
                 <thead class="bg-gray-50 text-gray-400 uppercase text-[10px] font-black tracking-widest">
                     <tr>
-                        <th class="p-5">কাস্টমার প্রোফাইল</th>
+                        <th class="p-5">কাস্টমার প্রোফাইল ও তারিখ</th>
                         <th class="p-5 text-center">কোয়ান্টিটি</th>
                         <th class="p-5 text-red-500">COD (বাকি)</th>
                         <th class="p-5">লাভ</th>
@@ -168,7 +173,7 @@
     </div>
 
     <script>
-        // --- ডাটাবেজ লিংক এখানে বসবে ---
+        // --- Firebase Configuration ---
         const firebaseConfig = {
             databaseURL: "https://jersey-nova-default-rtdb.firebaseio.com/" 
         };
@@ -178,12 +183,16 @@
         const ADMIN_PASS = "admin123"; 
         let orders = [];
 
+        function initForm() {
+            document.getElementById('order-date').valueAsDate = new Date();
+        }
+
         function checkLogin() {
             if(document.getElementById('admin-pass').value === ADMIN_PASS) {
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
                 
-                // ডাটাবেজ থেকে ডাটা লোড করা
+                // ডাটাবেজ থেকে ডাটা লোড
                 db.on('value', (snapshot) => {
                     const data = snapshot.val();
                     orders = data ? Object.values(data) : [];
@@ -192,17 +201,21 @@
             } else { alert("ভুল পাসওয়ার্ড!"); }
         }
 
-        // বাকি সব ফাংশন আগের মতোই আছে...
         function calculateStats() {
             const qty = parseFloat(document.getElementById('quantity').value) || 0;
             const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
             const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
             const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
+            const otherCost = parseFloat(document.getElementById('other-cost').value) || 0;
+
             const totalBill = (qty * uprice) + dCharge;
             const dueAmount = totalBill - advance;
             const totalFactoryCost = qty * fRate;
-            const profit = totalBill - (totalFactoryCost + dCharge);
+            
+            // Profit calculation: Total Received - (Factory Cost + Delivery paid to courier + Other Costs)
+            const profit = totalBill - (totalFactoryCost + dCharge + otherCost);
+            
             document.getElementById('display-total').innerText = totalBill;
             document.getElementById('display-due').innerText = dueAmount;
             document.getElementById('display-profit').innerText = profit;
@@ -210,6 +223,7 @@
 
         function saveOrder() {
             const editId = document.getElementById('edit-id').value;
+            const date = document.getElementById('order-date').value || new Date().toISOString().split('T')[0];
             const name = document.getElementById('cust-name').value;
             const phone = document.getElementById('cust-phone').value;
             const addr = document.getElementById('cust-address').value;
@@ -217,6 +231,7 @@
             const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
             const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
             const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
+            const otherCost = parseFloat(document.getElementById('other-cost').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
 
             if(!name || !phone || qty <= 0) return alert("সঠিক তথ্য দিন!");
@@ -227,15 +242,14 @@
             
             const orderData = {
                 id: id,
-                name, phone, addr, qty, uprice, fRate, dCharge, totalBill, advance,
+                date: date,
+                name, phone, addr, qty, uprice, fRate, dCharge, otherCost, totalBill, advance,
                 due: totalBill - advance,
                 totalFactoryCost: totalFactoryCost,
-                profit: totalBill - (totalFactoryCost + dCharge),
-                status: editId ? orders.find(o => o.id == editId).status : 'Pending',
-                date: editId ? orders.find(o => o.id == editId).date : new Date().toLocaleDateString('bn-BD')
+                profit: totalBill - (totalFactoryCost + dCharge + otherCost),
+                status: editId ? orders.find(o => o.id == editId).status : 'Pending'
             };
 
-            // ডাটাবেজে সেভ (ID দিয়ে নির্দিষ্ট করে)
             db.child(id).set(orderData);
             
             if(editId) resetFormUI();
@@ -254,17 +268,38 @@
             } 
         }
 
-        // রেন্ডার এবং অন্যান্য লজিক (অপরিবর্তিত)
         function renderOrders() {
             const tbody = document.getElementById('order-list-body');
             tbody.innerHTML = '';
-            let tProf = 0, tFact = 0, tDue = 0;
-            orders.sort((a,b) => b.id - a.id).forEach(o => {
-                tProf += o.profit; tFact += o.totalFactoryCost;
+            let tProf = 0, tFact = 0, tDue = 0, tSales = 0;
+            
+            // Search filters
+            const searchText = document.getElementById('search-input').value.toLowerCase();
+            const searchDate = document.getElementById('filter-date').value;
+
+            // Sort by newest first
+            const sortedOrders = [...orders].sort((a,b) => b.id - a.id);
+
+            sortedOrders.forEach(o => {
+                // Calculate Totals regardless of filter
+                tSales += o.totalBill;
+                tProf += o.profit; 
+                tFact += o.totalFactoryCost;
                 if(o.status === 'Pending') tDue += o.due;
+
+                // Filtering logic
+                let matchesText = o.name.toLowerCase().includes(searchText) || o.phone.includes(searchText);
+                let matchesDate = searchDate ? (o.date === searchDate) : true;
+                
+                if(!matchesText || !matchesDate) return;
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-blue-50 transition border-b border-gray-50">
-                        <td class="p-5"><span class="font-black text-gray-800">${o.name}</span><br><span class="text-[11px] font-bold text-gray-400">${o.phone}</span></td>
+                        <td class="p-5">
+                            <span class="font-black text-gray-800">${o.name}</span><br>
+                            <span class="text-[11px] font-bold text-gray-500">${o.phone}</span><br>
+                            <span class="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">${o.date}</span>
+                        </td>
                         <td class="p-5 text-center font-black text-blue-600">${o.qty}</td>
                         <td class="p-5 text-red-600 font-black tracking-tight">৳ ${o.due}</td>
                         <td class="p-5 font-black text-gray-700 italic">৳ ${o.profit}</td>
@@ -275,7 +310,7 @@
                         </td>
                         <td class="p-5 text-center">
                             <div class="flex items-center justify-center space-x-3">
-                                <button onclick="sendWhatsAppMsg(${o.id})" class="text-xl">💬</button>
+                                <button onclick="sendWhatsAppMsg(${o.id})" class="text-xl" title="WhatsApp">💬</button>
                                 <button onclick="openInvoice(${o.id})" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase">ইনভয়েস</button>
                                 <button onclick="editOrder(${o.id})" class="text-gray-400 hover:text-blue-600">✏️</button>
                                 <button onclick="deleteOrder(${o.id})" class="text-gray-200 hover:text-red-500">✕</button>
@@ -283,7 +318,9 @@
                         </td>
                     </tr>`;
             });
+            
             document.getElementById('total-orders').innerText = orders.length;
+            document.getElementById('total-sales').innerText = "৳ " + tSales;
             document.getElementById('total-factory-cost').innerText = "৳ " + tFact;
             document.getElementById('total-profit').innerText = "৳ " + tProf;
             document.getElementById('total-due').innerText = "৳ " + tDue;
@@ -292,6 +329,7 @@
         function editOrder(id) {
             const o = orders.find(x => x.id === id);
             document.getElementById('edit-id').value = o.id;
+            document.getElementById('order-date').value = o.date || "";
             document.getElementById('cust-name').value = o.name;
             document.getElementById('cust-phone').value = o.phone;
             document.getElementById('cust-address').value = o.addr;
@@ -299,6 +337,7 @@
             document.getElementById('unit-price').value = o.uprice;
             document.getElementById('factory-rate').value = o.fRate;
             document.getElementById('delivery-charge').value = o.dCharge;
+            document.getElementById('other-cost').value = o.otherCost || 0;
             document.getElementById('advance-paid').value = o.advance;
             document.getElementById('form-title').innerText = "✏️ অর্ডার সংশোধন";
             document.getElementById('save-btn').innerText = "আপডেট করুন";
@@ -312,22 +351,28 @@
             document.getElementById('form-title').innerText = "🆕 নতুন অর্ডার এন্ট্রি";
             document.getElementById('save-btn').innerText = "অর্ডার সেভ করুন";
             document.getElementById('save-btn').classList.replace('bg-orange-600', 'bg-blue-700');
+            initForm(); // reset date to today
         }
 
         function clearForm() { 
-            document.querySelectorAll('input:not(#admin-pass)').forEach(i => i.value = ''); 
+            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(i => i.value = ''); 
             document.querySelectorAll('#display-total, #display-due, #display-profit').forEach(s => s.innerText = '0');
+            initForm();
         }
-        function searchOrders() {
-            let val = document.getElementById('search-input').value.toLowerCase();
-            let rows = document.querySelectorAll('#order-list-body tr');
-            rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? "" : "none");
+
+        function searchOrders() { renderOrders(); }
+        
+        function clearDateFilter() {
+            document.getElementById('filter-date').value = "";
+            renderOrders();
         }
+
         function sendWhatsAppMsg(id) {
             const o = orders.find(x => x.id === id);
             const msg = `আসসালামু আলাইকুম ${o.name}!\nআপনার অর্ডারটি কনফার্ম হয়েছে।\nবাকি টাকা (COD): ৳${o.due}\nধন্যবাদ - Jersey Nova`;
             window.open(`https://wa.me/88${o.phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
+
         function openInvoice(id) {
             const o = orders.find(x => x.id === id);
             const content = `
@@ -351,6 +396,7 @@
             document.getElementById('invoice-content').innerHTML = content;
             document.getElementById('invoice-modal').classList.remove('hidden');
         }
+
         async function downloadInvoiceImage() {
             const area = document.getElementById('invoice-capture-area');
             const canvas = await html2canvas(area, { scale: 3 });
@@ -359,7 +405,45 @@
             link.href = canvas.toDataURL();
             link.click();
         }
+
         function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
+
+        // --- Backup & Restore Functions ---
+        function exportData() {
+            if(orders.length === 0) return alert("ব্যাকআপ করার মতো কোনো ডাটা নেই!");
+            
+            // Firebase format JSON export
+            const exportObj = {};
+            orders.forEach(o => exportObj[o.id] = o);
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+            const downloadNode = document.createElement('a');
+            downloadNode.setAttribute("href", dataStr);
+            downloadNode.setAttribute("download", `jerseynova_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadNode);
+            downloadNode.click();
+            downloadNode.remove();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if(confirm("আপনি কি ব্যাকআপ ডাটা রিস্টোর করতে চান? ডাটাবেস আপডেট হবে।")) {
+                        db.update(importedData).then(() => {
+                            alert("ডাটা সফলভাবে রিস্টোর হয়েছে!");
+                            event.target.value = ''; // Reset file input
+                        });
+                    }
+                } catch (err) {
+                    alert("ফাইল ফরম্যাট সঠিক নয়!");
+                }
+            };
+            reader.readAsText(file);
+        }
     </script>
 </body>
 </html>
