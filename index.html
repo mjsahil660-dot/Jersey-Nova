@@ -96,22 +96,25 @@
                 <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border rounded-xl outline-none focus:border-blue-500">
                 <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-3 border rounded-xl outline-none focus:border-blue-500">
                 
-                <div class="md:col-span-2 grid grid-cols-2 gap-3">
+                <div class="md:col-span-4 grid grid-cols-3 gap-3 mb-1">
                     <input type="number" id="quantity" oninput="calculateStats()" placeholder="জার্সি (পিস)" class="p-3 border rounded-xl bg-blue-50 font-bold">
-                    <input type="number" id="unit-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-blue-50 font-bold">
+                    <input type="number" id="unit-price" oninput="calculateStats()" placeholder="জার্সি বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-blue-50 font-bold">
+                    <input type="number" id="factory-rate" oninput="calculateStats()" placeholder="জার্সি ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold">
+                </div>
+                
+                <div class="md:col-span-4 grid grid-cols-3 gap-3 mb-2 border-b border-gray-100 pb-4">
+                    <input type="number" id="pant-qty" oninput="calculateStats()" placeholder="প্যান্ট (পিস)" class="p-3 border rounded-xl bg-gray-100 font-bold">
+                    <input type="number" id="pant-price" oninput="calculateStats()" placeholder="প্যান্ট বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-gray-100 font-bold">
+                    <input type="number" id="pant-factory-rate" oninput="calculateStats()" placeholder="প্যান্ট ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold">
                 </div>
 
-                <div class="md:col-span-2 grid grid-cols-2 gap-3">
-                    <input type="number" id="factory-rate" oninput="calculateStats()" placeholder="ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold">
+                <div class="md:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-3">
                     <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border rounded-xl">
-                </div>
-
-                <div class="md:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                     <input type="number" id="other-cost" oninput="calculateStats()" placeholder="ডলার / অন্যান্য খরচ (৳)" class="p-3 border rounded-xl bg-red-50 font-bold text-red-600">
                     <input type="number" id="advance-paid" oninput="calculateStats()" placeholder="অ্যাডভান্স জমা (৳)" class="p-3 border rounded-xl bg-green-50 font-bold">
                 </div>
                 
-                <div class="md:col-span-4 grid grid-cols-3 gap-2 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-300">
+                <div class="md:col-span-4 grid grid-cols-3 gap-2 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-300 mt-2">
                     <div class="text-center"><p class="text-[10px] text-gray-500 font-bold">মোট বিল</p><p class="text-lg font-bold">৳ <span id="display-total">০</span></p></div>
                     <div class="text-center text-red-600"><p class="text-[10px] text-gray-500 font-bold">বাকি (COD)</p><p class="text-lg font-bold">৳ <span id="display-due">০</span></p></div>
                     <div class="text-center text-green-700"><p class="text-[10px] text-gray-500 font-bold">নিট লাভ</p><p class="text-lg font-bold">৳ <span id="display-profit">০</span></p></div>
@@ -124,7 +127,7 @@
         <div class="flex flex-col md:flex-row justify-between gap-4 mb-4 no-print items-center">
             <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                 <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন নাম্বার দিয়ে খুঁজুন..." class="w-full md:w-64 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm">
-                <input type="date" id="filter-date" onchange="searchOrders()" class="w-full md:w-40 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm text-gray-600 cursor-pointer" title="তারিখ অনুযায়ী খুঁজুন">
+                <input type="date" id="filter-date" onchange="searchOrders()" class="w-full md:w-40 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm text-gray-600 cursor-pointer" title="তারিখ অনুযায়ী খুঁজুন">
                 <button onclick="clearDateFilter()" class="bg-gray-200 text-gray-600 px-3 py-2 rounded-xl text-xs font-bold hover:bg-gray-300">Clear</button>
             </div>
             
@@ -205,15 +208,19 @@
             const qty = parseFloat(document.getElementById('quantity').value) || 0;
             const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
             const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
+            
+            const pQty = parseFloat(document.getElementById('pant-qty').value) || 0;
+            const pPrice = parseFloat(document.getElementById('pant-price').value) || 0;
+            const pFRate = parseFloat(document.getElementById('pant-factory-rate').value) || 0;
+
             const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
             const otherCost = parseFloat(document.getElementById('other-cost').value) || 0;
 
-            const totalBill = (qty * uprice) + dCharge;
+            const totalBill = (qty * uprice) + (pQty * pPrice) + dCharge;
             const dueAmount = totalBill - advance;
-            const totalFactoryCost = qty * fRate;
+            const totalFactoryCost = (qty * fRate) + (pQty * pFRate);
             
-            // Profit calculation: Total Received - (Factory Cost + Delivery paid to courier + Other Costs)
             const profit = totalBill - (totalFactoryCost + dCharge + otherCost);
             
             document.getElementById('display-total').innerText = totalBill;
@@ -227,23 +234,29 @@
             const name = document.getElementById('cust-name').value;
             const phone = document.getElementById('cust-phone').value;
             const addr = document.getElementById('cust-address').value;
+            
             const qty = parseFloat(document.getElementById('quantity').value) || 0;
             const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
             const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
+
+            const pQty = parseFloat(document.getElementById('pant-qty').value) || 0;
+            const pPrice = parseFloat(document.getElementById('pant-price').value) || 0;
+            const pFRate = parseFloat(document.getElementById('pant-factory-rate').value) || 0;
+
             const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
             const otherCost = parseFloat(document.getElementById('other-cost').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
 
-            if(!name || !phone || qty <= 0) return alert("সঠিক তথ্য দিন!");
+            if(!name || !phone || (qty <= 0 && pQty <= 0)) return alert("সঠিক তথ্য দিন!");
 
-            const totalBill = (qty * uprice) + dCharge;
-            const totalFactoryCost = qty * fRate;
+            const totalBill = (qty * uprice) + (pQty * pPrice) + dCharge;
+            const totalFactoryCost = (qty * fRate) + (pQty * pFRate);
             const id = editId ? parseInt(editId) : Date.now();
             
             const orderData = {
                 id: id,
                 date: date,
-                name, phone, addr, qty, uprice, fRate, dCharge, otherCost, totalBill, advance,
+                name, phone, addr, qty, uprice, fRate, pQty, pPrice, pFRate, dCharge, otherCost, totalBill, advance,
                 due: totalBill - advance,
                 totalFactoryCost: totalFactoryCost,
                 profit: totalBill - (totalFactoryCost + dCharge + otherCost),
@@ -273,25 +286,26 @@
             tbody.innerHTML = '';
             let tProf = 0, tFact = 0, tDue = 0, tSales = 0;
             
-            // Search filters
             const searchText = document.getElementById('search-input').value.toLowerCase();
             const searchDate = document.getElementById('filter-date').value;
 
-            // Sort by newest first
             const sortedOrders = [...orders].sort((a,b) => b.id - a.id);
 
             sortedOrders.forEach(o => {
-                // Calculate Totals regardless of filter
                 tSales += o.totalBill;
                 tProf += o.profit; 
                 tFact += o.totalFactoryCost;
                 if(o.status === 'Pending') tDue += o.due;
 
-                // Filtering logic
                 let matchesText = o.name.toLowerCase().includes(searchText) || o.phone.includes(searchText);
                 let matchesDate = searchDate ? (o.date === searchDate) : true;
                 
                 if(!matchesText || !matchesDate) return;
+
+                let qtyDisplay = '';
+                if(o.qty > 0) qtyDisplay += `<span class="text-blue-600">${o.qty} J</span>`;
+                if(o.qty > 0 && o.pQty > 0) qtyDisplay += `<br>`;
+                if(o.pQty > 0) qtyDisplay += `<span class="text-gray-600">${o.pQty} P</span>`;
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-blue-50 transition border-b border-gray-50">
@@ -300,7 +314,7 @@
                             <span class="text-[11px] font-bold text-gray-500">${o.phone}</span><br>
                             <span class="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">${o.date}</span>
                         </td>
-                        <td class="p-5 text-center font-black text-blue-600">${o.qty}</td>
+                        <td class="p-5 text-center font-black">${qtyDisplay || '-'}</td>
                         <td class="p-5 text-red-600 font-black tracking-tight">৳ ${o.due}</td>
                         <td class="p-5 font-black text-gray-700 italic">৳ ${o.profit}</td>
                         <td class="p-5 text-center">
@@ -333,12 +347,19 @@
             document.getElementById('cust-name').value = o.name;
             document.getElementById('cust-phone').value = o.phone;
             document.getElementById('cust-address').value = o.addr;
-            document.getElementById('quantity').value = o.qty;
-            document.getElementById('unit-price').value = o.uprice;
-            document.getElementById('factory-rate').value = o.fRate;
-            document.getElementById('delivery-charge').value = o.dCharge;
+            
+            document.getElementById('quantity').value = o.qty || "";
+            document.getElementById('unit-price').value = o.uprice || "";
+            document.getElementById('factory-rate').value = o.fRate || "";
+
+            document.getElementById('pant-qty').value = o.pQty || "";
+            document.getElementById('pant-price').value = o.pPrice || "";
+            document.getElementById('pant-factory-rate').value = o.pFRate || "";
+
+            document.getElementById('delivery-charge').value = o.dCharge || "";
             document.getElementById('other-cost').value = o.otherCost || 0;
-            document.getElementById('advance-paid').value = o.advance;
+            document.getElementById('advance-paid').value = o.advance || "";
+            
             document.getElementById('form-title').innerText = "✏️ অর্ডার সংশোধন";
             document.getElementById('save-btn').innerText = "আপডেট করুন";
             document.getElementById('save-btn').classList.replace('bg-blue-700', 'bg-orange-600');
@@ -351,7 +372,7 @@
             document.getElementById('form-title').innerText = "🆕 নতুন অর্ডার এন্ট্রি";
             document.getElementById('save-btn').innerText = "অর্ডার সেভ করুন";
             document.getElementById('save-btn').classList.replace('bg-orange-600', 'bg-blue-700');
-            initForm(); // reset date to today
+            initForm(); 
         }
 
         function clearForm() { 
@@ -375,6 +396,10 @@
 
         function openInvoice(id) {
             const o = orders.find(x => x.id === id);
+            let itemsHtml = '';
+            if(o.qty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold"><span>Jersey (${o.qty} pcs)</span> <span>৳ ${o.qty * o.uprice}</span></div>`;
+            if(o.pQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold text-gray-700"><span>Pant (${o.pQty} pcs)</span> <span>৳ ${o.pQty * o.pPrice}</span></div>`;
+
             const content = `
                 <div class="flex justify-between text-[9px] text-gray-400 font-bold uppercase"><span>Date: ${o.date}</span> <span>Order ID: #${o.id.toString().slice(-4)}</span></div>
                 <div class="mt-4">
@@ -383,7 +408,7 @@
                     <p class="text-[11px] text-gray-500 mt-1">${o.addr}</p>
                 </div>
                 <div class="bg-blue-50 p-4 rounded-xl mt-4 space-y-2">
-                    <div class="flex justify-between text-xs font-bold"><span>Jersey (${o.qty} pcs)</span> <span>৳ ${o.qty * o.uprice}</span></div>
+                    ${itemsHtml}
                     <div class="flex justify-between text-xs font-bold"><span>Delivery Charge</span> <span>৳ ${o.dCharge}</span></div>
                     <div class="flex justify-between font-black border-t border-blue-100 pt-2 text-blue-700"><span>Total Bill</span> <span>৳ ${o.totalBill}</span></div>
                     <div class="flex justify-between text-green-600 text-[10px] font-black italic"><span>Advance Paid</span> <span>- ৳ ${o.advance}</span></div>
@@ -412,7 +437,6 @@
         function exportData() {
             if(orders.length === 0) return alert("ব্যাকআপ করার মতো কোনো ডাটা নেই!");
             
-            // Firebase format JSON export
             const exportObj = {};
             orders.forEach(o => exportObj[o.id] = o);
             
@@ -434,12 +458,12 @@
                     const importedData = JSON.parse(e.target.result);
                     if(confirm("আপনি কি ব্যাকআপ ডাটা রিস্টোর করতে চান? ডাটাবেস আপডেট হবে।")) {
                         db.update(importedData).then(() => {
-                            alert("ডাটা সফলভাবে রিস্টোর হয়েছে!");
-                            event.target.value = ''; // Reset file input
+                            alert("ডাটা সফলভাবে রিস্টোর হয়েছে!");
+                            event.target.value = ''; 
                         });
                     }
                 } catch (err) {
-                    alert("ফাইল ফরম্যাট সঠিক নয়!");
+                    alert("ফাইল ফরম্যাট সঠিক নয়!");
                 }
             };
             reader.readAsText(file);
