@@ -50,7 +50,7 @@
     <div id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-2xl mt-16 border border-gray-100">
         <div class="text-center mb-6">
             <div class="logo-container">
-                <img src="https://kommodo.ai/i/39UkV5Eijxw5bf15mDqs" alt="JN" onerror="this.style.display='none'">
+                <img src="https://www.image2url.com/r2/default/images/1776336271297-d5478455-0cd3-4511-bb55-272c6a93abeb.jpg" alt="JN" onerror="this.style.display='none'">
                 <span id="logo-text">JN</span>
             </div>
             <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
@@ -160,13 +160,13 @@
                 
                 <div id="invoice-capture-area" class="p-6 bg-white border-2 border-blue-600 rounded-2xl shadow-xl relative overflow-hidden">
                     
-                    <img src="https://kommodo.ai/i/39UkV5Eijxw5bf15mDqs" class="absolute inset-0 m-auto opacity-[0.06] w-56 h-56 object-contain pointer-events-none z-0" alt="Watermark">
+                    <img src="https://www.image2url.com/r2/default/images/1776336271297-d5478455-0cd3-4511-bb55-272c6a93abeb.jpg" class="absolute inset-0 m-auto opacity-[0.06] w-56 h-56 object-contain pointer-events-none z-0" alt="Watermark">
                     
                     <div class="relative z-10">
                         <div class="relative text-center border-b-2 border-blue-100 pb-4 mb-4">
-                            <img src="https://kommodo.ai/i/39UkV5Eijxw5bf15mDqs" class="absolute left-0 top-0 w-12 h-12 rounded-lg object-cover shadow-sm" alt="Logo">
+                            <img src="https://www.image2url.com/r2/default/images/1776336271297-d5478455-0cd3-4511-bb55-272c6a93abeb.jpg" class="absolute left-0 top-0 w-12 h-12 rounded-lg object-cover shadow-sm" alt="Logo">
                             
-                            <img src="আপনার-কিউআর-কোড-লিঙ্ক.jpg" class="absolute right-0 top-0 w-12 h-12 object-cover border border-gray-200 rounded p-0.5" alt="QR Code">
+                            <img src="https://www.image2url.com/r2/default/images/1776334676746-45fd58cf-d7d6-4767-8078-e99e48fe619c.jpeg" class="absolute right-0 top-0 w-12 h-12 object-cover border border-gray-200 rounded p-0.5 bg-white" alt="QR Code">
                             
                             <h1 class="text-3xl font-black text-blue-800 italic">JERSEY NOVA</h1>
                             <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Premium Sports Apparel</p>
@@ -177,6 +177,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="flex flex-col gap-2 mt-4 p-2">
                     <button onclick="downloadInvoiceImage()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 shadow-md">📸 ইনভয়েস ইমেজ ডাউনলোড করুন</button>
                     <button onclick="closeInvoice()" class="w-full bg-gray-100 text-gray-500 py-2 rounded-xl font-bold text-xs hover:bg-gray-200 transition">বন্ধ করুন</button>
@@ -434,7 +435,7 @@
 
         async function downloadInvoiceImage() {
             const area = document.getElementById('invoice-capture-area');
-            const canvas = await html2canvas(area, { scale: 3 });
+            const canvas = await html2canvas(area, { scale: 3, useCORS: true });
             const link = document.createElement('a');
             link.download = `JerseyNova_Invoice_${Date.now()}.png`;
             link.href = canvas.toDataURL();
