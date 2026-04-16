@@ -50,7 +50,7 @@
     <div id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-2xl mt-16 border border-gray-100">
         <div class="text-center mb-6">
             <div class="logo-container">
-                <img src="https://www.image2url.com/r2/default/images/1776336271297-d5478455-0cd3-4511-bb55-272c6a93abeb.jpg" alt="JN" onerror="this.style.display='none'">
+                <img src="https://tinyurl.com/52uh9zm9" crossorigin="anonymous" alt="JN" onerror="this.style.display='none'">
                 <span id="logo-text">JN</span>
             </div>
             <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
@@ -160,13 +160,13 @@
                 
                 <div id="invoice-capture-area" class="p-6 bg-white border-2 border-blue-600 rounded-2xl shadow-xl relative overflow-hidden">
                     
-                    <img src="https://www.image2url.com/r2/default/images/1776336271297-d5478455-0cd3-4511-bb55-272c6a93abeb.jpg" class="absolute inset-0 m-auto opacity-[0.06] w-56 h-56 object-contain pointer-events-none z-0" alt="Watermark">
+                    <img src="https://tinyurl.com/52uh9zm9" crossorigin="anonymous" class="absolute inset-0 m-auto opacity-[0.06] w-56 h-56 object-contain pointer-events-none z-0" alt="Watermark">
                     
                     <div class="relative z-10">
                         <div class="relative text-center border-b-2 border-blue-100 pb-4 mb-4">
-                            <img src="https://www.image2url.com/r2/default/images/1776336271297-d5478455-0cd3-4511-bb55-272c6a93abeb.jpg" class="absolute left-0 top-0 w-12 h-12 rounded-lg object-cover shadow-sm" alt="Logo">
+                            <img src="https://tinyurl.com/52uh9zm9" crossorigin="anonymous" class="absolute left-0 top-0 w-12 h-12 rounded-lg object-cover shadow-sm" alt="Logo">
                             
-                            <img src="https://www.image2url.com/r2/default/images/1776334676746-45fd58cf-d7d6-4767-8078-e99e48fe619c.jpeg" class="absolute right-0 top-0 w-12 h-12 object-cover border border-gray-200 rounded p-0.5 bg-white" alt="QR Code">
+                            <img src="https://tinyurl.com/mwnkbrue" crossorigin="anonymous" class="absolute right-0 top-0 w-12 h-12 object-cover border border-gray-200 rounded p-0.5 bg-white" alt="QR Code">
                             
                             <h1 class="text-3xl font-black text-blue-800 italic">JERSEY NOVA</h1>
                             <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Premium Sports Apparel</p>
@@ -194,7 +194,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('orders');
 
-        const ADMIN_PASS = "admin123"; 
+        const ADMIN_PASS = "sahil882"; 
         let orders = [];
 
         function initForm() {
@@ -206,7 +206,6 @@
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
                 
-                // ডাটাবেজ থেকে ডাটা লোড
                 db.on('value', (snapshot) => {
                     const data = snapshot.val();
                     orders = data ? Object.values(data) : [];
@@ -435,22 +434,24 @@
 
         async function downloadInvoiceImage() {
             const area = document.getElementById('invoice-capture-area');
-            const canvas = await html2canvas(area, { scale: 3, useCORS: true });
+            const canvas = await html2canvas(area, { 
+                scale: 3, 
+                useCORS: true,
+                allowTaint: false,
+                backgroundColor: "#ffffff"
+            });
             const link = document.createElement('a');
             link.download = `JerseyNova_Invoice_${Date.now()}.png`;
-            link.href = canvas.toDataURL();
+            link.href = canvas.toDataURL("image/png");
             link.click();
         }
 
         function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
 
-        // --- Backup & Restore Functions ---
         function exportData() {
             if(orders.length === 0) return alert("ব্যাকআপ করার মতো কোনো ডাটা নেই!");
-            
             const exportObj = {};
             orders.forEach(o => exportObj[o.id] = o);
-            
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
             const downloadNode = document.createElement('a');
             downloadNode.setAttribute("href", dataStr);
