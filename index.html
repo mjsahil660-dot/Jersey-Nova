@@ -14,6 +14,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
@@ -46,7 +48,7 @@
                 <span class="app-logo-text">JN</span>
             </div>
             <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
-            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Smart Manager v4.2</p>
+            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Smart Manager v5.0</p>
         </div>
         <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
         <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">ড্যাশবোর্ডে প্রবেশ করুন</button>
@@ -192,11 +194,19 @@
     </div> 
 
     <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4 transition-opacity">
-        <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
+        <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeSettings()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl"><i class="fas fa-times"></i></button>
             <h2 class="text-2xl font-black mb-6 text-blue-800 border-b pb-3">⚙️ অ্যাকাউন্ট সেটিংস</h2>
             
-            <div class="space-y-5">
+            <div class="space-y-6">
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">পাসওয়ার্ড পরিবর্তন</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="setting-password" placeholder="নতুন পাসওয়ার্ড লিখুন" class="w-full p-3 border rounded-xl outline-none focus:border-blue-500 text-sm">
+                        <button onclick="updatePassword()" class="bg-gray-800 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition whitespace-nowrap">আপডেট</button>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">কোম্পানি লোগো (Header & Invoice)</label>
                     <div class="drop-zone relative rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer" onclick="document.getElementById('logo-upload').click()">
@@ -216,7 +226,7 @@
                 </div>
             </div>
             
-            <button onclick="closeSettings()" class="w-full bg-blue-700 text-white py-3 rounded-xl font-bold mt-6 hover:bg-blue-800 transition shadow-lg">সেভ করুন</button>
+            <button onclick="closeSettings()" class="w-full bg-blue-700 text-white py-3 rounded-xl font-bold mt-6 hover:bg-blue-800 transition shadow-lg">সেটিংস বন্ধ করুন</button>
         </div>
     </div>
     
@@ -257,18 +267,100 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('orders');
+        const dbSettings = firebase.database().ref('settings'); // New ref for settings
 
-        const ADMIN_PASS = "sahil882"; 
+        // SweetAlert2 Toast Configuration
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        // Global State Variables
         let orders = [];
         let currentPage = 1;
         const itemsPerPage = 10; 
+        let appSettings = { password: 'sahil882', logo: '', qr: '' }; // Fallback defaults
 
-        // --- App Initialization & Image System ---
+        // --- App Initialization & Settings System (Firebase) ---
         function initApp() {
             document.getElementById('order-date').valueAsDate = new Date();
             document.getElementById('order-status').value = 'Pending';
-            loadSavedImages();
             setupDragAndDrop();
+
+            // Load settings securely from Firebase (Not LocalStorage)
+            dbSettings.on('value', snap => {
+                const data = snap.val();
+                if(data) {
+                    appSettings = { ...appSettings, ...data };
+                    applySettingsToUI();
+                } else {
+                    // First time initialization
+                    dbSettings.set(appSettings);
+                }
+            });
+        }
+
+        function applySettingsToUI() {
+            if(appSettings.logo) {
+                document.querySelectorAll('.app-logo').forEach(img => { img.src = appSettings.logo; img.classList.remove('hidden'); });
+                document.querySelectorAll('.app-logo-text').forEach(el => el.classList.add('hidden'));
+            }
+            if(appSettings.qr) {
+                document.querySelectorAll('.app-qr').forEach(img => { img.src = appSettings.qr; img.classList.remove('hidden'); });
+                document.querySelectorAll('.app-qr-text').forEach(el => el.classList.add('hidden'));
+            }
+            document.getElementById('setting-password').value = appSettings.password;
+        }
+
+        function updatePassword() {
+            const newPass = document.getElementById('setting-password').value;
+            if(!newPass.trim()) return Swal.fire({icon: 'warning', title: 'খালি পাসওয়ার্ড দেওয়া যাবে না!'});
+            
+            dbSettings.child('password').set(newPass).then(() => {
+                Toast.fire({ icon: 'success', title: 'পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!' });
+            });
+        }
+
+        function processFile(file, dbKey) {
+            if(!file.type.startsWith('image/')) return Swal.fire({icon: 'error', title: 'শুধুমাত্র ছবি আপলোড করা যাবে!'});
+            
+            // Show loading spinner
+            Swal.fire({ title: 'আপলোড হচ্ছে...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64String = event.target.result;
+                // Save Base64 to Firebase Database
+                dbSettings.child(dbKey).set(base64String).then(() => {
+                    Swal.close();
+                    Toast.fire({ icon: 'success', title: 'ছবি সফলভাবে সেভ হয়েছে!' });
+                }).catch(err => {
+                    Swal.fire({icon: 'error', title: 'ছবির সাইজ অনেক বড়!', text: 'দয়া করে ছোট সাইজের ছবি দিন (Max 500KB)।'});
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setupDragAndDrop() {
+            document.getElementById('logo-upload').addEventListener('change', (e) => { if(e.target.files[0]) processFile(e.target.files[0], 'logo'); });
+            document.getElementById('qr-upload').addEventListener('change', (e) => { if(e.target.files[0]) processFile(e.target.files[0], 'qr'); });
+
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+                zone.addEventListener('dragleave', e => { e.preventDefault(); zone.classList.remove('dragover'); });
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    zone.classList.remove('dragover');
+                    const file = e.dataTransfer.files[0];
+                    if(file) {
+                        const isLogo = zone.querySelector('#logo-upload');
+                        processFile(file, isLogo ? 'logo' : 'qr');
+                    }
+                });
+            });
         }
 
         // --- UI Interactions ---
@@ -280,88 +372,34 @@
         }
 
         function openSettings() {
-            toggleSidebar(); // Close sidebar
+            toggleSidebar();
             document.getElementById('settings-modal').classList.remove('hidden');
         }
+        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
 
-        function closeSettings() {
-            document.getElementById('settings-modal').classList.add('hidden');
-        }
-
-        // --- Image Storage System (Base64) ---
-        function loadSavedImages() {
-            const savedLogo = localStorage.getItem('jn_logo_base64');
-            const savedQR = localStorage.getItem('jn_qr_base64');
-
-            if(savedLogo) {
-                document.querySelectorAll('.app-logo').forEach(img => { img.src = savedLogo; img.classList.remove('hidden'); });
-                document.querySelectorAll('.app-logo-text').forEach(el => el.classList.add('hidden'));
-            }
-            if(savedQR) {
-                document.querySelectorAll('.app-qr').forEach(img => { img.src = savedQR; img.classList.remove('hidden'); });
-                document.querySelectorAll('.app-qr-text').forEach(el => el.classList.add('hidden'));
-            }
-        }
-
-        function processFile(file, storageKey) {
-            if(!file.type.startsWith('image/')) return alert("শুধুমাত্র ছবি আপলোড করা যাবে!");
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const base64String = event.target.result;
-                try {
-                    localStorage.setItem(storageKey, base64String);
-                    loadSavedImages();
-                    alert("ছবি সফলভাবে সেট হয়েছে!");
-                } catch(e) {
-                    alert("ছবির সাইজ অনেক বড়। দয়া করে ছোট সাইজের ছবি দিন।");
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function setupDragAndDrop() {
-            // Setup File Inputs
-            document.getElementById('logo-upload').addEventListener('change', (e) => {
-                if(e.target.files[0]) processFile(e.target.files[0], 'jn_logo_base64');
-            });
-            document.getElementById('qr-upload').addEventListener('change', (e) => {
-                if(e.target.files[0]) processFile(e.target.files[0], 'jn_qr_base64');
-            });
-
-            // Setup Drag & Drop Visuals
-            document.querySelectorAll('.drop-zone').forEach(zone => {
-                zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
-                zone.addEventListener('dragleave', e => { e.preventDefault(); zone.classList.remove('dragover'); });
-                zone.addEventListener('drop', e => {
-                    e.preventDefault();
-                    zone.classList.remove('dragover');
-                    const file = e.dataTransfer.files[0];
-                    if(file) {
-                        const isLogo = zone.querySelector('#logo-upload');
-                        processFile(file, isLogo ? 'jn_logo_base64' : 'jn_qr_base64');
-                    }
-                });
-            });
-        }
-
-        // --- Core Logic ---
+        // --- Core Auth Logic ---
         function checkLogin() {
-            if(document.getElementById('admin-pass').value === ADMIN_PASS) {
+            const passInput = document.getElementById('admin-pass').value;
+            if(passInput === appSettings.password) {
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
+                Toast.fire({ icon: 'success', title: 'সফলভাবে লগিন হয়েছে!' });
                 
                 db.on('value', (snapshot) => {
                     const data = snapshot.val();
                     orders = data ? Object.values(data) : [];
                     renderOrders();
                 });
-            } else { alert("ভুল পাসওয়ার্ড!"); }
+            } else { 
+                Swal.fire({icon: 'error', title: 'ভুল পাসওয়ার্ড!', text: 'দয়া করে সঠিক পাসওয়ার্ড দিন।'}); 
+            }
         }
 
         function logout() {
             document.getElementById('dashboard').classList.add('hidden');
             document.getElementById('login-section').classList.remove('hidden');
             document.getElementById('admin-pass').value = '';
+            Toast.fire({ icon: 'info', title: 'লগআউট করা হয়েছে।' });
         }
 
         function calculateStats() {
@@ -407,7 +445,9 @@
             const otherCost = parseFloat(document.getElementById('other-cost').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
 
-            if(!name || !phone || (qty <= 0 && pQty <= 0)) return alert("সঠিক তথ্য দিন!");
+            if(!name || !phone || (qty <= 0 && pQty <= 0)) {
+                return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!', text: 'নাম, ফোন এবং অন্তত একটি জার্সির হিসাব আবশ্যক।'});
+            }
 
             const totalBill = (qty * uprice) + (pQty * pPrice) + dCharge;
             const totalFactoryCost = (qty * fRate) + (pQty * pFRate);
@@ -419,19 +459,37 @@
                 profit: totalBill - (totalFactoryCost + dCharge + otherCost), status: status 
             };
 
-            db.child(id).set(orderData);
-            if(editId) resetFormUI();
-            clearForm();
+            db.child(id).set(orderData).then(() => {
+                Toast.fire({ icon: 'success', title: editId ? 'অর্ডার আপডেট হয়েছে!' : 'নতুন অর্ডার সেভ হয়েছে!' });
+                if(editId) resetFormUI();
+                clearForm();
+            });
         }
 
         function toggleStatus(id) {
             const order = orders.find(o => o.id === id);
             const nextStatus = (order.status === 'Paid') ? 'Pending' : 'Paid';
             db.child(id).update({ status: nextStatus });
+            Toast.fire({ icon: 'info', title: 'স্ট্যাটাস আপডেট হয়েছে!' });
         }
 
         function deleteOrder(id) { 
-            if(confirm("মুছে ফেলতে চান?")) db.child(id).remove(); 
+            Swal.fire({
+                title: 'আপনি কি নিশ্চিত?',
+                text: "এই অর্ডারটি চিরতরে মুছে ফেলা হবে!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'হ্যাঁ, মুছে ফেলুন',
+                cancelButtonText: 'বাতিল'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    db.child(id).remove().then(() => {
+                        Swal.fire('ডিলিটড!', 'অর্ডারটি মুছে ফেলা হয়েছে।', 'success');
+                    });
+                }
+            });
         }
 
         function renderOrders() {
@@ -605,7 +663,7 @@
         function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
 
         function exportData() {
-            if(orders.length === 0) return alert("ব্যাকআপ করার মতো কোনো ডাটা নেই!");
+            if(orders.length === 0) return Swal.fire({icon: 'info', title: 'ডাটা নেই!', text: 'ব্যাকআপ করার মতো কোনো ডাটা পাওয়া যায়নি।'});
             const exportObj = {}; orders.forEach(o => exportObj[o.id] = o);
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
             const downloadNode = document.createElement('a');
@@ -614,6 +672,7 @@
             document.body.appendChild(downloadNode);
             downloadNode.click();
             downloadNode.remove();
+            Toast.fire({ icon: 'success', title: 'ব্যাকআপ ডাউনলোড হয়েছে!' });
         }
 
         function importData(event) {
@@ -623,13 +682,24 @@
             reader.onload = function(e) {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    if(confirm("আপনি কি ব্যাকআপ ডাটা রিস্টোর করতে চান? ডাটাবেস আপডেট হবে।")) {
-                        db.update(importedData).then(() => {
-                            alert("ডাটা সফলভাবে রিস্টোর হয়েছে!");
-                            event.target.value = ''; 
-                        });
-                    }
-                } catch (err) { alert("ফাইল ফরম্যাট সঠিক নয়!"); }
+                    Swal.fire({
+                        title: 'রিস্টোর করতে চান?',
+                        text: "বর্তমান ডাটার সাথে এই ব্যাকআপ ডাটা যুক্ত হবে।",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'হ্যাঁ, রিস্টোর করুন',
+                        cancelButtonText: 'বাতিল'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            db.update(importedData).then(() => {
+                                Swal.fire('রিস্টোর সফল!', 'আপনার ব্যাকআপ ডাটা রিস্টোর করা হয়েছে।', 'success');
+                                event.target.value = ''; 
+                            });
+                        } else {
+                            event.target.value = '';
+                        }
+                    });
+                } catch (err) { Swal.fire({icon: 'error', title: 'ভুল ফাইল!', text: 'দয়া করে সঠিক JSON ফাইল নির্বাচন করুন।'}); }
             };
             reader.readAsText(file);
         }
