@@ -12,7 +12,6 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -24,213 +23,215 @@
         .hidden { display: none !important; }
         @media print { .no-print { display: none; } }
         
-        /* Logo Styling */
         .logo-container {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
-            background: #1e40af;
-            border-radius: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 32px;
-            font-weight: 900;
-            box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.3);
-            overflow: hidden;
+            width: 80px; height: 80px; margin: 0 auto 15px;
+            background: #1e40af; border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 32px; font-weight: 900;
+            box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.3); overflow: hidden;
         }
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Custom Drag & Drop styling */
+        .drop-zone { border: 2px dashed #93c5fd; background: #eff6ff; transition: 0.3s; }
+        .drop-zone.dragover { background: #dbeafe; border-color: #2563eb; }
     </style>
 </head>
-<body class="p-2 md:p-6" onload="initForm()">
+<body class="p-2 md:p-6" onload="initApp()">
 
     <div id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-2xl mt-16 border border-gray-100">
         <div class="text-center mb-6">
             <div class="logo-container">
-                <img crossorigin="anonymous" src="https://www.image2url.com/r2/default/images/1776336271297-d5478455-0cd3-4511-bb55-272c6a93abeb.jpg" alt="JN" onerror="this.style.display='none'">
-                <span id="logo-text">JN</span>
+                <img class="app-logo hidden" src="" alt="JN">
+                <span class="app-logo-text">JN</span>
             </div>
             <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
-            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Smart Manager v4.1</p>
+            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Smart Manager v4.2</p>
         </div>
-        
         <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
         <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">ড্যাশবোর্ডে প্রবেশ করুন</button>
     </div>
 
     <div id="dashboard" class="hidden max-w-7xl mx-auto flex flex-col gap-4 mt-2">
         
-        <div class="lg:hidden bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center no-print">
-            <div class="flex items-center gap-2">
-                <div class="w-10 h-10 bg-blue-800 rounded-xl flex items-center justify-center text-white font-black text-sm">JN</div>
-                <h1 class="font-black text-xl text-blue-800 italic uppercase">Jersey Nova</h1>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center no-print sticky top-0 z-30">
+            <div class="flex items-center gap-3">
+                <img class="app-logo w-10 h-10 rounded-xl object-cover hidden shadow-sm" src="" alt="Logo">
+                <div class="app-logo-text w-10 h-10 bg-blue-800 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm">JN</div>
+                <h1 class="font-black text-xl text-blue-800 italic uppercase tracking-tight">Jersey Nova</h1>
             </div>
-            <button onclick="toggleSidebar()" class="text-blue-800 text-2xl focus:outline-none p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+            <button onclick="toggleSidebar()" class="text-blue-800 text-2xl focus:outline-none p-2 px-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition active:scale-95">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-6">
-            <div id="sidebar" class="hidden lg:block w-full lg:w-64 shrink-0 no-print transition-all duration-300">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col gap-3 sticky top-4">
-                    <div class="text-center mb-2 pb-4 border-b border-gray-100 hidden lg:block">
-                        <h2 class="font-black text-xl text-blue-800 italic uppercase">Jersey Nova</h2>
-                        <p class="text-[10px] text-gray-400 font-bold tracking-widest mt-1">MENU</p>
-                    </div>
-                    
-                    <button class="w-full bg-blue-50 text-blue-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3">
-                        <i class="fas fa-home"></i> ড্যাশবোর্ড
-                    </button>
-                    
-                    <hr class="my-2 border-gray-50">
-                    
-                    <button onclick="exportData()" class="w-full bg-gray-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-black transition">
-                        <i class="fas fa-cloud-download-alt"></i> Backup Data
-                    </button>
-                    
-                    <label class="w-full bg-indigo-600 text-white px-4 py-3 rounded-xl text-sm font-bold cursor-pointer hover:bg-indigo-700 transition flex items-center gap-3 m-0">
-                        <i class="fas fa-file-import"></i> Import Data
-                        <input type="file" class="hidden" accept=".json" onchange="importData(event)">
-                    </label>
+        <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity duration-300"></div>
+        
+        <div id="sidebar" class="fixed inset-y-0 right-0 w-72 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col p-6 no-print">
+            <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                <h2 class="font-black text-lg text-blue-800 uppercase tracking-widest">মেন্যু</h2>
+                <button onclick="toggleSidebar()" class="text-gray-400 hover:text-red-500 text-2xl p-1"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="flex flex-col gap-3 flex-1">
+                <button onclick="toggleSidebar()" class="w-full bg-blue-50 text-blue-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3">
+                    <i class="fas fa-home"></i> ড্যাশবোর্ড
+                </button>
+                <button onclick="openSettings()" class="w-full bg-gray-50 text-gray-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-100 transition">
+                    <i class="fas fa-cog"></i> অ্যাকাউন্ট সেটিংস
+                </button>
+                <hr class="my-2 border-gray-50">
+                <button onclick="exportData()" class="w-full bg-gray-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-black transition">
+                    <i class="fas fa-cloud-download-alt"></i> Backup Data
+                </button>
+                <label class="w-full bg-indigo-600 text-white px-4 py-3 rounded-xl text-sm font-bold cursor-pointer hover:bg-indigo-700 transition flex items-center gap-3 m-0">
+                    <i class="fas fa-file-import"></i> Import Data
+                    <input type="file" class="hidden" accept=".json" onchange="importData(event)">
+                </label>
+            </div>
+            
+            <button onclick="logout()" class="w-full bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-red-100 transition mt-auto">
+                <i class="fas fa-sign-out-alt"></i> লগআউট
+            </button>
+        </div>
 
-                    <button onclick="logout()" class="w-full bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-red-100 transition mt-4">
-                        <i class="fas fa-sign-out-alt"></i> লগআউট
-                    </button>
+        <div class="flex-1 overflow-hidden min-w-0">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6 no-print">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-blue-600 flex justify-between items-center">
+                    <div><p class="text-[10px] text-gray-500 uppercase font-black">মোট অর্ডার</p><h3 id="total-orders" class="text-2xl font-bold text-gray-800">০</h3></div>
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg"><i class="fas fa-shopping-bag"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-indigo-500 flex justify-between items-center">
+                    <div><p class="text-[10px] text-gray-500 uppercase font-black">মোট বিক্রি</p><h3 id="total-sales" class="text-2xl font-bold text-indigo-700">৳ ০</h3></div>
+                    <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 text-lg"><i class="fas fa-money-bill-wave"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-orange-500 flex justify-between items-center">
+                    <div><p class="text-[10px] text-gray-500 uppercase font-black">ফ্যাক্টরি বিল</p><h3 id="total-factory-cost" class="text-2xl font-bold text-gray-800">৳ ০</h3></div>
+                    <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 text-lg"><i class="fas fa-industry"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-green-600 flex justify-between items-center">
+                    <div><p class="text-[10px] text-gray-500 uppercase font-black">নিট লাভ</p><h3 id="total-profit" class="text-2xl font-bold text-green-700">৳ ০</h3></div>
+                    <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 text-lg"><i class="fas fa-chart-pie"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-red-500 flex justify-between items-center">
+                    <div><p class="text-[10px] text-gray-500 uppercase font-black">বাকি</p><h3 id="total-due" class="text-2xl font-bold text-red-600">৳ ০</h3></div>
+                    <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 text-lg"><i class="fas fa-hand-holding-dollar"></i></div>
                 </div>
             </div>
 
-            <div class="flex-1 overflow-hidden min-w-0">
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6 no-print">
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-blue-600 flex justify-between items-center">
-                        <div>
-                            <p class="text-[10px] text-gray-500 uppercase font-black">মোট অর্ডার</p>
-                            <h3 id="total-orders" class="text-2xl font-bold text-gray-800">০</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg"><i class="fas fa-shopping-bag"></i></div>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-indigo-500 flex justify-between items-center">
-                        <div>
-                            <p class="text-[10px] text-gray-500 uppercase font-black">মোট বিক্রি</p>
-                            <h3 id="total-sales" class="text-2xl font-bold text-indigo-700">৳ ০</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 text-lg"><i class="fas fa-money-bill-wave"></i></div>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-orange-500 flex justify-between items-center">
-                        <div>
-                            <p class="text-[10px] text-gray-500 uppercase font-black">ফ্যাক্টরি বিল</p>
-                            <h3 id="total-factory-cost" class="text-2xl font-bold text-gray-800">৳ ০</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 text-lg"><i class="fas fa-industry"></i></div>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-green-600 flex justify-between items-center">
-                        <div>
-                            <p class="text-[10px] text-gray-500 uppercase font-black">নিট লাভ</p>
-                            <h3 id="total-profit" class="text-2xl font-bold text-green-700">৳ ০</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 text-lg"><i class="fas fa-chart-pie"></i></div>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-red-500 flex justify-between items-center">
-                        <div>
-                            <p class="text-[10px] text-gray-500 uppercase font-black">বাকি</p>
-                            <h3 id="total-due" class="text-2xl font-bold text-red-600">৳ ০</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 text-lg"><i class="fas fa-hand-holding-dollar"></i></div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-sm mb-8 no-print border border-gray-100">
-                    <h2 id="form-title" class="text-xl font-bold mb-5 text-blue-700 flex items-center border-b pb-3">
-                        🆕 নতুন অর্ডার এন্ট্রি
-                    </h2>
-                    <input type="hidden" id="edit-id">
+            <div class="bg-white p-6 rounded-3xl shadow-sm mb-8 no-print border border-gray-100">
+                <h2 id="form-title" class="text-xl font-bold mb-5 text-blue-700 flex items-center border-b pb-3">🆕 নতুন অর্ডার এন্ট্রি</h2>
+                <input type="hidden" id="edit-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
+                    <input type="date" id="order-date" class="p-3 border rounded-xl outline-none focus:border-blue-500 text-gray-600 bg-gray-50">
+                    <select id="order-status" class="p-3 border rounded-xl outline-none focus:border-blue-500 font-bold text-gray-700 bg-white">
+                        <option value="Pending">Pending (পেন্ডিং)</option>
+                        <option value="Processing">Processing (প্রসেসিং)</option>
+                        <option value="Hold">Hold (হোল্ড)</option>
+                        <option value="Shipped">Shipped (কুরিয়ারে)</option>
+                        <option value="Paid">Paid (পেইড)</option>
+                    </select>
+                    <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-3 border rounded-xl outline-none focus:border-blue-500">
+                    <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border rounded-xl outline-none focus:border-blue-500">
+                    <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-3 border rounded-xl outline-none focus:border-blue-500">
                     
-                    <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
-                        <input type="date" id="order-date" class="p-3 border rounded-xl outline-none focus:border-blue-500 text-gray-600 bg-gray-50 cursor-pointer">
-                        
-                        <select id="order-status" class="p-3 border rounded-xl outline-none focus:border-blue-500 font-bold text-gray-700 cursor-pointer bg-white shadow-sm">
-                            <option value="Pending">Pending (পেন্ডিং)</option>
-                            <option value="Processing">Processing (প্রসেসিং)</option>
-                            <option value="Hold">Hold (হোল্ড)</option>
-                            <option value="Shipped">Shipped (কুরিয়ারে)</option>
-                            <option value="Paid">Paid (পেইড)</option>
-                        </select>
-
-                        <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-3 border rounded-xl outline-none focus:border-blue-500">
-                        <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border rounded-xl outline-none focus:border-blue-500">
-                        <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-3 border rounded-xl outline-none focus:border-blue-500">
-                        
-                        <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-1">
-                            <input type="number" id="quantity" oninput="calculateStats()" placeholder="জার্সি (পিস)" class="p-3 border rounded-xl bg-blue-50 font-bold">
-                            <input type="number" id="unit-price" oninput="calculateStats()" placeholder="জার্সি বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-blue-50 font-bold">
-                            <input type="number" id="factory-rate" oninput="calculateStats()" placeholder="জার্সি ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold">
-                        </div>
-                        
-                        <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-2 border-b border-gray-100 pb-4">
-                            <input type="number" id="pant-qty" oninput="calculateStats()" placeholder="প্যান্ট (পিস)" class="p-3 border rounded-xl bg-gray-100 font-bold">
-                            <input type="number" id="pant-price" oninput="calculateStats()" placeholder="প্যান্ট বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-gray-100 font-bold">
-                            <input type="number" id="pant-factory-rate" oninput="calculateStats()" placeholder="প্যান্ট ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold">
-                        </div>
-
-                        <div class="md:col-span-5 grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border rounded-xl">
-                            <input type="number" id="other-cost" oninput="calculateStats()" placeholder="ডলার / অন্যান্য খরচ (৳)" class="p-3 border rounded-xl bg-red-50 font-bold text-red-600">
-                            <input type="number" id="advance-paid" oninput="calculateStats()" placeholder="অ্যাডভান্স জমা (৳)" class="p-3 border rounded-xl bg-green-50 font-bold">
-                        </div>
-                        
-                        <div class="md:col-span-5 grid grid-cols-3 gap-2 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-300 mt-2">
-                            <div class="text-center"><p class="text-[10px] text-gray-500 font-bold">মোট বিল</p><p class="text-lg font-bold">৳ <span id="display-total">০</span></p></div>
-                            <div class="text-center text-red-600"><p class="text-[10px] text-gray-500 font-bold">বাকি (COD)</p><p class="text-lg font-bold">৳ <span id="display-due">০</span></p></div>
-                            <div class="text-center text-green-700"><p class="text-[10px] text-gray-500 font-bold">নিট লাভ</p><p class="text-lg font-bold">৳ <span id="display-profit">০</span></p></div>
-                        </div>
-
-                        <button id="save-btn" onclick="saveOrder()" class="md:col-span-5 bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition shadow-lg">অর্ডার সেভ করুন</button>
+                    <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-1">
+                        <input type="number" id="quantity" oninput="calculateStats()" placeholder="জার্সি (পিস)" class="p-3 border rounded-xl bg-blue-50 font-bold">
+                        <input type="number" id="unit-price" oninput="calculateStats()" placeholder="জার্সি বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-blue-50 font-bold">
+                        <input type="number" id="factory-rate" oninput="calculateStats()" placeholder="জার্সি ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold">
                     </div>
-                </div>
-
-                <div class="flex flex-col md:flex-row justify-between gap-4 mb-4 no-print items-center">
-                    <div class="flex flex-col md:flex-row gap-2 w-full">
-                        <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন নাম্বার দিয়ে খুঁজুন..." class="flex-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm">
-                        <input type="date" id="filter-date" onchange="searchOrders()" class="w-full md:w-48 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm text-gray-600 cursor-pointer" title="তারিখ অনুযায়ী খুঁজুন">
-                        <button onclick="clearDateFilter()" class="bg-gray-200 text-gray-600 px-4 py-3 rounded-xl text-xs font-bold hover:bg-gray-300 transition">Clear</button>
+                    
+                    <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-2 border-b border-gray-100 pb-4">
+                        <input type="number" id="pant-qty" oninput="calculateStats()" placeholder="প্যান্ট (পিস)" class="p-3 border rounded-xl bg-gray-100 font-bold">
+                        <input type="number" id="pant-price" oninput="calculateStats()" placeholder="প্যান্ট বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-gray-100 font-bold">
+                        <input type="number" id="pant-factory-rate" oninput="calculateStats()" placeholder="প্যান্ট ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold">
                     </div>
-                </div>
 
-                <div class="bg-white rounded-3xl shadow-sm overflow-x-auto no-print border border-gray-100">
-                    <table class="w-full text-left min-w-[1000px]" id="order-table">
-                        <thead class="bg-gray-50 text-gray-400 uppercase text-[10px] font-black tracking-widest">
-                            <tr>
-                                <th class="p-5">কাস্টমার প্রোফাইল ও তারিখ</th>
-                                <th class="p-5 text-center">কোয়ান্টিটি</th>
-                                <th class="p-5 text-red-500">COD (বাকি)</th>
-                                <th class="p-5">লাভ</th>
-                                <th class="p-5 text-center">স্ট্যাটাস</th>
-                                <th class="p-5 text-center">অ্যাকশন</th>
-                            </tr>
-                        </thead>
-                        <tbody id="order-list-body" class="divide-y divide-gray-50"></tbody>
-                    </table>
-                </div>
+                    <div class="md:col-span-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border rounded-xl">
+                        <input type="number" id="other-cost" oninput="calculateStats()" placeholder="ডলার/অন্যান্য খরচ (৳)" class="p-3 border rounded-xl bg-red-50 font-bold text-red-600">
+                        <input type="number" id="advance-paid" oninput="calculateStats()" placeholder="অ্যাডভান্স জমা (৳)" class="p-3 border rounded-xl bg-green-50 font-bold">
+                    </div>
+                    
+                    <div class="md:col-span-5 grid grid-cols-3 gap-2 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-300 mt-2">
+                        <div class="text-center"><p class="text-[10px] text-gray-500 font-bold">মোট বিল</p><p class="text-lg font-bold">৳ <span id="display-total">০</span></p></div>
+                        <div class="text-center text-red-600"><p class="text-[10px] text-gray-500 font-bold">বাকি (COD)</p><p class="text-lg font-bold">৳ <span id="display-due">০</span></p></div>
+                        <div class="text-center text-green-700"><p class="text-[10px] text-gray-500 font-bold">নিট লাভ</p><p class="text-lg font-bold">৳ <span id="display-profit">০</span></p></div>
+                    </div>
 
-                <div id="pagination-controls" class="flex justify-center items-center gap-2 mt-6 mb-4 no-print flex-wrap"></div>
+                    <button id="save-btn" onclick="saveOrder()" class="md:col-span-5 bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition shadow-lg">অর্ডার সেভ করুন</button>
+                </div>
             </div>
+
+            <div class="flex flex-col md:flex-row justify-between gap-4 mb-4 no-print items-center">
+                <div class="flex flex-col md:flex-row gap-2 w-full">
+                    <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন নাম্বার দিয়ে খুঁজুন..." class="flex-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm">
+                    <input type="date" id="filter-date" onchange="searchOrders()" class="w-full md:w-48 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm text-gray-600 cursor-pointer" title="তারিখ অনুযায়ী খুঁজুন">
+                    <button onclick="clearDateFilter()" class="bg-gray-200 text-gray-600 px-4 py-3 rounded-xl text-xs font-bold hover:bg-gray-300 transition">Clear</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-sm overflow-x-auto no-print border border-gray-100">
+                <table class="w-full text-left min-w-[1000px]" id="order-table">
+                    <thead class="bg-gray-50 text-gray-400 uppercase text-[10px] font-black tracking-widest">
+                        <tr>
+                            <th class="p-5">কাস্টমার প্রোফাইল ও তারিখ</th>
+                            <th class="p-5 text-center">কোয়ান্টিটি</th>
+                            <th class="p-5 text-red-500">COD (বাকি)</th>
+                            <th class="p-5">লাভ</th>
+                            <th class="p-5 text-center">স্ট্যাটাস</th>
+                            <th class="p-5 text-center">অ্যাকশন</th>
+                        </tr>
+                    </thead>
+                    <tbody id="order-list-body" class="divide-y divide-gray-50"></tbody>
+                </table>
+            </div>
+            <div id="pagination-controls" class="flex justify-center items-center gap-2 mt-6 mb-4 no-print flex-wrap"></div>
         </div>
     </div> 
-    
-    <div id="invoice-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-2 relative">
+
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4 transition-opacity">
+        <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
+            <button onclick="closeSettings()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl"><i class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-black mb-6 text-blue-800 border-b pb-3">⚙️ অ্যাকাউন্ট সেটিংস</h2>
             
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">কোম্পানি লোগো (Header & Invoice)</label>
+                    <div class="drop-zone relative rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer" onclick="document.getElementById('logo-upload').click()">
+                        <i class="fas fa-cloud-upload-alt text-3xl text-blue-400 mb-2"></i>
+                        <span class="text-sm font-bold text-blue-700">ক্লিক করুন বা ছবি ড্র্যাগ করে আনুন</span>
+                        <input type="file" id="logo-upload" accept="image/*" class="hidden">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">পেমেন্ট QR Code (Invoice)</label>
+                    <div class="drop-zone relative rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer" onclick="document.getElementById('qr-upload').click()">
+                        <i class="fas fa-qrcode text-3xl text-blue-400 mb-2"></i>
+                        <span class="text-sm font-bold text-blue-700">ক্লিক করুন বা QR ড্র্যাগ করে আনুন</span>
+                        <input type="file" id="qr-upload" accept="image/*" class="hidden">
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="closeSettings()" class="w-full bg-blue-700 text-white py-3 rounded-xl font-bold mt-6 hover:bg-blue-800 transition shadow-lg">সেভ করুন</button>
+        </div>
+    </div>
+    
+    <div id="invoice-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-2 relative">
             <div id="invoice-capture-area" class="p-6 bg-white border-2 border-blue-600 rounded-2xl shadow-xl relative overflow-hidden">
-                <img crossorigin="anonymous" src="https://www.image2url.com/r2/default/images/1776336271297-d5478455-0cd3-4511-bb55-272c6a93abeb.jpg" class="absolute inset-0 m-auto opacity-[0.06] w-56 h-56 object-contain pointer-events-none z-0" alt="Watermark">
+                <img class="app-logo absolute inset-0 m-auto opacity-[0.05] w-56 h-56 object-contain pointer-events-none z-0 hidden" src="" alt="Watermark">
                 
                 <div class="relative z-10">
                     <div class="relative text-center border-b-2 border-blue-100 pb-4 mb-4">
-                        <img crossorigin="anonymous" src="https://www.image2url.com/r2/default/images/1776336271297-d5478455-0cd3-4511-bb55-272c6a93abeb.jpg" class="absolute left-0 top-0 w-12 h-12 rounded-lg object-cover shadow-sm" alt="Logo">
-                        <img crossorigin="anonymous" src="https://www.image2url.com/r2/default/images/1776334676746-45fd58cf-d7d6-4767-8078-e99e48fe619c.jpeg" class="absolute right-0 top-0 w-12 h-12 object-cover border border-gray-200 rounded p-0.5 bg-white" alt="QR Code">
+                        <img class="app-logo absolute left-0 top-0 w-12 h-12 rounded-lg object-cover shadow-sm hidden" src="" alt="Logo">
+                        <div class="app-logo-text absolute left-0 top-0 w-12 h-12 bg-blue-800 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-sm">JN</div>
+                        
+                        <img class="app-qr absolute right-0 top-0 w-12 h-12 object-cover border border-gray-200 rounded p-0.5 bg-white hidden" src="" alt="QR">
+                        <div class="app-qr-text absolute right-0 top-0 w-12 h-12 border border-dashed border-gray-300 rounded flex items-center justify-center text-gray-300 text-[8px] font-bold">No QR</div>
                         
                         <h1 class="text-3xl font-black text-blue-800 italic">JERSEY NOVA</h1>
                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Premium Sports Apparel</p>
@@ -257,24 +258,93 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('orders');
 
-        const ADMIN_PASS = "admin123"; 
+        const ADMIN_PASS = "sahil882"; 
         let orders = [];
-        
-        // Pagination Variables
         let currentPage = 1;
         const itemsPerPage = 10; 
 
-        // Toggle Sidebar Function
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('hidden');
-        }
-
-        function initForm() {
+        // --- App Initialization & Image System ---
+        function initApp() {
             document.getElementById('order-date').valueAsDate = new Date();
             document.getElementById('order-status').value = 'Pending';
+            loadSavedImages();
+            setupDragAndDrop();
         }
 
+        // --- UI Interactions ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function openSettings() {
+            toggleSidebar(); // Close sidebar
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        // --- Image Storage System (Base64) ---
+        function loadSavedImages() {
+            const savedLogo = localStorage.getItem('jn_logo_base64');
+            const savedQR = localStorage.getItem('jn_qr_base64');
+
+            if(savedLogo) {
+                document.querySelectorAll('.app-logo').forEach(img => { img.src = savedLogo; img.classList.remove('hidden'); });
+                document.querySelectorAll('.app-logo-text').forEach(el => el.classList.add('hidden'));
+            }
+            if(savedQR) {
+                document.querySelectorAll('.app-qr').forEach(img => { img.src = savedQR; img.classList.remove('hidden'); });
+                document.querySelectorAll('.app-qr-text').forEach(el => el.classList.add('hidden'));
+            }
+        }
+
+        function processFile(file, storageKey) {
+            if(!file.type.startsWith('image/')) return alert("শুধুমাত্র ছবি আপলোড করা যাবে!");
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64String = event.target.result;
+                try {
+                    localStorage.setItem(storageKey, base64String);
+                    loadSavedImages();
+                    alert("ছবি সফলভাবে সেট হয়েছে!");
+                } catch(e) {
+                    alert("ছবির সাইজ অনেক বড়। দয়া করে ছোট সাইজের ছবি দিন।");
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setupDragAndDrop() {
+            // Setup File Inputs
+            document.getElementById('logo-upload').addEventListener('change', (e) => {
+                if(e.target.files[0]) processFile(e.target.files[0], 'jn_logo_base64');
+            });
+            document.getElementById('qr-upload').addEventListener('change', (e) => {
+                if(e.target.files[0]) processFile(e.target.files[0], 'jn_qr_base64');
+            });
+
+            // Setup Drag & Drop Visuals
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+                zone.addEventListener('dragleave', e => { e.preventDefault(); zone.classList.remove('dragover'); });
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    zone.classList.remove('dragover');
+                    const file = e.dataTransfer.files[0];
+                    if(file) {
+                        const isLogo = zone.querySelector('#logo-upload');
+                        processFile(file, isLogo ? 'jn_logo_base64' : 'jn_qr_base64');
+                    }
+                });
+            });
+        }
+
+        // --- Core Logic ---
         function checkLogin() {
             if(document.getElementById('admin-pass').value === ADMIN_PASS) {
                 document.getElementById('login-section').classList.add('hidden');
@@ -310,7 +380,6 @@
             const totalBill = (qty * uprice) + (pQty * pPrice) + dCharge;
             const dueAmount = totalBill - advance;
             const totalFactoryCost = (qty * fRate) + (pQty * pFRate);
-            
             const profit = totalBill - (totalFactoryCost + dCharge + otherCost);
             
             document.getElementById('display-total').innerText = totalBill;
@@ -345,17 +414,12 @@
             const id = editId ? parseInt(editId) : Date.now();
             
             const orderData = {
-                id: id,
-                date: date,
-                name, phone, addr, qty, uprice, fRate, pQty, pPrice, pFRate, dCharge, otherCost, totalBill, advance,
-                due: totalBill - advance,
-                totalFactoryCost: totalFactoryCost,
-                profit: totalBill - (totalFactoryCost + dCharge + otherCost),
-                status: status 
+                id: id, date: date, name, phone, addr, qty, uprice, fRate, pQty, pPrice, pFRate, dCharge, otherCost, totalBill, advance,
+                due: totalBill - advance, totalFactoryCost: totalFactoryCost,
+                profit: totalBill - (totalFactoryCost + dCharge + otherCost), status: status 
             };
 
             db.child(id).set(orderData);
-            
             if(editId) resetFormUI();
             clearForm();
         }
@@ -367,9 +431,7 @@
         }
 
         function deleteOrder(id) { 
-            if(confirm("মুছে ফেলতে চান?")) { 
-                db.child(id).remove(); 
-            } 
+            if(confirm("মুছে ফেলতে চান?")) db.child(id).remove(); 
         }
 
         function renderOrders() {
@@ -389,16 +451,12 @@
                 if(!matchesText || !matchesDate) return;
 
                 filteredOrders.push(o);
-                tSales += o.totalBill;
-                tProf += o.profit; 
-                tFact += o.totalFactoryCost;
+                tSales += o.totalBill; tProf += o.profit; tFact += o.totalFactoryCost;
                 if(o.status !== 'Paid') tDue += o.due;
             });
 
-            // Pagination Logic Setup
             const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
             if (currentPage > totalPages) currentPage = totalPages || 1;
-            
             const startIdx = (currentPage - 1) * itemsPerPage;
             const paginatedOrders = filteredOrders.slice(startIdx, startIdx + itemsPerPage);
 
@@ -408,7 +466,6 @@
                 if(o.qty > 0 && o.pQty > 0) qtyDisplay += `<br>`;
                 if(o.pQty > 0) qtyDisplay += `<span class="text-gray-600">${o.pQty} P</span>`;
 
-                // Status Badge Colors
                 let statusColor = 'bg-gray-50 text-gray-600 border-gray-200';
                 if(o.status === 'Pending') statusColor = 'bg-yellow-50 text-yellow-600 border-yellow-200';
                 if(o.status === 'Paid') statusColor = 'bg-green-50 text-green-600 border-green-200';
@@ -425,11 +482,7 @@
                         <td class="p-5 text-center font-black">${qtyDisplay || '-'}</td>
                         <td class="p-5 text-red-600 font-black tracking-tight">৳ ${o.due}</td>
                         <td class="p-5 font-black text-gray-700 italic">৳ ${o.profit}</td>
-                        <td class="p-5 text-center">
-                            <button onclick="toggleStatus(${o.id})" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter border-2 ${statusColor}">
-                                ${o.status || 'Pending'}
-                            </button>
-                        </td>
+                        <td class="p-5 text-center"><button onclick="toggleStatus(${o.id})" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter border-2 ${statusColor}">${o.status || 'Pending'}</button></td>
                         <td class="p-5 text-center">
                             <div class="flex items-center justify-center space-x-3">
                                 <button onclick="sendWhatsAppMsg(${o.id})" class="text-xl" title="WhatsApp">💬</button>
@@ -442,7 +495,6 @@
             });
             
             renderPagination(totalPages);
-            
             document.getElementById('total-orders').innerText = filteredOrders.length;
             document.getElementById('total-sales').innerText = "৳ " + tSales;
             document.getElementById('total-factory-cost').innerText = "৳ " + tFact;
@@ -453,22 +505,13 @@
         function renderPagination(totalPages) {
             const container = document.getElementById('pagination-controls');
             container.innerHTML = '';
-            
             if (totalPages <= 1) return;
-
             for (let i = 1; i <= totalPages; i++) {
-                container.innerHTML += `
-                    <button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg font-bold text-sm ${currentPage === i ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} transition">
-                        ${i}
-                    </button>
-                `;
+                container.innerHTML += `<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg font-bold text-sm ${currentPage === i ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} transition">${i}</button>`;
             }
         }
 
-        function goToPage(page) {
-            currentPage = page;
-            renderOrders();
-        }
+        function goToPage(page) { currentPage = page; renderOrders(); }
 
         function editOrder(id) {
             const o = orders.find(x => x.id === id);
@@ -495,7 +538,7 @@
             document.getElementById('save-btn').innerText = "আপডেট করুন";
             document.getElementById('save-btn').classList.replace('bg-blue-700', 'bg-orange-600');
             calculateStats();
-            document.querySelector('.flex-1').scrollTo({top: 0, behavior: 'smooth'});
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function resetFormUI() {
@@ -503,24 +546,18 @@
             document.getElementById('form-title').innerText = "🆕 নতুন অর্ডার এন্ট্রি";
             document.getElementById('save-btn').innerText = "অর্ডার সেভ করুন";
             document.getElementById('save-btn').classList.replace('bg-orange-600', 'bg-blue-700');
-            initForm(); 
+            document.getElementById('order-date').valueAsDate = new Date();
+            document.getElementById('order-status').value = 'Pending';
         }
 
         function clearForm() { 
             document.querySelectorAll('input[type="text"], input[type="number"]').forEach(i => i.value = ''); 
             document.querySelectorAll('#display-total, #display-due, #display-profit').forEach(s => s.innerText = '0');
-            initForm();
+            resetFormUI();
         }
 
-        function searchOrders() { 
-            currentPage = 1; 
-            renderOrders(); 
-        }
-        
-        function clearDateFilter() {
-            document.getElementById('filter-date').value = "";
-            searchOrders();
-        }
+        function searchOrders() { currentPage = 1; renderOrders(); }
+        function clearDateFilter() { document.getElementById('filter-date').value = ""; searchOrders(); }
 
         function sendWhatsAppMsg(id) {
             const o = orders.find(x => x.id === id);
@@ -558,11 +595,7 @@
 
         async function downloadInvoiceImage() {
             const area = document.getElementById('invoice-capture-area');
-            const canvas = await html2canvas(area, { 
-                scale: 3, 
-                useCORS: true,
-                allowTaint: true
-            });
+            const canvas = await html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
             const link = document.createElement('a');
             link.download = `JerseyNova_Invoice_${Date.now()}.png`;
             link.href = canvas.toDataURL("image/png");
@@ -571,13 +604,9 @@
 
         function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
 
-        // --- Backup & Restore Functions ---
         function exportData() {
             if(orders.length === 0) return alert("ব্যাকআপ করার মতো কোনো ডাটা নেই!");
-            
-            const exportObj = {};
-            orders.forEach(o => exportObj[o.id] = o);
-            
+            const exportObj = {}; orders.forEach(o => exportObj[o.id] = o);
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
             const downloadNode = document.createElement('a');
             downloadNode.setAttribute("href", dataStr);
@@ -600,9 +629,7 @@
                             event.target.value = ''; 
                         });
                     }
-                } catch (err) {
-                    alert("ফাইল ফরম্যাট সঠিক নয়!");
-                }
+                } catch (err) { alert("ফাইল ফরম্যাট সঠিক নয়!"); }
             };
             reader.readAsText(file);
         }
