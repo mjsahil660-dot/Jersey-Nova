@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jersey Nova - Premium ERP System</title>
+    <title>Jersey Nova - Premium Smart Manager</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -38,357 +38,315 @@
         .drop-zone { border: 2px dashed #93c5fd; background: #eff6ff; transition: 0.3s; }
         .drop-zone.dragover { background: #dbeafe; border-color: #2563eb; }
         
+        /* Tab Navigation Active State */
         .tab-btn.active { background-color: #eff6ff; color: #1d4ed8; font-weight: 900; border-right: 4px solid #1d4ed8; }
-        .staff-hidden { filter: blur(5px); user-select: none; pointer-events: none; }
-        th, td { white-space: nowrap; }
     </style>
 </head>
-<body class="text-gray-800 antialiased h-screen overflow-hidden flex" onload="initApp()">
+<body class="p-2 md:p-6" onload="initApp()">
 
-    <div id="login-section" class="fixed inset-0 flex items-center justify-center bg-gray-50 z-[100] p-4">
-        <div class="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl border border-gray-100 relative">
-            <div class="text-center mb-8">
-                <div class="logo-container">
-                    <img class="app-logo hidden" src="" alt="JN">
-                    <span class="app-logo-text">JN</span>
-                </div>
-                <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
-                <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP System</p>
+    <div id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-2xl mt-16 border border-gray-100">
+        <div class="text-center mb-6">
+            <div class="logo-container">
+                <img class="app-logo hidden" src="" alt="JN">
+                <span class="app-logo-text">JN</span>
             </div>
-            
-            <div class="space-y-4 mb-6">
-                <input type="text" id="login-username" placeholder="ইউজারনেম (Username)" class="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold tracking-wider">
-                <input type="password" id="login-pass" placeholder="পাসওয়ার্ড (Password)" class="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center tracking-wider">
-            </div>
-            
-            <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition shadow-lg active:scale-95">সিস্টেমে প্রবেশ করুন</button>
-            <p class="text-center text-xs text-gray-400 mt-4">ডিফল্ট লগিন: admin / 123</p>
+            <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
+            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP Manager v6.0</p>
         </div>
+        <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+        <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">সিস্টেমে প্রবেশ করুন</button>
     </div>
 
-    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>
-    
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl border-r border-gray-100 transform -translate-x-full transition-transform duration-300 flex flex-col p-5 no-print">
-        <div class="flex items-center justify-between mb-8 border-b border-gray-50 pb-4">
+    <div id="app-wrapper" class="hidden max-w-7xl mx-auto flex flex-col gap-4 mt-2">
+        
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center no-print sticky top-0 z-30">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-800 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm relative overflow-hidden shrink-0">
-                    <img class="app-logo absolute inset-0 w-full h-full object-cover hidden" src="" alt="L">
-                    <span class="app-logo-text">JN</span>
-                </div>
-                <div class="overflow-hidden">
-                    <h1 class="font-black text-lg text-blue-800 italic uppercase tracking-tight leading-none truncate">Jersey Nova</h1>
-                    <span id="user-badge" class="text-[9px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded uppercase tracking-widest mt-1 inline-block">Role</span>
-                </div>
+                <img class="app-logo w-10 h-10 rounded-xl object-cover hidden shadow-sm" src="" alt="Logo">
+                <div class="app-logo-text w-10 h-10 bg-blue-800 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm">JN</div>
+                <h1 class="font-black text-xl text-blue-800 italic uppercase tracking-tight">Jersey Nova</h1>
             </div>
-            <button onclick="toggleSidebar()" class="text-gray-400 hover:text-red-500 text-2xl p-1 focus:outline-none"><i class="fas fa-times"></i></button>
+            <button onclick="toggleSidebar()" class="text-blue-800 text-2xl focus:outline-none p-2 px-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition active:scale-95">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
+
+        <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity duration-300"></div>
         
-        <nav class="flex flex-col gap-2 flex-1 overflow-y-auto pr-2">
-            <button onclick="switchTab('dashboard')" class="tab-btn active w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
-                <i class="fas fa-home w-5 text-center"></i> ড্যাশবোর্ড
-            </button>
-            <button onclick="switchTab('expenses')" class="admin-only tab-btn w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
-                <i class="fas fa-wallet w-5 text-center"></i> খরচ এন্ট্রি (Expenses)
-            </button>
-            <button onclick="switchTab('crm')" class="tab-btn w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
-                <i class="fas fa-users w-5 text-center"></i> কাস্টমার লিস্ট (CRM)
-            </button>
-            <button onclick="switchTab('reports')" class="admin-only tab-btn w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
-                <i class="fas fa-chart-line w-5 text-center"></i> রিপোর্টস (Reports)
-            </button>
+        <div id="sidebar" class="fixed inset-y-0 right-0 w-72 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col p-6 no-print">
+            <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                <h2 class="font-black text-lg text-blue-800 uppercase tracking-widest">মেন্যু</h2>
+                <button onclick="toggleSidebar()" class="text-gray-400 hover:text-red-500 text-2xl p-1"><i class="fas fa-times"></i></button>
+            </div>
             
-            <hr class="my-2 border-gray-50">
+            <div class="flex flex-col gap-2 flex-1">
+                <button onclick="switchTab('dashboard')" class="tab-btn active w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
+                    <i class="fas fa-home w-5 text-center"></i> ড্যাশবোর্ড
+                </button>
+                <button onclick="switchTab('expenses')" class="tab-btn w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
+                    <i class="fas fa-wallet w-5 text-center"></i> খরচ এন্ট্রি (Expenses)
+                </button>
+                <button onclick="switchTab('crm')" class="tab-btn w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
+                    <i class="fas fa-users w-5 text-center"></i> কাস্টমার লিস্ট (CRM)
+                </button>
+                <button onclick="switchTab('reports')" class="tab-btn w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
+                    <i class="fas fa-chart-line w-5 text-center"></i> রিপোর্টস (Reports)
+                </button>
+                
+                <hr class="my-2 border-gray-50">
+                
+                <button onclick="openSettings()" class="w-full text-gray-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-100 transition">
+                    <i class="fas fa-cog w-5 text-center"></i> অ্যাকাউন্ট সেটিংস
+                </button>
+                <button onclick="exportData()" class="w-full bg-gray-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-black transition mt-2">
+                    <i class="fas fa-cloud-download-alt w-5 text-center"></i> Backup Data
+                </button>
+            </div>
             
-            <button onclick="openSettings()" class="admin-only w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
-                <i class="fas fa-cog w-5 text-center"></i> অ্যাকাউন্ট সেটিংস
-            </button>
-        </nav>
-        
-        <div class="pt-4 border-t border-gray-50">
-            <button onclick="logout()" class="w-full bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-red-100 transition">
+            <button onclick="logout()" class="w-full bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-red-100 transition mt-auto">
                 <i class="fas fa-sign-out-alt w-5 text-center"></i> লগআউট
             </button>
         </div>
-    </aside>
 
-    <div id="app-wrapper-content" class="flex-1 flex flex-col min-w-0 bg-gray-50/50 hidden h-screen w-full">
-        
-        <header class="bg-white p-4 shadow-sm border-b border-gray-100 flex justify-between items-center sticky top-0 z-30 no-print">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="text-blue-800 text-2xl focus:outline-none p-1.5 px-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition active:scale-95">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 md:w-10 md:h-10 bg-blue-800 rounded-lg md:rounded-xl flex items-center justify-center text-white font-black text-xs md:text-sm relative overflow-hidden shadow-sm">
-                        <img class="app-logo absolute inset-0 w-full h-full object-cover hidden" src="" alt="L">
-                        <span class="app-logo-text">JN</span>
-                    </div>
-                    <h1 class="font-black text-lg md:text-xl text-blue-800 italic uppercase tracking-tight hidden sm:block">Jersey Nova</h1>
-                </div>
-            </div>
-            
-            <div class="flex items-center">
-                <span id="header-role-badge" class="text-[10px] font-bold bg-blue-100 text-blue-800 px-3 py-1 rounded-full uppercase tracking-widest hidden sm:inline-block shadow-sm border border-blue-200">Role</span>
-            </div>
-        </header>
+        <div class="flex-1 overflow-hidden min-w-0 relative">
 
-        <main class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 w-full max-w-7xl mx-auto">
-            
             <div id="tab-dashboard" class="tab-content block">
-                
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mb-6 no-print">
-                    <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border-b-4 border-blue-600 flex justify-between items-center">
-                        <div><p class="text-[9px] md:text-[10px] text-gray-500 uppercase font-black">মোট অর্ডার</p><h3 id="total-orders" class="text-xl md:text-2xl font-bold text-gray-800">০</h3></div>
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-sm md:text-lg"><i class="fas fa-shopping-bag"></i></div>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6 no-print">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-blue-600 flex justify-between items-center">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">মোট অর্ডার</p><h3 id="total-orders" class="text-2xl font-bold text-gray-800">০</h3></div>
+                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg"><i class="fas fa-shopping-bag"></i></div>
                     </div>
-                    <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border-b-4 border-indigo-500 flex justify-between items-center">
-                        <div><p class="text-[9px] md:text-[10px] text-gray-500 uppercase font-black">মোট বিক্রি</p><h3 id="total-sales" class="text-xl md:text-2xl font-bold text-indigo-700 admin-stat">৳ ০</h3></div>
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 text-sm md:text-lg"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-indigo-500 flex justify-between items-center">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">মোট বিক্রি</p><h3 id="total-sales" class="text-2xl font-bold text-indigo-700">৳ ০</h3></div>
+                        <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 text-lg"><i class="fas fa-money-bill-wave"></i></div>
                     </div>
-                    <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border-b-4 border-orange-500 flex justify-between items-center">
-                        <div><p class="text-[9px] md:text-[10px] text-gray-500 uppercase font-black">ফ্যাক্টরি বিল</p><h3 id="total-factory-cost" class="text-xl md:text-2xl font-bold text-gray-800 admin-stat">৳ ০</h3></div>
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 text-sm md:text-lg"><i class="fas fa-industry"></i></div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-orange-500 flex justify-between items-center">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">ফ্যাক্টরি বিল</p><h3 id="total-factory-cost" class="text-2xl font-bold text-gray-800">৳ ০</h3></div>
+                        <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 text-lg"><i class="fas fa-industry"></i></div>
                     </div>
-                    <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border-b-4 border-green-600 flex justify-between items-center">
-                        <div><p class="text-[9px] md:text-[10px] text-gray-500 uppercase font-black">আসল লাভ</p><h3 id="total-profit" class="text-xl md:text-2xl font-bold text-green-700 admin-stat">৳ ০</h3></div>
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 text-sm md:text-lg"><i class="fas fa-chart-pie"></i></div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-green-600 flex justify-between items-center">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">আসল নিট লাভ (খরচ বাদে)</p><h3 id="total-profit" class="text-2xl font-bold text-green-700">৳ ০</h3></div>
+                        <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 text-lg"><i class="fas fa-chart-pie"></i></div>
                     </div>
-                    <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border-b-4 border-red-500 flex justify-between items-center col-span-2 md:col-span-1">
-                        <div><p class="text-[9px] md:text-[10px] text-gray-500 uppercase font-black">বাকি (Due)</p><h3 id="total-due" class="text-xl md:text-2xl font-bold text-red-600 admin-stat">৳ ০</h3></div>
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 text-sm md:text-lg"><i class="fas fa-hand-holding-dollar"></i></div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-red-500 flex justify-between items-center">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">বাকি (Due)</p><h3 id="total-due" class="text-2xl font-bold text-red-600">৳ ০</h3></div>
+                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 text-lg"><i class="fas fa-hand-holding-dollar"></i></div>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 md:p-6 rounded-3xl shadow-sm mb-8 no-print border border-gray-100">
-                    <h2 id="form-title" class="text-lg md:text-xl font-bold mb-5 text-blue-700 flex items-center border-b pb-3">🆕 নতুন অর্ডার এন্ট্রি</h2>
+                <div class="bg-white p-6 rounded-3xl shadow-sm mb-8 no-print border border-gray-100">
+                    <h2 id="form-title" class="text-xl font-bold mb-5 text-blue-700 flex items-center border-b pb-3">🆕 নতুন অর্ডার এন্ট্রি</h2>
                     <input type="hidden" id="edit-id">
                     
-                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-5">
-                        <input type="date" id="order-date" class="p-3 border rounded-xl outline-none focus:border-blue-500 text-gray-600 bg-gray-50 text-sm w-full">
-                        <select id="order-status" class="p-3 border rounded-xl outline-none focus:border-blue-500 font-bold text-gray-700 bg-white text-sm w-full">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
+                        <input type="date" id="order-date" class="p-3 border rounded-xl outline-none focus:border-blue-500 text-gray-600 bg-gray-50">
+                        <select id="order-status" class="p-3 border rounded-xl outline-none focus:border-blue-500 font-bold text-gray-700 bg-white">
                             <option value="Pending">Pending (পেন্ডিং)</option>
                             <option value="Processing">Processing (প্রসেসিং)</option>
                             <option value="Hold">Hold (হোল্ড)</option>
                             <option value="Shipped">Shipped (কুরিয়ারে)</option>
                             <option value="Paid">Paid (পেইড)</option>
                         </select>
-                        <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-3 border rounded-xl outline-none focus:border-blue-500 text-sm w-full">
-                        <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border rounded-xl outline-none focus:border-blue-500 text-sm w-full">
-                        <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-3 border rounded-xl outline-none focus:border-blue-500 text-sm w-full">
+                        <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-3 border rounded-xl outline-none focus:border-blue-500">
+                        <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border rounded-xl outline-none focus:border-blue-500">
+                        <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-3 border rounded-xl outline-none focus:border-blue-500">
                         
-                        <div class="md:col-span-5 grid grid-cols-3 gap-2 md:gap-3 mb-1">
-                            <input type="number" id="quantity" oninput="calculateStats()" placeholder="জার্সি (পিস)" class="p-3 border rounded-xl bg-blue-50 font-bold text-sm w-full">
-                            <input type="number" id="unit-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-blue-50 font-bold text-sm w-full">
-                            <input type="number" id="factory-rate" oninput="calculateStats()" placeholder="ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold text-sm admin-only-input w-full">
+                        <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-1">
+                            <input type="number" id="quantity" oninput="calculateStats()" placeholder="জার্সি (পিস)" class="p-3 border rounded-xl bg-blue-50 font-bold">
+                            <input type="number" id="unit-price" oninput="calculateStats()" placeholder="জার্সি বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-blue-50 font-bold">
+                            <input type="number" id="factory-rate" oninput="calculateStats()" placeholder="জার্সি ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold">
                         </div>
                         
-                        <div class="md:col-span-5 grid grid-cols-3 gap-2 md:gap-3 mb-2 border-b border-gray-100 pb-4">
-                            <input type="number" id="pant-qty" oninput="calculateStats()" placeholder="প্যান্ট (পিস)" class="p-3 border rounded-xl bg-gray-100 font-bold text-sm w-full">
-                            <input type="number" id="pant-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-gray-100 font-bold text-sm w-full">
-                            <input type="number" id="pant-factory-rate" oninput="calculateStats()" placeholder="ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold text-sm admin-only-input w-full">
+                        <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-2 border-b border-gray-100 pb-4">
+                            <input type="number" id="pant-qty" oninput="calculateStats()" placeholder="প্যান্ট (পিস)" class="p-3 border rounded-xl bg-gray-100 font-bold">
+                            <input type="number" id="pant-price" oninput="calculateStats()" placeholder="প্যান্ট বিক্রয় রেট (৳)" class="p-3 border rounded-xl bg-gray-100 font-bold">
+                            <input type="number" id="pant-factory-rate" oninput="calculateStats()" placeholder="প্যান্ট ফ্যাক্টরি রেট (৳)" class="p-3 border rounded-xl bg-orange-50 font-bold">
                         </div>
 
                         <div class="md:col-span-5 grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border rounded-xl text-sm w-full">
-                            <input type="number" id="other-cost" oninput="calculateStats()" placeholder="অন্যান্য খরচ (৳)" class="p-3 border rounded-xl bg-red-50 font-bold text-red-600 text-sm admin-only-input w-full">
-                            <input type="number" id="advance-paid" oninput="calculateStats()" placeholder="অ্যাডভান্স জমা (৳)" class="p-3 border rounded-xl bg-green-50 font-bold text-sm w-full">
+                            <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border rounded-xl">
+                            <input type="number" id="other-cost" oninput="calculateStats()" placeholder="ডলার/অন্যান্য খরচ (৳)" class="p-3 border rounded-xl bg-red-50 font-bold text-red-600">
+                            <input type="number" id="advance-paid" oninput="calculateStats()" placeholder="অ্যাডভান্স জমা (৳)" class="p-3 border rounded-xl bg-green-50 font-bold">
                         </div>
                         
                         <div class="md:col-span-5 grid grid-cols-3 gap-2 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-300 mt-2">
-                            <div class="text-center"><p class="text-[9px] text-gray-500 font-bold">মোট বিল</p><p class="text-sm md:text-lg font-bold">৳ <span id="display-total">০</span></p></div>
-                            <div class="text-center text-red-600"><p class="text-[9px] text-gray-500 font-bold">বাকি (COD)</p><p class="text-sm md:text-lg font-bold">৳ <span id="display-due">০</span></p></div>
-                            <div class="text-center text-green-700 admin-only"><p class="text-[9px] text-gray-500 font-bold">নিট লাভ</p><p class="text-sm md:text-lg font-bold">৳ <span id="display-profit">০</span></p></div>
+                            <div class="text-center"><p class="text-[10px] text-gray-500 font-bold">মোট বিল</p><p class="text-lg font-bold">৳ <span id="display-total">০</span></p></div>
+                            <div class="text-center text-red-600"><p class="text-[10px] text-gray-500 font-bold">বাকি (COD)</p><p class="text-lg font-bold">৳ <span id="display-due">০</span></p></div>
+                            <div class="text-center text-green-700"><p class="text-[10px] text-gray-500 font-bold">নিট লাভ</p><p class="text-lg font-bold">৳ <span id="display-profit">০</span></p></div>
                         </div>
 
-                        <button id="save-btn" onclick="saveOrder()" class="md:col-span-5 bg-blue-700 text-white py-3 md:py-4 rounded-xl font-bold md:text-lg hover:bg-blue-800 transition shadow-lg w-full">অর্ডার সেভ করুন</button>
+                        <button id="save-btn" onclick="saveOrder()" class="md:col-span-5 bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition shadow-lg">অর্ডার সেভ করুন</button>
                     </div>
                 </div>
 
-                <div class="flex flex-col md:flex-row gap-3 mb-4 no-print items-center w-full">
-                    <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন দিয়ে খুঁজুন..." class="w-full md:w-auto flex-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm">
-                    <div class="flex gap-2 w-full md:w-auto">
-                        <input type="date" id="filter-date" onchange="searchOrders()" class="flex-1 md:w-40 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm text-gray-600 cursor-pointer">
-                        <button onclick="clearDateFilter()" class="bg-gray-200 text-gray-600 px-4 py-3 rounded-xl text-xs font-bold hover:bg-gray-300">Clear</button>
+                <div class="flex flex-col md:flex-row justify-between gap-4 mb-4 no-print items-center">
+                    <div class="flex flex-col md:flex-row gap-2 w-full">
+                        <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন দিয়ে খুঁজুন..." class="flex-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm">
+                        <input type="date" id="filter-date" onchange="searchOrders()" class="w-full md:w-48 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-sm text-gray-600 cursor-pointer">
+                        <button onclick="clearDateFilter()" class="bg-gray-200 text-gray-600 px-4 py-3 rounded-xl text-xs font-bold hover:bg-gray-300 transition">Clear</button>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-3xl shadow-sm overflow-x-auto no-print border border-gray-100">
-                    <table class="w-full text-left min-w-[800px] md:min-w-full">
-                        <thead class="bg-gray-50 text-gray-400 uppercase text-[10px] font-black tracking-widest border-b border-gray-100">
+                    <table class="w-full text-left min-w-[1000px]">
+                        <thead class="bg-gray-50 text-gray-400 uppercase text-[10px] font-black tracking-widest">
                             <tr>
-                                <th class="p-4">কাস্টমার ও তারিখ</th>
-                                <th class="p-4 text-center">কোয়ান্টিটি</th>
-                                <th class="p-4 text-red-500">COD (বাকি)</th>
-                                <th class="p-4 admin-only-th">লাভ</th>
-                                <th class="p-4 text-center">স্ট্যাটাস</th>
-                                <th class="p-4 text-center">অ্যাকশন</th>
+                                <th class="p-5">কাস্টমার প্রোফাইল ও তারিখ</th>
+                                <th class="p-5 text-center">কোয়ান্টিটি</th>
+                                <th class="p-5 text-red-500">COD (বাকি)</th>
+                                <th class="p-5">লাভ</th>
+                                <th class="p-5 text-center">স্ট্যাটাস</th>
+                                <th class="p-5 text-center">অ্যাকশন</th>
                             </tr>
                         </thead>
-                        <tbody id="order-list-body" class="divide-y divide-gray-50 text-sm"></tbody>
+                        <tbody id="order-list-body" class="divide-y divide-gray-50"></tbody>
                     </table>
                 </div>
                 <div id="pagination-controls" class="flex justify-center items-center gap-2 mt-6 mb-4 no-print flex-wrap"></div>
             </div>
 
-            <div id="tab-expenses" class="tab-content hidden admin-only">
-                <div class="bg-white p-5 md:p-6 rounded-3xl shadow-sm mb-6 border border-gray-100">
-                    <h2 class="text-lg md:text-xl font-bold mb-4 text-red-600 flex items-center border-b pb-3"><i class="fas fa-wallet mr-2"></i> নতুন খরচ এন্ট্রি</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                        <input type="date" id="exp-date" class="p-3 border rounded-xl outline-none focus:border-red-500 text-gray-600 bg-gray-50 text-sm w-full">
-                        <input type="text" id="exp-desc" placeholder="বিবরণ (যেমন: অফিস ভাড়া, বুস্ট)" class="p-3 border rounded-xl outline-none focus:border-red-500 md:col-span-2 text-sm w-full">
+            <div id="tab-expenses" class="tab-content hidden">
+                <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border border-gray-100">
+                    <h2 class="text-xl font-bold mb-5 text-red-600 flex items-center border-b pb-3"><i class="fas fa-wallet mr-2"></i> নতুন খরচ এন্ট্রি</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="date" id="exp-date" class="p-3 border rounded-xl outline-none focus:border-red-500 text-gray-600 bg-gray-50">
+                        <input type="text" id="exp-desc" placeholder="খরচের বিবরণ (যেমন: স্টাফ বিল, বুস্ট)" class="p-3 border rounded-xl outline-none focus:border-red-500 md:col-span-2">
                         <div class="flex gap-2">
-                            <input type="number" id="exp-amount" placeholder="টাকা (৳)" class="w-full p-3 border rounded-xl outline-none focus:border-red-500 font-bold bg-red-50 text-sm">
-                            <button onclick="saveExpense()" class="bg-red-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-red-700 transition">Save</button>
+                            <input type="number" id="exp-amount" placeholder="টাকা (৳)" class="w-full p-3 border rounded-xl outline-none focus:border-red-500 font-bold bg-red-50">
+                            <button onclick="saveExpense()" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-700 transition">Save</button>
                         </div>
                     </div>
                 </div>
                 <div class="bg-white rounded-3xl shadow-sm overflow-x-auto border border-gray-100">
-                    <table class="w-full text-left min-w-[500px]">
-                        <thead class="bg-red-50 text-red-400 uppercase text-[10px] font-black tracking-widest border-b border-gray-100">
-                            <tr><th class="p-4 w-24 md:w-32">তারিখ</th><th class="p-4">বিবরণ</th><th class="p-4 font-bold">অ্যামাউন্ট</th><th class="p-4 text-center w-24">অ্যাকশন</th></tr>
+                    <table class="w-full text-left">
+                        <thead class="bg-red-50 text-red-400 uppercase text-[10px] font-black tracking-widest">
+                            <tr><th class="p-5 w-32">তারিখ</th><th class="p-5">বিবরণ</th><th class="p-5 font-bold">অ্যামাউন্ট</th><th class="p-5 text-center w-24">অ্যাকশন</th></tr>
                         </thead>
-                        <tbody id="expense-list-body" class="divide-y divide-gray-50 text-sm"></tbody>
+                        <tbody id="expense-list-body" class="divide-y divide-gray-50"></tbody>
                     </table>
                 </div>
             </div>
 
             <div id="tab-crm" class="tab-content hidden">
-                <div class="bg-white p-5 md:p-6 rounded-3xl shadow-sm mb-6 border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border border-gray-100 flex justify-between items-center">
                     <div>
-                        <h2 class="text-lg md:text-xl font-bold text-blue-800"><i class="fas fa-users mr-2"></i> কাস্টমার ডাটাবেজ</h2>
-                        <p class="text-xs text-gray-500 mt-1">ইউনিক কাস্টমার লিস্ট (SMS মার্কেটিং)</p>
+                        <h2 class="text-xl font-bold text-blue-800"><i class="fas fa-users mr-2"></i> কাস্টমার ডাটাবেজ</h2>
+                        <p class="text-xs text-gray-500 mt-1">সব ইউনিক কাস্টমারের লিস্ট (SMS মার্কেটিং এর জন্য)</p>
                     </div>
-                    <div class="bg-blue-50 text-blue-700 font-bold px-4 py-2 rounded-xl text-sm border border-blue-100">মোট: <span id="crm-total-count">০</span> জন</div>
+                    <div class="bg-blue-50 text-blue-700 font-bold px-4 py-2 rounded-xl text-sm border border-blue-100">
+                        মোট কাস্টমার: <span id="crm-total-count">০</span>
+                    </div>
                 </div>
                 <div class="bg-white rounded-3xl shadow-sm overflow-x-auto border border-gray-100">
-                    <table class="w-full text-left min-w-[600px]">
-                        <thead class="bg-indigo-50 text-indigo-500 uppercase text-[10px] font-black tracking-widest border-b border-gray-100">
-                            <tr><th class="p-4">নাম ও ঠিকানা</th><th class="p-4">ফোন নম্বর</th><th class="p-4 text-center">অর্ডার সংখ্যা</th><th class="p-4 admin-only-th">কেনাকাটা</th></tr>
+                    <table class="w-full text-left">
+                        <thead class="bg-indigo-50 text-indigo-500 uppercase text-[10px] font-black tracking-widest">
+                            <tr><th class="p-5">কাস্টমারের নাম ও ঠিকানা</th><th class="p-5">ফোন নম্বর</th><th class="p-5 text-center">মোট অর্ডার</th><th class="p-5">মোট টাকার কেনাকাটা</th></tr>
                         </thead>
-                        <tbody id="crm-list-body" class="divide-y divide-gray-50 text-sm"></tbody>
+                        <tbody id="crm-list-body" class="divide-y divide-gray-50"></tbody>
                     </table>
                 </div>
             </div>
 
-            <div id="tab-reports" class="tab-content hidden admin-only">
-                <div class="bg-white p-5 md:p-6 rounded-3xl shadow-sm mb-6 border border-gray-100 no-print flex flex-col gap-4">
-                    <h2 class="text-lg md:text-xl font-bold text-blue-800 border-b pb-3"><i class="fas fa-chart-line mr-2"></i> রিপোর্ট তৈরি করুন</h2>
-                    
-                    <div class="flex flex-wrap items-center gap-2 md:gap-3">
-                        <button onclick="generateReport('this_month')" class="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-xs md:text-sm font-bold border border-blue-200">এই মাস</button>
-                        <button onclick="generateReport('last_month')" class="bg-gray-50 text-gray-700 px-3 py-2 rounded-lg text-xs md:text-sm font-bold border border-gray-200">গত মাস</button>
-                        <button onclick="generateReport('this_year')" class="bg-gray-50 text-gray-700 px-3 py-2 rounded-lg text-xs md:text-sm font-bold border border-gray-200">এই বছর</button>
-                        
-                        <div class="flex items-center gap-2 border-l border-gray-200 pl-3">
-                            <span class="text-[10px] md:text-xs font-bold text-gray-500">নির্দিষ্ট মাস:</span>
-                            <input type="month" id="custom-month-picker" onchange="generateReport('custom')" class="p-1.5 md:p-2 border rounded-lg text-xs md:text-sm outline-none bg-gray-50">
-                        </div>
-
-                        <button onclick="downloadReportPDF()" class="md:ml-auto w-full md:w-auto mt-2 md:mt-0 bg-green-600 text-white px-4 py-2 rounded-lg text-xs md:text-sm font-bold shadow-md flex justify-center items-center gap-2">
+            <div id="tab-reports" class="tab-content hidden">
+                <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border border-gray-100 no-print">
+                    <h2 class="text-xl font-bold mb-4 text-blue-800 border-b pb-3"><i class="fas fa-chart-line mr-2"></i> রিপোর্ট তৈরি করুন</h2>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="generateReport('this_month')" class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 hover:bg-blue-100 transition">এই মাস</button>
+                        <button onclick="generateReport('last_month')" class="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold border border-gray-200 hover:bg-gray-100 transition">গত মাস</button>
+                        <button onclick="generateReport('this_year')" class="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold border border-gray-200 hover:bg-gray-100 transition">এই বছর</button>
+                        <button onclick="downloadReportPDF()" class="ml-auto bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-green-700 transition flex items-center gap-2 shadow-md">
                             <i class="fas fa-file-pdf"></i> Download PDF
                         </button>
                     </div>
                 </div>
 
-                <div id="report-print-area" class="bg-white p-6 md:p-10 rounded-3xl shadow-sm border border-gray-100 min-h-[500px]">
+                <div id="report-print-area" class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 min-h-[500px]">
                     <div class="text-center mb-8 border-b-2 border-gray-100 pb-6">
-                        <h1 class="text-2xl md:text-3xl font-black text-blue-900 uppercase italic tracking-tighter">Jersey Nova</h1>
-                        <h2 id="report-title" class="text-base md:text-lg font-bold text-gray-600 mt-1">Monthly Report</h2>
+                        <h1 class="text-3xl font-black text-blue-900 uppercase italic tracking-tighter">Jersey Nova</h1>
+                        <h2 id="report-title" class="text-lg font-bold text-gray-600 mt-1">Monthly Report</h2>
                     </div>
                     
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-                        <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100 text-center"><p class="text-[9px] md:text-xs text-blue-600 font-bold uppercase mb-1">মোট বিক্রি</p><h3 id="rep-sales" class="text-xl md:text-2xl font-black text-blue-900">৳ ০</h3></div>
-                        <div class="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-center"><p class="text-[9px] md:text-xs text-orange-600 font-bold uppercase mb-1">ফ্যাক্টরি বিল</p><h3 id="rep-factory" class="text-xl md:text-2xl font-black text-orange-900">৳ ০</h3></div>
-                        <div class="bg-red-50 p-4 rounded-2xl border border-red-100 text-center"><p class="text-[9px] md:text-xs text-red-600 font-bold uppercase mb-1">মোট খরচ</p><h3 id="rep-expenses" class="text-xl md:text-2xl font-black text-red-900">৳ ০</h3></div>
-                        <div class="bg-green-50 p-4 rounded-2xl border border-green-100 text-center"><p class="text-[9px] md:text-xs text-green-600 font-bold uppercase mb-1">নিট লাভ</p><h3 id="rep-profit" class="text-xl md:text-2xl font-black text-green-900">৳ ০</h3></div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100 text-center">
+                            <p class="text-xs text-blue-600 font-bold uppercase mb-1">মোট বিক্রি (Sales)</p>
+                            <h3 id="rep-sales" class="text-2xl font-black text-blue-900">৳ ০</h3>
+                        </div>
+                        <div class="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-center">
+                            <p class="text-xs text-orange-600 font-bold uppercase mb-1">ফ্যাক্টরি বিল (Cost)</p>
+                            <h3 id="rep-factory" class="text-2xl font-black text-orange-900">৳ ০</h3>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-2xl border border-red-100 text-center">
+                            <p class="text-xs text-red-600 font-bold uppercase mb-1">মোট খরচ (Expenses)</p>
+                            <h3 id="rep-expenses" class="text-2xl font-black text-red-900">৳ ০</h3>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-2xl border border-green-100 text-center">
+                            <p class="text-xs text-green-600 font-bold uppercase mb-1">আসল নিট লাভ (Net Profit)</p>
+                            <h3 id="rep-profit" class="text-2xl font-black text-green-900">৳ ০</h3>
+                        </div>
                     </div>
-                    <p class="text-center text-[10px] text-gray-400 font-bold mt-10 italic">Generated by Jersey Nova ERP System</p>
+                    
+                    <p class="text-center text-xs text-gray-400 font-bold mt-10 italic">Generated by Jersey Nova ERP System</p>
                 </div>
             </div>
 
-        </main>
+        </div>
     </div> 
 
-    <div id="settings-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
-        <div class="bg-white rounded-3xl w-full max-w-2xl p-5 md:p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h2 class="text-xl font-black text-blue-800">⚙️ অ্যাকাউন্ট ও সেটিংস</h2>
-                <button onclick="closeSettings()" class="text-gray-400 hover:text-red-500 text-2xl"><i class="fas fa-times"></i></button>
-            </div>
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4 transition-opacity">
+        <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeSettings()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl"><i class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-black mb-6 text-blue-800 border-b pb-3">⚙️ অ্যাকাউন্ট সেটিংস</h2>
             
-            <div class="space-y-5 overflow-y-auto pr-2 flex-1">
-                
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <h3 class="text-sm font-black text-gray-700 mb-3"><i class="fas fa-user-plus mr-1"></i> নতুন অ্যাকাউন্ট তৈরি করুন</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-3">
-                        <input type="text" id="new-user-name" placeholder="ইউজারনেম" class="p-2 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
-                        <input type="text" id="new-user-pass" placeholder="পাসওয়ার্ড" class="p-2 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
-                        <select id="new-user-role" class="p-2 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
-                            <option value="staff">Staff (স্টাফ)</option>
-                            <option value="admin">Admin (অ্যাডমিন)</option>
-                        </select>
-                        <button onclick="createNewUser()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow w-full sm:col-span-1">তৈরি করুন</button>
-                    </div>
-                    
-                    <h3 class="text-sm font-black text-gray-700 mb-2 mt-5 border-t pt-3"><i class="fas fa-users mr-1"></i> সিস্টেম ইউজার লিস্ট</h3>
-                    <div class="bg-white rounded-lg border border-gray-200 overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-gray-100 text-gray-500"><tr><th class="p-3">ইউজারনেম</th><th class="p-3">পাসওয়ার্ড</th><th class="p-3">রোল</th><th class="p-3 text-center w-16">অ্যাকশন</th></tr></thead>
-                            <tbody id="user-list-body" class="divide-y divide-gray-100"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex flex-col h-full">
-                        <label class="block text-xs font-bold text-gray-700 mb-2">ইনভয়েস টার্মস / মেসেজ</label>
-                        <textarea id="setting-terms" rows="3" class="w-full p-2 border rounded-lg outline-none text-sm mb-2 flex-1"></textarea>
-                        <button onclick="saveSetting('terms', 'setting-terms')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold w-full">মেসেজ সেভ করুন</button>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 h-full">
-                        <div class="drop-zone relative rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer bg-white border-2 border-dashed border-blue-300" onclick="document.getElementById('logo-upload').click()">
-                            <i class="fas fa-image text-2xl text-blue-400 mb-1"></i><span class="text-[10px] font-bold text-gray-600">লোগো আপলোড</span>
-                            <input type="file" id="logo-upload" accept="image/*" class="hidden">
-                        </div>
-                        <div class="drop-zone relative rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer bg-white border-2 border-dashed border-blue-300" onclick="document.getElementById('qr-upload').click()">
-                            <i class="fas fa-qrcode text-2xl text-blue-400 mb-1"></i><span class="text-[10px] font-bold text-gray-600">QR আপলোড</span>
-                            <input type="file" id="qr-upload" accept="image/*" class="hidden">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="flex justify-between items-center bg-gray-800 text-white p-4 rounded-xl">
-                    <div>
-                        <p class="text-sm font-bold">ডাটা ব্যাকআপ ও রিস্টোর</p>
-                        <p class="text-[10px] text-gray-400">নিরাপত্তার জন্য মাঝে মাঝে ব্যাকআপ নিন</p>
-                    </div>
+            <div class="space-y-6">
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">পাসওয়ার্ড পরিবর্তন</label>
                     <div class="flex gap-2">
-                        <button onclick="exportData()" class="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded text-xs font-bold transition"><i class="fas fa-download mr-1"></i> Backup</button>
-                        <label class="bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded text-xs font-bold cursor-pointer transition">
-                            <i class="fas fa-upload mr-1"></i> Restore
-                            <input type="file" class="hidden" accept=".json" onchange="importData(event)">
-                        </label>
+                        <input type="text" id="setting-password" placeholder="নতুন পাসওয়ার্ড লিখুন" class="w-full p-3 border rounded-xl outline-none focus:border-blue-500 text-sm">
+                        <button onclick="saveSetting('password', 'setting-password')" class="bg-gray-800 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition">আপডেট</button>
                     </div>
                 </div>
 
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">ইনভয়েস টার্মস / মেসেজ</label>
+                    <textarea id="setting-terms" rows="3" placeholder="যেমন: Exchange within 3 days..." class="w-full p-3 border rounded-xl outline-none focus:border-blue-500 text-sm mb-2"></textarea>
+                    <button onclick="saveSetting('terms', 'setting-terms')" class="w-full bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition">মেসেজ সেভ করুন</button>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">কোম্পানি লোগো (Header & Invoice)</label>
+                    <div class="drop-zone relative rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer" onclick="document.getElementById('logo-upload').click()">
+                        <i class="fas fa-cloud-upload-alt text-3xl text-blue-400 mb-2"></i>
+                        <span class="text-sm font-bold text-blue-700">ক্লিক করুন বা ছবি ড্র্যাগ করুন</span>
+                        <input type="file" id="logo-upload" accept="image/*" class="hidden">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">পেমেন্ট QR Code (Invoice)</label>
+                    <div class="drop-zone relative rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer" onclick="document.getElementById('qr-upload').click()">
+                        <i class="fas fa-qrcode text-3xl text-blue-400 mb-2"></i>
+                        <span class="text-sm font-bold text-blue-700">ক্লিক করুন বা QR ড্র্যাগ করুন</span>
+                        <input type="file" id="qr-upload" accept="image/*" class="hidden">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
-    <div id="invoice-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
+    <div id="invoice-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-2 relative">
             <div id="invoice-capture-area" class="p-6 bg-white border-2 border-blue-600 rounded-2xl shadow-xl relative overflow-hidden">
                 <img class="app-logo absolute inset-0 m-auto opacity-[0.05] w-56 h-56 object-contain pointer-events-none z-0 hidden" src="" alt="Watermark">
+                
                 <div class="relative z-10">
                     <div class="relative text-center border-b-2 border-blue-100 pb-4 mb-4">
                         <img class="app-logo absolute left-0 top-0 w-12 h-12 rounded-lg object-cover shadow-sm hidden" src="" alt="Logo">
                         <div class="app-logo-text absolute left-0 top-0 w-12 h-12 bg-blue-800 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-sm">JN</div>
-                        <h1 class="text-3xl font-black text-blue-800 italic tracking-tighter">JERSEY NOVA</h1>
-                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-[0.2em]">Premium Sports Apparel</p>
                         
                         <img class="app-qr absolute right-0 top-0 w-12 h-12 object-cover border border-gray-200 rounded p-0.5 bg-white hidden" src="" alt="QR">
                         <div class="app-qr-text absolute right-0 top-0 w-12 h-12 border border-dashed border-gray-300 rounded flex items-center justify-center text-gray-300 text-[8px] font-bold">No QR</div>
+                        
+                        <h1 class="text-3xl font-black text-blue-800 italic">JERSEY NOVA</h1>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Premium Sports Apparel</p>
                     </div>
                     <div id="invoice-content" class="text-sm space-y-3"></div>
                     <div class="mt-6 pt-4 border-t border-dashed text-center flex flex-col items-center justify-center gap-2">
@@ -396,60 +354,45 @@
                     </div>
                 </div>
             </div>
+
             <div class="flex flex-col gap-2 mt-4 p-2">
-                <button onclick="downloadInvoiceImage()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow hover:bg-green-700">📸 ইনভয়েস ডাউনলোড</button>
-                <button onclick="closeInvoice()" class="w-full bg-gray-100 text-gray-500 py-2 rounded-xl font-bold text-xs hover:bg-gray-200">বন্ধ করুন</button>
+                <button onclick="downloadInvoiceImage()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 shadow-md">📸 ইনভয়েস ইমেজ ডাউনলোড করুন</button>
+                <button onclick="closeInvoice()" class="w-full bg-gray-100 text-gray-500 py-2 rounded-xl font-bold text-xs hover:bg-gray-200 transition">বন্ধ করুন</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- Firebase Config ---
+        // --- Firebase Configuration ---
         const firebaseConfig = { databaseURL: "https://jersey-nova-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database().ref('orders');
         const dbSettings = firebase.database().ref('settings');
         const dbExpenses = firebase.database().ref('expenses');
-        const dbUsers = firebase.database().ref('users');
 
-        // Global State
-        let orders = [], expenses = [], usersData = {};
-        let currentPage = 1; const itemsPerPage = 10; 
-        let currentUserRole = null; 
-        let appSettings = { logo: '', qr: '', terms: 'Thank you for choosing Jersey Nova!' };
+        // SweetAlert2 Toast Configuration
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, customClass: { popup: 'rounded-xl shadow-lg border border-gray-100' }});
+        // Global State Variables
+        let orders = [];
+        let expenses = [];
+        let currentPage = 1;
+        const itemsPerPage = 10; 
+        let appSettings = { password: 'sahil882', logo: '', qr: '', terms: 'Thank you for choosing Jersey Nova!' };
 
+        // --- App Initialization ---
         function initApp() {
             document.getElementById('order-date').valueAsDate = new Date();
             document.getElementById('exp-date').valueAsDate = new Date();
-            
-            const now = new Date();
-            document.getElementById('custom-month-picker').max = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
+            document.getElementById('order-status').value = 'Pending';
             setupDragAndDrop();
 
-            // Load Settings & Accounts Once
-            dbSettings.once('value', snap => {
-                if(snap.val()) { appSettings = { ...appSettings, ...snap.val() }; applySettingsToUI(); } 
-                else dbSettings.set(appSettings);
-            });
-
-            dbUsers.once('value', snap => {
+            dbSettings.on('value', snap => {
                 if(snap.val()) {
-                    usersData = snap.val();
-                } else {
-                    const dId = Date.now();
-                    usersData = { [dId]: { username: 'admin', password: '123', role: 'admin' } };
-                    dbUsers.set(usersData);
-                }
-                renderUserList();
+                    appSettings = { ...appSettings, ...snap.val() };
+                    applySettingsToUI();
+                } else dbSettings.set(appSettings);
             });
-        }
-
-        function loadAppData() {
-            db.on('value', snap => { orders = snap.val() ? Object.values(snap.val()) : []; renderOrders(); renderCRM(); });
-            dbExpenses.on('value', snap => { expenses = snap.val() ? Object.values(snap.val()) : []; if(currentUserRole === 'admin') renderExpenses(); renderOrders(); });
         }
 
         function applySettingsToUI() {
@@ -461,106 +404,24 @@
                 document.querySelectorAll('.app-qr').forEach(img => { img.src = appSettings.qr; img.classList.remove('hidden'); });
                 document.querySelectorAll('.app-qr-text').forEach(el => el.classList.add('hidden'));
             }
+            document.getElementById('setting-password').value = appSettings.password;
             document.getElementById('setting-terms').value = appSettings.terms || "";
         }
 
-        function createNewUser() {
-            const uName = document.getElementById('new-user-name').value.trim();
-            const uPass = document.getElementById('new-user-pass').value.trim();
-            const uRole = document.getElementById('new-user-role').value;
-            
-            if(!uName || !uPass) return Swal.fire('ত্রুটি', 'ইউজারনেম এবং পাসওয়ার্ড দিন!', 'warning');
-            for(let k in usersData) { if(usersData[k].username === uName) return Swal.fire('ত্রুটি', 'এই ইউজারনেমটি আগে থেকেই আছে!', 'error'); }
-            
-            const id = Date.now();
-            dbUsers.child(id).set({ username: uName, password: uPass, role: uRole }).then(() => {
-                Toast.fire({icon:'success', title:'অ্যাকাউন্ট তৈরি হয়েছে'});
-                document.getElementById('new-user-name').value = '';
-                document.getElementById('new-user-pass').value = '';
-            });
-        }
-
-        function deleteUser(id) {
-            if(usersData[id].username === 'admin') return Swal.fire('ত্রুটি', 'প্রধান অ্যাডমিন অ্যাকাউন্ট ডিলিট করা যাবে না!', 'error');
-            Swal.fire({title: 'ডিলিট করতে চান?', icon:'warning', showCancelButton: true, confirmButtonColor:'#d33'}).then(res => {
-                if(res.isConfirmed) dbUsers.child(id).remove();
-            });
-        }
-
-        function renderUserList() {
-            const tbody = document.getElementById('user-list-body');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            for(let key in usersData) {
-                let u = usersData[key];
-                let roleB = u.role === 'admin' ? '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded uppercase tracking-wide">Admin</span>' : '<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded uppercase tracking-wide">Staff</span>';
-                let delBtn = u.username === 'admin' ? '<span class="text-gray-300">-</span>' : `<button onclick="deleteUser('${key}')" class="text-red-500 hover:text-red-700 bg-red-50 p-1 rounded"><i class="fas fa-trash"></i></button>`;
-                tbody.innerHTML += `<tr class="border-b border-gray-50 hover:bg-gray-50"><td class="p-3 font-bold text-gray-700">${u.username}</td><td class="p-3 font-mono text-gray-500 text-[10px]">${u.password}</td><td class="p-3 text-[9px] font-black">${roleB}</td><td class="p-3 text-center">${delBtn}</td></tr>`;
-            }
-        }
-
-        function checkLogin() {
-            const userInp = document.getElementById('login-username').value.trim();
-            const passInp = document.getElementById('login-pass').value;
-
-            if(!userInp || !passInp) return Swal.fire({icon: 'warning', title: 'খালি রাখা যাবে না!'});
-
-            let matchedUser = null;
-            for(let key in usersData) {
-                if(usersData[key].username === userInp && usersData[key].password === passInp) {
-                    matchedUser = usersData[key]; break;
-                }
-            }
-
-            if(matchedUser) {
-                currentUserRole = matchedUser.role;
-                let bText = matchedUser.role === 'admin' ? 'Admin' : 'Staff';
-                let bClass = matchedUser.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-800';
-                
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('app-wrapper').classList.remove('hidden');
-                document.getElementById('app-wrapper-content').classList.remove('hidden');
-                
-                const badgeDesktop = document.getElementById('user-badge');
-                badgeDesktop.innerText = bText + ": " + matchedUser.username;
-                
-                const badgeMobile = document.getElementById('header-role-badge');
-                if (badgeMobile) {
-                    badgeMobile.innerText = bText + ": " + matchedUser.username;
-                    badgeMobile.classList.remove('hidden');
-                }
-                
-                Toast.fire({ icon: 'success', title: `স্বাগতম, ${matchedUser.username}!` });
-                
-                if(matchedUser.role === 'staff') applyStaffRestrictions();
-                
-                loadAppData();
-            } 
-            else {
-                Swal.fire({icon: 'error', title: 'ভুল তথ্য!', text: 'ইউজারনেম বা পাসওয়ার্ড সঠিক নয়।', customClass: { popup: 'rounded-2xl' }}); 
-            }
-        }
-
-        function applyStaffRestrictions() {
-            document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.admin-only-th').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.admin-stat').forEach(el => { el.classList.add('staff-hidden'); el.innerText = '৳ ***'; });
-            document.querySelectorAll('.admin-only-input').forEach(el => { el.disabled = true; el.placeholder = "Not Allowed"; el.classList.add('bg-gray-200', 'cursor-not-allowed'); });
-        }
-
-        function logout() { location.reload(); }
-
         function saveSetting(key, elementId) {
-            dbSettings.child(key).set(document.getElementById(elementId).value).then(() => Toast.fire({ icon: 'success', title: 'আপডেট হয়েছে!' }));
+            const val = document.getElementById(elementId).value;
+            if(!val.trim() && key==='password') return Swal.fire({icon: 'warning', title: 'খালি রাখা যাবে না!'});
+            dbSettings.child(key).set(val).then(() => Toast.fire({ icon: 'success', title: 'সেটিংস আপডেট হয়েছে!' }));
         }
 
         function processFile(file, dbKey) {
-            if(!file.type.startsWith('image/')) return;
+            if(!file.type.startsWith('image/')) return Swal.fire({icon: 'error', title: 'শুধুমাত্র ছবি আপলোড করুন!'});
+            Swal.fire({ title: 'আপলোড হচ্ছে...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             const reader = new FileReader();
-            reader.onload = function(e) {
-                dbSettings.child(dbKey).set(e.target.result).then(() => {
-                    Toast.fire({ icon: 'success', title: 'ছবি সেভ হয়েছে!' });
-                }).catch(err => Swal.fire({icon: 'error', title: 'সাইজ অনেক বড়!'}));
+            reader.onload = function(event) {
+                dbSettings.child(dbKey).set(event.target.result).then(() => {
+                    Swal.close(); Toast.fire({ icon: 'success', title: 'ছবি সেভ হয়েছে!' });
+                }).catch(err => Swal.fire({icon: 'error', title: 'সাইজ অনেক বড়!', text: 'ছোট সাইজের ছবি দিন।'}));
             };
             reader.readAsDataURL(file);
         }
@@ -570,55 +431,178 @@
             document.getElementById('qr-upload').addEventListener('change', (e) => { if(e.target.files[0]) processFile(e.target.files[0], 'qr'); });
         }
 
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            const ov = document.getElementById('sidebar-overlay');
-            if(sb.classList.contains('-translate-x-full')) {
-                sb.classList.remove('-translate-x-full'); ov.classList.remove('hidden');
-            } else {
-                sb.classList.add('-translate-x-full'); ov.classList.add('hidden');
-            }
+        // --- Core Auth & Tab Logic ---
+        function checkLogin() {
+            const passInput = document.getElementById('admin-pass').value;
+            if(passInput === appSettings.password) {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('app-wrapper').classList.remove('hidden');
+                Toast.fire({ icon: 'success', title: 'সফলভাবে লগিন হয়েছে!' });
+                
+                db.on('value', snap => { orders = snap.val() ? Object.values(snap.val()) : []; renderOrders(); renderCRM(); });
+                dbExpenses.on('value', snap => { expenses = snap.val() ? Object.values(snap.val()) : []; renderExpenses(); renderOrders(); }); // Render orders again to calc net profit
+            } else Swal.fire({icon: 'error', title: 'ভুল পাসওয়ার্ড!'}); 
         }
 
-        function openSettings() { 
-            if(!document.getElementById('sidebar').classList.contains('-translate-x-full')) toggleSidebar(); 
-            document.getElementById('settings-modal').classList.remove('hidden'); 
+        function logout() { location.reload(); }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('translate-x-full');
+            document.getElementById('sidebar-overlay').classList.toggle('hidden');
         }
+
+        function openSettings() { toggleSidebar(); document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active', 'text-blue-700', 'bg-blue-50'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active', 'text-blue-700'));
             
             document.getElementById('tab-' + tabId).classList.remove('hidden');
-            event.currentTarget.classList.add('active', 'text-blue-700', 'bg-blue-50');
+            event.currentTarget.classList.add('active', 'text-blue-700');
             
-            if(!document.getElementById('sidebar').classList.contains('-translate-x-full')) toggleSidebar();
+            if(window.innerWidth < 1024) toggleSidebar();
             
-            if(tabId === 'expenses' && currentUserRole === 'admin') renderExpenses();
+            if(tabId === 'expenses') renderExpenses();
             if(tabId === 'crm') renderCRM();
-            if(tabId === 'reports' && currentUserRole === 'admin') generateReport('this_month');
+            if(tabId === 'reports') generateReport('this_month');
         }
 
-        // --- DASHBOARD LOGIC ---
+        // --- EXPENSES SYSTEM ---
+        function saveExpense() {
+            const date = document.getElementById('exp-date').value;
+            const desc = document.getElementById('exp-desc').value;
+            const amt = parseFloat(document.getElementById('exp-amount').value);
+            
+            if(!desc || !amt) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
+            
+            const id = Date.now();
+            dbExpenses.child(id).set({ id, date, desc, amount: amt }).then(() => {
+                Toast.fire({ icon: 'success', title: 'খরচ এন্ট্রি হয়েছে!' });
+                document.getElementById('exp-desc').value = '';
+                document.getElementById('exp-amount').value = '';
+            });
+        }
+
+        function deleteExpense(id) {
+            Swal.fire({ title: 'মুছে ফেলতে চান?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'হ্যাঁ' })
+            .then((res) => { if(res.isConfirmed) dbExpenses.child(id).remove(); });
+        }
+
+        function renderExpenses() {
+            const tbody = document.getElementById('expense-list-body');
+            tbody.innerHTML = '';
+            const sorted = [...expenses].sort((a,b) => b.id - a.id);
+            
+            sorted.forEach(e => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-red-50/50 transition border-b border-gray-50">
+                        <td class="p-5 font-bold text-gray-500">${e.date}</td>
+                        <td class="p-5 font-bold text-gray-800">${e.desc}</td>
+                        <td class="p-5 font-black text-red-600">৳ ${e.amount}</td>
+                        <td class="p-5 text-center"><button onclick="deleteExpense(${e.id})" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
+            });
+        }
+
+        // --- CRM SYSTEM ---
+        function renderCRM() {
+            const unique = {};
+            orders.forEach(o => {
+                if(!unique[o.phone]) unique[o.phone] = { name: o.name, phone: o.phone, addr: o.addr, orders: 0, spent: 0 };
+                unique[o.phone].orders++;
+                unique[o.phone].spent += o.totalBill;
+            });
+            
+            const tbody = document.getElementById('crm-list-body');
+            tbody.innerHTML = '';
+            const arr = Object.values(unique).sort((a,b) => b.spent - a.spent);
+            
+            document.getElementById('crm-total-count').innerText = arr.length;
+            
+            arr.forEach(c => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-indigo-50/50 transition border-b border-gray-50">
+                        <td class="p-5">
+                            <span class="font-black text-blue-900">${c.name}</span><br>
+                            <span class="text-[11px] text-gray-500">${c.addr}</span>
+                        </td>
+                        <td class="p-5 font-bold text-gray-700">${c.phone} <a href="https://wa.me/88${c.phone}" target="_blank" class="ml-2 text-green-500"><i class="fab fa-whatsapp"></i></a></td>
+                        <td class="p-5 text-center font-black text-indigo-600">${c.orders}</td>
+                        <td class="p-5 font-black text-gray-800">৳ ${c.spent}</td>
+                    </tr>`;
+            });
+        }
+
+        // --- REPORT SYSTEM ---
+        function isDateInRange(dateStr, range) {
+            const d = new Date(dateStr);
+            const now = new Date();
+            if(range === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            if(range === 'last_month') {
+                let m = now.getMonth() - 1, y = now.getFullYear();
+                if(m < 0) { m = 11; y--; }
+                return d.getMonth() === m && d.getFullYear() === y;
+            }
+            if(range === 'this_year') return d.getFullYear() === now.getFullYear();
+            return true;
+        }
+
+        function generateReport(range) {
+            let tSales = 0, tFact = 0, tExp = 0, tRawProfit = 0;
+            
+            orders.forEach(o => {
+                if(isDateInRange(o.date, range)) {
+                    tSales += o.totalBill; tFact += o.totalFactoryCost; tRawProfit += o.profit;
+                }
+            });
+            
+            expenses.forEach(e => { if(isDateInRange(e.date, range)) tExp += parseFloat(e.amount); });
+            
+            let titles = { 'this_month': 'এই মাসের রিপোর্ট', 'last_month': 'গত মাসের রিপোর্ট', 'this_year': 'এই বছরের রিপোর্ট' };
+            document.getElementById('report-title').innerText = titles[range];
+            
+            document.getElementById('rep-sales').innerText = "৳ " + tSales;
+            document.getElementById('rep-factory').innerText = "৳ " + tFact;
+            document.getElementById('rep-expenses').innerText = "৳ " + tExp;
+            document.getElementById('rep-profit').innerText = "৳ " + (tRawProfit - tExp); // True Net Profit
+        }
+
+        function downloadReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const area = document.getElementById('report-print-area');
+            Swal.fire({ title: 'PDF তৈরি হচ্ছে...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            
+            html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfW = pdf.internal.pageSize.getWidth();
+                const pdfH = (canvas.height * pdfW) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+                pdf.save(`JerseyNova_Report_${Date.now()}.pdf`);
+                Swal.close();
+            });
+        }
+
+        // --- DASHBOARD ORDER SYSTEM ---
         function calculateStats() {
             const qty = parseFloat(document.getElementById('quantity').value) || 0;
             const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
             const pQty = parseFloat(document.getElementById('pant-qty').value) || 0;
             const pPrice = parseFloat(document.getElementById('pant-price').value) || 0;
+            const pFRate = parseFloat(document.getElementById('pant-factory-rate').value) || 0;
             const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
+            const otherCost = parseFloat(document.getElementById('other-cost').value) || 0;
 
             const totalBill = (qty * uprice) + (pQty * pPrice) + dCharge;
+            const totalFactoryCost = (qty * fRate) + (pQty * pFRate);
+            const profit = totalBill - (totalFactoryCost + dCharge + otherCost);
+            
             document.getElementById('display-total').innerText = totalBill;
             document.getElementById('display-due').innerText = totalBill - advance;
-            
-            if(currentUserRole === 'admin') {
-                let fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
-                let pFRate = parseFloat(document.getElementById('pant-factory-rate').value) || 0;
-                let otherCost = parseFloat(document.getElementById('other-cost').value) || 0;
-                document.getElementById('display-profit').innerText = totalBill - ((qty * fRate) + (pQty * pFRate) + dCharge + otherCost);
-            }
+            document.getElementById('display-profit').innerText = profit;
         }
 
         function saveOrder() {
@@ -631,35 +615,30 @@
             
             const qty = parseFloat(document.getElementById('quantity').value) || 0;
             const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
             const pQty = parseFloat(document.getElementById('pant-qty').value) || 0;
             const pPrice = parseFloat(document.getElementById('pant-price').value) || 0;
+            const pFRate = parseFloat(document.getElementById('pant-factory-rate').value) || 0;
             const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
+            const otherCost = parseFloat(document.getElementById('other-cost').value) || 0;
             const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
 
-            if(!name || !phone || (qty <= 0 && pQty <= 0)) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!', customClass: { popup: 'rounded-3xl' }});
+            if(!name || !phone || (qty <= 0 && pQty <= 0)) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
 
             const totalBill = (qty * uprice) + (pQty * pPrice) + dCharge;
-            let fRate = 0, pFRate = 0, otherCost = 0, totalFactoryCost = 0, profit = 0;
-
-            if(currentUserRole === 'admin') {
-                fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
-                pFRate = parseFloat(document.getElementById('pant-factory-rate').value) || 0;
-                otherCost = parseFloat(document.getElementById('other-cost').value) || 0;
-                totalFactoryCost = (qty * fRate) + (pQty * pFRate);
-                profit = totalBill - (totalFactoryCost + dCharge + otherCost);
-            } else if (editId) {
-                const ex = orders.find(o => o.id == editId);
-                fRate = ex.fRate; pFRate = ex.pFRate; otherCost = ex.otherCost;
-                totalFactoryCost = (qty * fRate) + (pQty * pFRate); 
-                profit = totalBill - (totalFactoryCost + dCharge + otherCost);
-            }
-
+            const totalFactoryCost = (qty * fRate) + (pQty * pFRate);
             const id = editId ? parseInt(editId) : Date.now();
-            const orderData = { id, date, name, phone, addr, qty, uprice, fRate, pQty, pPrice, pFRate, dCharge, otherCost, totalBill, advance, due: totalBill - advance, totalFactoryCost, profit, status };
+            
+            const orderData = {
+                id: id, date: date, name, phone, addr, qty, uprice, fRate, pQty, pPrice, pFRate, dCharge, otherCost, totalBill, advance,
+                due: totalBill - advance, totalFactoryCost: totalFactoryCost,
+                profit: totalBill - (totalFactoryCost + dCharge + otherCost), status: status 
+            };
 
-            db.child(id).set(orderData).then(() => { 
-                Toast.fire({ icon: 'success', title: editId ? 'আপডেট হয়েছে!' : 'সেভ হয়েছে!' }); 
-                resetFormUI(); 
+            db.child(id).set(orderData).then(() => {
+                Toast.fire({ icon: 'success', title: editId ? 'আপডেট হয়েছে!' : 'সেভ হয়েছে!' });
+                if(editId) resetFormUI();
+                clearForm();
             });
         }
 
@@ -671,65 +650,70 @@
             const searchText = document.getElementById('search-input').value.toLowerCase();
             const searchDate = document.getElementById('filter-date').value;
 
-            if(currentUserRole === 'admin') {
-                expenses.forEach(e => { let m = searchDate ? (e.date === searchDate) : true; if(m) tExp += parseFloat(e.amount); });
-            }
+            // Calc Expenses for the filtered date
+            expenses.forEach(e => { let m = searchDate ? (e.date === searchDate) : true; if(m) tExp += parseFloat(e.amount); });
 
             const sortedOrders = [...orders].sort((a,b) => b.id - a.id);
             const filteredOrders = [];
 
             sortedOrders.forEach(o => {
-                if((o.name.toLowerCase().includes(searchText) || o.phone.includes(searchText)) && (searchDate ? o.date === searchDate : true)) {
-                    filteredOrders.push(o); tSales += o.totalBill; tProf += o.profit; tFact += o.totalFactoryCost;
-                    if(o.status !== 'Paid') tDue += o.due;
-                }
+                let matchesText = o.name.toLowerCase().includes(searchText) || o.phone.includes(searchText);
+                let matchesDate = searchDate ? (o.date === searchDate) : true;
+                if(!matchesText || !matchesDate) return;
+
+                filteredOrders.push(o);
+                tSales += o.totalBill; tProf += o.profit; tFact += o.totalFactoryCost;
+                if(o.status !== 'Paid') tDue += o.due;
             });
 
             const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
             if (currentPage > totalPages) currentPage = totalPages || 1;
             const startIdx = (currentPage - 1) * itemsPerPage;
-            
-            filteredOrders.slice(startIdx, startIdx + itemsPerPage).forEach(o => {
+            const paginatedOrders = filteredOrders.slice(startIdx, startIdx + itemsPerPage);
+
+            paginatedOrders.forEach(o => {
                 let qtyDisplay = '';
-                if(o.qty > 0) qtyDisplay += `<span class="text-blue-600 font-bold">${o.qty} J</span>`;
+                if(o.qty > 0) qtyDisplay += `<span class="text-blue-600">${o.qty} J</span>`;
                 if(o.qty > 0 && o.pQty > 0) qtyDisplay += `<br>`;
-                if(o.pQty > 0) qtyDisplay += `<span class="text-gray-600 font-bold">${o.pQty} P</span>`;
+                if(o.pQty > 0) qtyDisplay += `<span class="text-gray-600">${o.pQty} P</span>`;
 
-                let sCol = o.status==='Pending'?'bg-yellow-50 text-yellow-600 border-yellow-200':o.status==='Paid'?'bg-green-50 text-green-600 border-green-200':o.status==='Hold'?'bg-red-50 text-red-600 border-red-200':'bg-blue-50 text-blue-600 border-blue-200';
-                let actionBtns = `<button onclick="sendWhatsAppMsg(${o.id})" class="text-gray-400 hover:text-green-500 text-lg mx-1" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
-                                  <button onclick="openInvoice(${o.id})" class="bg-blue-50 text-blue-700 px-3 py-1.5 rounded text-[10px] font-black uppercase hover:bg-blue-100 mx-1">ইনভয়েস</button>
-                                  <button onclick="editOrder(${o.id})" class="text-gray-400 hover:text-blue-600 mx-1"><i class="fas fa-edit"></i></button>`;
-                if(currentUserRole === 'admin') actionBtns += `<button onclick="deleteOrder(${o.id})" class="text-gray-300 hover:text-red-500 mx-1"><i class="fas fa-trash"></i></button>`;
-
-                let profitHtml = currentUserRole === 'admin' ? `<td class="p-4 font-black text-gray-700 italic">৳ ${o.profit}</td>` : '';
+                let sCol = 'bg-gray-50 text-gray-600 border-gray-200';
+                if(o.status === 'Pending') sCol = 'bg-yellow-50 text-yellow-600 border-yellow-200';
+                if(o.status === 'Paid') sCol = 'bg-green-50 text-green-600 border-green-200';
+                if(o.status === 'Processing' || o.status === 'Shipped') sCol = 'bg-blue-50 text-blue-600 border-blue-200';
+                if(o.status === 'Hold') sCol = 'bg-red-50 text-red-600 border-red-200';
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-blue-50/50 transition">
-                        <td class="p-4"><span class="font-black text-gray-800">${o.name}</span><br><span class="text-[11px] text-gray-500">${o.phone}</span><br><span class="text-[10px] text-blue-500 mt-1 inline-block">${o.date}</span></td>
-                        <td class="p-4 text-center">${qtyDisplay || '-'}</td>
-                        <td class="p-4 text-red-600 font-black tracking-tight">৳ ${o.due}</td>
-                        ${profitHtml}
-                        <td class="p-4 text-center"><button onclick="toggleStatus(${o.id})" class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-wider border ${sCol}">${o.status}</button></td>
-                        <td class="p-4 text-center"><div class="flex items-center justify-center">${actionBtns}</div></td>
+                    <tr class="hover:bg-blue-50 transition border-b border-gray-50">
+                        <td class="p-5"><span class="font-black text-gray-800">${o.name}</span><br><span class="text-[11px] font-bold text-gray-500">${o.phone}</span><br><span class="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">${o.date}</span></td>
+                        <td class="p-5 text-center font-black">${qtyDisplay || '-'}</td>
+                        <td class="p-5 text-red-600 font-black tracking-tight">৳ ${o.due}</td>
+                        <td class="p-5 font-black text-gray-700 italic">৳ ${o.profit}</td>
+                        <td class="p-5 text-center"><button onclick="toggleStatus(${o.id})" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter border-2 ${sCol}">${o.status || 'Pending'}</button></td>
+                        <td class="p-5 text-center">
+                            <div class="flex items-center justify-center space-x-3">
+                                <button onclick="sendWhatsAppMsg(${o.id})" class="text-xl" title="WhatsApp">💬</button>
+                                <button onclick="openInvoice(${o.id})" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase hover:bg-blue-200">ইনভয়েস</button>
+                                <button onclick="editOrder(${o.id})" class="text-gray-400 hover:text-blue-600">✏️</button>
+                                <button onclick="deleteOrder(${o.id})" class="text-gray-200 hover:text-red-500">✕</button>
+                            </div>
+                        </td>
                     </tr>`;
             });
             
             renderPagination(totalPages);
             document.getElementById('total-orders').innerText = filteredOrders.length;
-            
-            if(currentUserRole === 'admin') {
-                document.getElementById('total-sales').innerText = "৳ " + tSales;
-                document.getElementById('total-factory-cost').innerText = "৳ " + tFact;
-                document.getElementById('total-profit').innerText = "৳ " + (tProf - tExp); 
-                document.getElementById('total-due').innerText = "৳ " + tDue;
-            }
+            document.getElementById('total-sales').innerText = "৳ " + tSales;
+            document.getElementById('total-factory-cost').innerText = "৳ " + tFact;
+            document.getElementById('total-profit').innerText = "৳ " + (tProf - tExp); // True Net profit (Profit - Expenses)
+            document.getElementById('total-due').innerText = "৳ " + tDue;
         }
 
         function renderPagination(totalPages) {
             const container = document.getElementById('pagination-controls');
             container.innerHTML = '';
             if (totalPages <= 1) return;
-            for (let i = 1; i <= totalPages; i++) container.innerHTML += `<button onclick="goToPage(${i})" class="w-8 h-8 rounded font-bold text-sm mx-0.5 ${currentPage === i ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">${i}</button>`;
+            for (let i = 1; i <= totalPages; i++) container.innerHTML += `<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg font-bold text-sm ${currentPage === i ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} transition">${i}</button>`;
         }
 
         function goToPage(page) { currentPage = page; renderOrders(); }
@@ -737,57 +721,50 @@
         function editOrder(id) {
             const o = orders.find(x => x.id === id);
             document.getElementById('edit-id').value = o.id;
-            ['order-date','order-status','cust-name','cust-phone','cust-address','quantity','unit-price','pant-qty','pant-price','delivery-charge','advance-paid'].forEach(k => {
-                let v = o[k==='cust-name'?'name':k==='cust-phone'?'phone':k==='cust-address'?'addr':k==='order-date'?'date':k==='order-status'?'status':k==='quantity'?'qty':k==='unit-price'?'uprice':k==='pant-qty'?'pQty':k==='pant-price'?'pPrice':k==='delivery-charge'?'dCharge':'advance'];
+            ['order-date','order-status','cust-name','cust-phone','cust-address','quantity','unit-price','factory-rate','pant-qty','pant-price','pant-factory-rate','delivery-charge','other-cost','advance-paid'].forEach(k => {
+                let v = o[k==='cust-name'?'name':k==='cust-phone'?'phone':k==='cust-address'?'addr':k==='order-date'?'date':k==='order-status'?'status':k==='quantity'?'qty':k==='unit-price'?'uprice':k==='factory-rate'?'fRate':k==='pant-qty'?'pQty':k==='pant-price'?'pPrice':k==='pant-factory-rate'?'pFRate':k==='delivery-charge'?'dCharge':k==='other-cost'?'otherCost':'advance'];
                 document.getElementById(k).value = v || (k==='order-status'?'Pending':"");
             });
-            if(currentUserRole === 'admin') { document.getElementById('factory-rate').value = o.fRate||""; document.getElementById('pant-factory-rate').value = o.pFRate||""; document.getElementById('other-cost').value = o.otherCost||0; }
             document.getElementById('form-title').innerText = "✏️ অর্ডার সংশোধন";
-            document.getElementById('save-btn').innerText = "আপডেট করুন"; document.getElementById('save-btn').classList.replace('bg-blue-700', 'bg-orange-600');
+            document.getElementById('save-btn').innerText = "আপডেট করুন";
+            document.getElementById('save-btn').classList.replace('bg-blue-700', 'bg-orange-600');
             calculateStats(); window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function resetFormUI() {
-            document.getElementById('edit-id').value = ""; document.getElementById('form-title').innerText = "🆕 নতুন অর্ডার এন্ট্রি";
-            document.getElementById('save-btn').innerText = "অর্ডার সেভ করুন"; document.getElementById('save-btn').classList.replace('bg-orange-600', 'bg-blue-700');
-            document.getElementById('order-date').valueAsDate = new Date(); document.getElementById('order-status').value = 'Pending';
+            document.getElementById('edit-id').value = "";
+            document.getElementById('form-title').innerText = "🆕 নতুন অর্ডার এন্ট্রি";
+            document.getElementById('save-btn').innerText = "অর্ডার সেভ করুন";
+            document.getElementById('save-btn').classList.replace('bg-orange-600', 'bg-blue-700');
+            document.getElementById('order-date').valueAsDate = new Date();
+            document.getElementById('order-status').value = 'Pending';
+        }
+
+        function clearForm() { 
             document.querySelectorAll('input[type="text"], input[type="number"]').forEach(i => i.value = ''); 
             document.querySelectorAll('#display-total, #display-due, #display-profit').forEach(s => s.innerText = '0');
+            resetFormUI();
         }
 
         function searchOrders() { currentPage = 1; renderOrders(); }
         function clearDateFilter() { document.getElementById('filter-date').value = ""; searchOrders(); }
 
+        function sendWhatsAppMsg(id) {
+            const o = orders.find(x => x.id === id);
+            const msg = `আসসালামু আলাইকুম ${o.name}!\nআপনার অর্ডারটি কনফার্ম হয়েছে।\nবাকি টাকা (COD): ৳${o.due}\nধন্যবাদ - Jersey Nova`;
+            window.open(`https://wa.me/88${o.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
         function toggleStatus(id) {
             const order = orders.find(o => o.id === id);
-            db.child(id).update({ status: order.status === 'Paid' ? 'Pending' : 'Paid' });
-            Toast.fire({ icon: 'info', title: 'স্ট্যাটাস আপডেট!' });
+            const nextStatus = (order.status === 'Paid') ? 'Pending' : 'Paid';
+            db.child(id).update({ status: nextStatus });
+            Toast.fire({ icon: 'info', title: 'স্ট্যাটাস আপডেট হয়েছে!' });
         }
 
         function deleteOrder(id) { 
-            if(currentUserRole !== 'admin') return Swal.fire({icon: 'error', title: 'অনুমতি নেই', text: 'অ্যাডমিন ছাড়া ডিলিট সম্ভব নয়।', customClass: { popup: 'rounded-3xl' }});
-            Swal.fire({ title: 'মুছে ফেলতে চান?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'হ্যাঁ', customClass: { popup: 'rounded-3xl' } }).then((res) => { 
-                if(res.isConfirmed) db.child(id).remove();
-            });
-        }
-
-        // --- Utils & Exports ---
-        function saveExpense() {
-            if(currentUserRole !== 'admin') return;
-            const date = document.getElementById('exp-date').value, desc = document.getElementById('exp-desc').value, amt = parseFloat(document.getElementById('exp-amount').value);
-            if(!desc || !amt) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
-            const id = Date.now(); dbExpenses.child(id).set({ id, date, desc, amount: amt }).then(() => { Toast.fire({ icon: 'success', title: 'এন্ট্রি হয়েছে!' }); document.getElementById('exp-desc').value = ''; document.getElementById('exp-amount').value = ''; });
-        }
-        function deleteExpense(id) { if(currentUserRole === 'admin') Swal.fire({ title: 'ডিলিট?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', customClass: { popup: 'rounded-3xl' } }).then((res) => { if(res.isConfirmed) dbExpenses.child(id).remove(); }); }
-        function renderExpenses() {
-            if(currentUserRole !== 'admin') return;
-            const tbody = document.getElementById('expense-list-body'); tbody.innerHTML = '';
-            [...expenses].sort((a,b) => b.id - a.id).forEach(e => { tbody.innerHTML += `<tr class="hover:bg-red-50/50"><td class="p-4 font-bold text-gray-500">${e.date}</td><td class="p-4 font-bold text-gray-800">${e.desc}</td><td class="p-4 font-black text-red-600">৳ ${e.amount}</td><td class="p-4 text-center"><button onclick="deleteExpense(${e.id})" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`; });
-        }
-
-        function sendWhatsAppMsg(id) {
-            const o = orders.find(x => x.id === id);
-            window.open(`https://wa.me/88${o.phone}?text=${encodeURIComponent(`আসসালামু আলাইকুম ${o.name}!\nআপনার অর্ডারটি কনফার্ম হয়েছে।\nবাকি টাকা (COD): ৳${o.due}\nধন্যবাদ - Jersey Nova`)}`, '_blank');
+            Swal.fire({ title: 'মুছে ফেলতে চান?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'হ্যাঁ' })
+            .then((res) => { if(res.isConfirmed) db.child(id).remove(); });
         }
 
         function openInvoice(id) {
@@ -795,76 +772,51 @@
             let itemsHtml = '';
             if(o.qty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold"><span>Jersey (${o.qty} pcs)</span> <span>৳ ${o.qty * o.uprice}</span></div>`;
             if(o.pQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold text-gray-700"><span>Pant (${o.pQty} pcs)</span> <span>৳ ${o.pQty * o.pPrice}</span></div>`;
+
             document.getElementById('invoice-terms-display').innerText = appSettings.terms || "Thank you for choosing Jersey Nova!";
-            document.getElementById('invoice-content').innerHTML = `<div class="flex justify-between text-[9px] text-gray-400 font-bold uppercase"><span>Date: ${o.date}</span> <span>Order ID: #${o.id.toString().slice(-4)}</span></div><div class="mt-4"><p class="font-black text-xl text-blue-900 leading-tight">${o.name}</p><p class="text-sm font-bold text-gray-600">${o.phone}</p><p class="text-[11px] text-gray-500 mt-1">${o.addr}</p></div><div class="bg-blue-50 p-4 rounded-xl mt-4 space-y-2">${itemsHtml}<div class="flex justify-between text-xs font-bold"><span>Delivery Charge</span> <span>৳ ${o.dCharge}</span></div><div class="flex justify-between font-black border-t border-blue-100 pt-2 text-blue-700"><span>Total Bill</span> <span>৳ ${o.totalBill}</span></div><div class="flex justify-between text-green-600 text-[10px] font-black italic"><span>Advance Paid</span> <span>- ৳ ${o.advance}</span></div></div><div class="bg-blue-800 p-4 rounded-xl mt-3 flex justify-between items-center text-white shadow"><span class="text-[9px] font-black uppercase tracking-wider">Cash on Delivery</span><span class="text-2xl font-black">৳ ${o.due}</span></div>`;
+
+            document.getElementById('invoice-content').innerHTML = `
+                <div class="flex justify-between text-[9px] text-gray-400 font-bold uppercase"><span>Date: ${o.date}</span> <span>Order ID: #${o.id.toString().slice(-4)}</span></div>
+                <div class="mt-4"><p class="font-black text-xl text-blue-900 leading-tight">${o.name}</p><p class="text-sm font-bold text-gray-600">${o.phone}</p><p class="text-[11px] text-gray-500 mt-1">${o.addr}</p></div>
+                <div class="bg-blue-50 p-4 rounded-xl mt-4 space-y-2">
+                    ${itemsHtml}
+                    <div class="flex justify-between text-xs font-bold"><span>Delivery Charge</span> <span>৳ ${o.dCharge}</span></div>
+                    <div class="flex justify-between font-black border-t border-blue-100 pt-2 text-blue-700"><span>Total Bill</span> <span>৳ ${o.totalBill}</span></div>
+                    <div class="flex justify-between text-green-600 text-[10px] font-black italic"><span>Advance Paid</span> <span>- ৳ ${o.advance}</span></div>
+                </div>
+                <div class="bg-blue-800 p-4 rounded-xl mt-3 flex justify-between items-center text-white shadow-lg">
+                    <span class="text-[9px] font-black uppercase tracking-wider">Cash on Delivery</span><span class="text-2xl font-black">৳ ${o.due}</span>
+                </div>
+            `;
             document.getElementById('invoice-modal').classList.remove('hidden');
         }
+
+        async function downloadInvoiceImage() {
+            const area = document.getElementById('invoice-capture-area');
+            const canvas = await html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
+            const link = document.createElement('a'); link.download = `JerseyNova_Invoice_${Date.now()}.png`;
+            link.href = canvas.toDataURL("image/png"); link.click();
+        }
+
         function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
-        async function downloadInvoiceImage() { const canvas = await html2canvas(document.getElementById('invoice-capture-area'), { scale: 3, useCORS: true, backgroundColor: "#ffffff" }); const link = document.createElement('a'); link.download = `Invoice_${Date.now()}.png`; link.href = canvas.toDataURL("image/png"); link.click(); }
-
-        function renderCRM() {
-            const unique = {}; orders.forEach(o => { if(!unique[o.phone]) unique[o.phone] = { name: o.name, phone: o.phone, addr: o.addr, orders: 0, spent: 0 }; unique[o.phone].orders++; unique[o.phone].spent += o.totalBill; });
-            const tbody = document.getElementById('crm-list-body'); tbody.innerHTML = '';
-            const arr = Object.values(unique).sort((a,b) => b.spent - a.spent); document.getElementById('crm-total-count').innerText = arr.length;
-            arr.forEach(c => { let sHtml = currentUserRole === 'admin' ? `<td class="p-4 font-black text-gray-800">৳ ${c.spent}</td>` : ''; tbody.innerHTML += `<tr class="hover:bg-indigo-50/50 border-b border-gray-50"><td class="p-4"><span class="font-black text-blue-900">${c.name}</span><br><span class="text-[11px] text-gray-500">${c.addr}</span></td><td class="p-4 font-bold text-gray-700">${c.phone} <a href="https://wa.me/88${c.phone}" target="_blank" class="ml-2 text-green-500"><i class="fab fa-whatsapp"></i></a></td><td class="p-4 text-center font-black text-indigo-600">${c.orders}</td>${sHtml}</tr>`; });
-        }
-
-        function isDateInRange(dateStr, range) {
-            const d = new Date(dateStr), now = new Date();
-            if(range === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-            if(range === 'last_month') { let m = now.getMonth() - 1, y = now.getFullYear(); if(m < 0) { m = 11; y--; } return d.getMonth() === m && d.getFullYear() === y; }
-            if(range === 'this_year') return d.getFullYear() === now.getFullYear();
-            if(range === 'custom') { const val = document.getElementById('custom-month-picker').value; if(!val) return false; const [pYear, pMonth] = val.split('-'); return d.getFullYear() === parseInt(pYear) && d.getMonth() === (parseInt(pMonth) - 1); }
-            return true;
-        }
-
-        function generateReport(range) {
-            if(currentUserRole !== 'admin') return;
-            let tSales = 0, tFact = 0, tExp = 0, tRawProfit = 0;
-            orders.forEach(o => { if(isDateInRange(o.date, range)) { tSales += o.totalBill; tFact += o.totalFactoryCost; tRawProfit += o.profit; } });
-            expenses.forEach(e => { if(isDateInRange(e.date, range)) tExp += parseFloat(e.amount); });
-            let rt = "Monthly Report";
-            if(range === 'this_month') rt = 'এই মাসের রিপোর্ট'; else if(range === 'last_month') rt = 'গত মাসের রিপোর্ট'; else if(range === 'this_year') rt = 'এই বছরের রিপোর্ট';
-            else if(range === 'custom') { const val = document.getElementById('custom-month-picker').value; rt = val ? `রিপোর্ট: ${new Date(val + "-01").toLocaleString('en-US', { month: 'long', year: 'numeric' })}` : "Custom Report"; }
-            document.getElementById('report-title').innerText = rt; document.getElementById('rep-sales').innerText = "৳ " + tSales; document.getElementById('rep-factory').innerText = "৳ " + tFact; document.getElementById('rep-expenses').innerText = "৳ " + tExp; document.getElementById('rep-profit').innerText = "৳ " + (tRawProfit - tExp);
-        }
-
-        function downloadReportPDF() {
-            if(currentUserRole !== 'admin') return;
-            html2canvas(document.getElementById('report-print-area'), { scale: 2, useCORS: true }).then(canvas => {
-                const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); const pdfW = pdf.internal.pageSize.getWidth(); const pdfH = (canvas.height * pdfW) / canvas.width;
-                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfW, pdfH); pdf.save(`Report_${Date.now()}.pdf`);
-            });
-        }
 
         function exportData() {
-            if(currentUserRole !== 'admin') return;
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
-                orders: orders.reduce((acc, curr) => { acc[curr.id] = curr; return acc; }, {}),
-                settings: appSettings,
-                expenses: expenses.reduce((acc, curr) => { acc[curr.id] = curr; return acc; }, {}),
-                users: usersData
-            }));
-            const node = document.createElement('a'); node.href = dataStr; node.download = `backup_${Date.now()}.json`; document.body.appendChild(node); node.click(); node.remove();
+            const exportObj = {}; orders.forEach(o => exportObj[o.id] = o);
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+            const node = document.createElement('a'); node.href = dataStr; node.download = `jerseynova_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(node); node.click(); node.remove();
         }
-        
+
         function importData(event) {
-            if(currentUserRole !== 'admin' || !event.target.files[0]) return;
-            const reader = new FileReader(); reader.onload = function(e) { 
-                Swal.fire({ title: 'রিস্টোর?', icon: 'warning', showCancelButton: true, confirmButtonText: 'হ্যাঁ' }).then((res) => { 
-                    if (res.isConfirmed) {
-                        const data = JSON.parse(e.target.result);
-                        if(data.orders) {
-                            firebase.database().ref('/').update(data).then(() => { 
-                                Swal.fire('সফল!', 'ডাটা রিস্টোর করা হয়েছে। পেজ রিলোড করুন।', 'success').then(()=>location.reload()); 
-                            });
-                        } else {
-                            db.update(data).then(() => { Toast.fire({ icon: 'success', title: 'রিস্টোর সফল!' }); }); 
-                        }
-                    } 
-                    event.target.value = ''; 
-                }); 
-            }; reader.readAsText(event.target.files[0]);
+            const file = event.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                Swal.fire({ title: 'রিস্টোর করতে চান?', icon: 'warning', showCancelButton: true, confirmButtonText: 'হ্যাঁ' }).then((res) => {
+                    if (res.isConfirmed) db.update(JSON.parse(e.target.result)).then(() => Swal.fire('সফল!', '', 'success'));
+                    event.target.value = '';
+                });
+            };
+            reader.readAsText(file);
         }
     </script>
 </body>
