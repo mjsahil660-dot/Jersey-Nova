@@ -110,7 +110,13 @@
         <div class="flex-1 overflow-hidden min-w-0 relative">
 
             <div id="tab-dashboard" class="tab-content block">
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6 no-print">
+                
+                <div class="flex flex-col mb-4 no-print px-2">
+                    <h2 class="text-2xl font-black text-blue-800">ড্যাশবোর্ড ওভারভিউ</h2>
+                    <p id="dashboard-date-range" class="text-sm font-bold text-gray-500">সব ডাটা দেখানো হচ্ছে</p>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 no-print">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-blue-600 flex justify-between items-center">
                         <div><p class="text-[10px] text-gray-500 uppercase font-black">মোট অর্ডার</p><h3 id="total-orders" class="text-2xl font-bold text-gray-800">০</h3></div>
                         <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg"><i class="fas fa-shopping-bag"></i></div>
@@ -123,13 +129,21 @@
                         <div><p class="text-[10px] text-gray-500 uppercase font-black">ফ্যাক্টরি বিল</p><h3 id="total-factory-cost" class="text-2xl font-bold text-gray-800">৳ ০</h3></div>
                         <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 text-lg"><i class="fas fa-industry"></i></div>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-green-600 flex justify-between items-center">
-                        <div><p class="text-[10px] text-gray-500 uppercase font-black">আসল নিট লাভ (খরচ বাদে)</p><h3 id="total-profit" class="text-2xl font-bold text-green-700">৳ ০</h3></div>
-                        <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 text-lg"><i class="fas fa-chart-pie"></i></div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-pink-500 flex justify-between items-center">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">প্যাকেজিং/অর্ডার খরচ</p><h3 id="total-order-cost" class="text-2xl font-bold text-pink-700">৳ ০</h3></div>
+                        <div class="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center text-pink-600 text-lg"><i class="fas fa-box-open"></i></div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-red-500 flex justify-between items-center">
-                        <div><p class="text-[10px] text-gray-500 uppercase font-black">বাকি (Due)</p><h3 id="total-due" class="text-2xl font-bold text-red-600">৳ ০</h3></div>
-                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 text-lg"><i class="fas fa-hand-holding-dollar"></i></div>
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">সাধারণ খরচ (Expenses)</p><h3 id="total-general-cost" class="text-2xl font-bold text-red-600">৳ ০</h3></div>
+                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 text-lg"><i class="fas fa-wallet"></i></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-red-800 flex justify-between items-center">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">বাকি (Due)</p><h3 id="total-due" class="text-2xl font-bold text-red-800">৳ ০</h3></div>
+                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-800 text-lg"><i class="fas fa-hand-holding-dollar"></i></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-green-600 flex justify-between items-center md:col-span-2">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">আসল নিট লাভ (সব খরচ বাদে)</p><h3 id="total-profit" class="text-3xl font-bold text-green-700">৳ ০</h3></div>
+                        <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600 text-xl"><i class="fas fa-chart-pie"></i></div>
                     </div>
                 </div>
 
@@ -164,7 +178,7 @@
 
                         <div class="md:col-span-5 grid grid-cols-1 md:grid-cols-3 gap-3">
                             <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border rounded-xl">
-                            <input type="number" id="other-cost" oninput="calculateStats()" placeholder="ডলার/অন্যান্য খরচ (৳)" class="p-3 border rounded-xl bg-red-50 font-bold text-red-600">
+                            <input type="number" id="other-cost" oninput="calculateStats()" placeholder="প্যাকেজিং/অর্ডার খরচ (৳)" class="p-3 border rounded-xl bg-red-50 font-bold text-red-600">
                             <input type="number" id="advance-paid" oninput="calculateStats()" placeholder="অ্যাডভান্স জমা (৳)" class="p-3 border rounded-xl bg-green-50 font-bold">
                         </div>
                         
@@ -209,7 +223,7 @@
                     <h2 class="text-xl font-bold mb-5 text-red-600 flex items-center border-b pb-3"><i class="fas fa-wallet mr-2"></i> নতুন খরচ এন্ট্রি</h2>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <input type="date" id="exp-date" class="p-3 border rounded-xl outline-none focus:border-red-500 text-gray-600 bg-gray-50">
-                        <input type="text" id="exp-desc" placeholder="খরচের বিবরণ (যেমন: স্টাফ বিল, বুস্ট)" class="p-3 border rounded-xl outline-none focus:border-red-500 md:col-span-2">
+                        <input type="text" id="exp-desc" placeholder="খরচের বিবরণ (যেমন: স্টাফ বিল, ইন্টারনেট)" class="p-3 border rounded-xl outline-none focus:border-red-500 md:col-span-2">
                         <div class="flex gap-2">
                             <input type="number" id="exp-amount" placeholder="টাকা (৳)" class="w-full p-3 border rounded-xl outline-none focus:border-red-500 font-bold bg-red-50">
                             <button onclick="saveExpense()" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-700 transition">Save</button>
@@ -265,22 +279,26 @@
                         <h2 id="report-title" class="text-lg font-bold text-gray-600 mt-1">Monthly Report</h2>
                     </div>
                     
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
                         <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100 text-center">
-                            <p class="text-xs text-blue-600 font-bold uppercase mb-1">মোট বিক্রি (Sales)</p>
-                            <h3 id="rep-sales" class="text-2xl font-black text-blue-900">৳ ০</h3>
+                            <p class="text-xs text-blue-600 font-bold uppercase mb-1">মোট বিক্রি</p>
+                            <h3 id="rep-sales" class="text-xl font-black text-blue-900">৳ ০</h3>
                         </div>
                         <div class="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-center">
-                            <p class="text-xs text-orange-600 font-bold uppercase mb-1">ফ্যাক্টরি বিল (Cost)</p>
-                            <h3 id="rep-factory" class="text-2xl font-black text-orange-900">৳ ০</h3>
+                            <p class="text-xs text-orange-600 font-bold uppercase mb-1">ফ্যাক্টরি বিল</p>
+                            <h3 id="rep-factory" class="text-xl font-black text-orange-900">৳ ০</h3>
+                        </div>
+                        <div class="bg-pink-50 p-4 rounded-2xl border border-pink-100 text-center">
+                            <p class="text-xs text-pink-600 font-bold uppercase mb-1">অর্ডার খরচ</p>
+                            <h3 id="rep-order-cost" class="text-xl font-black text-pink-900">৳ ০</h3>
                         </div>
                         <div class="bg-red-50 p-4 rounded-2xl border border-red-100 text-center">
-                            <p class="text-xs text-red-600 font-bold uppercase mb-1">মোট খরচ (Expenses)</p>
-                            <h3 id="rep-expenses" class="text-2xl font-black text-red-900">৳ ০</h3>
+                            <p class="text-xs text-red-600 font-bold uppercase mb-1">সাধারণ খরচ</p>
+                            <h3 id="rep-expenses" class="text-xl font-black text-red-900">৳ ০</h3>
                         </div>
                         <div class="bg-green-50 p-4 rounded-2xl border border-green-100 text-center">
-                            <p class="text-xs text-green-600 font-bold uppercase mb-1">আসল নিট লাভ (Net Profit)</p>
-                            <h3 id="rep-profit" class="text-2xl font-black text-green-900">৳ ০</h3>
+                            <p class="text-xs text-green-600 font-bold uppercase mb-1">আসল নিট লাভ</p>
+                            <h3 id="rep-profit" class="text-xl font-black text-green-900">৳ ০</h3>
                         </div>
                     </div>
                     
@@ -440,7 +458,7 @@
                 Toast.fire({ icon: 'success', title: 'সফলভাবে লগিন হয়েছে!' });
                 
                 db.on('value', snap => { orders = snap.val() ? Object.values(snap.val()) : []; renderOrders(); renderCRM(); });
-                dbExpenses.on('value', snap => { expenses = snap.val() ? Object.values(snap.val()) : []; renderExpenses(); renderOrders(); }); // Render orders again to calc net profit
+                dbExpenses.on('value', snap => { expenses = snap.val() ? Object.values(snap.val()) : []; renderExpenses(); renderOrders(); });
             } else Swal.fire({icon: 'error', title: 'ভুল পাসওয়ার্ড!'}); 
         }
 
@@ -549,11 +567,14 @@
         }
 
         function generateReport(range) {
-            let tSales = 0, tFact = 0, tExp = 0, tRawProfit = 0;
+            let tSales = 0, tFact = 0, tExp = 0, tRawProfit = 0, tOrderExp = 0;
             
             orders.forEach(o => {
                 if(isDateInRange(o.date, range)) {
-                    tSales += o.totalBill; tFact += o.totalFactoryCost; tRawProfit += o.profit;
+                    tSales += o.totalBill; 
+                    tFact += o.totalFactoryCost; 
+                    tRawProfit += o.profit;
+                    tOrderExp += parseFloat(o.otherCost || 0);
                 }
             });
             
@@ -564,8 +585,10 @@
             
             document.getElementById('rep-sales').innerText = "৳ " + tSales;
             document.getElementById('rep-factory').innerText = "৳ " + tFact;
+            document.getElementById('rep-order-cost').innerText = "৳ " + tOrderExp;
             document.getElementById('rep-expenses').innerText = "৳ " + tExp;
-            document.getElementById('rep-profit').innerText = "৳ " + (tRawProfit - tExp); // True Net Profit
+            // net profit = raw profit (which already has order costs deducted) minus general expenses
+            document.getElementById('rep-profit').innerText = "৳ " + (tRawProfit - tExp); 
         }
 
         function downloadReportPDF() {
@@ -575,10 +598,10 @@
             
             html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape for better fit
                 const pdfW = pdf.internal.pageSize.getWidth();
                 const pdfH = (canvas.height * pdfW) / canvas.width;
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+                pdf.addImage(imgData, 'PNG', 0, 10, pdfW, pdfH);
                 pdf.save(`JerseyNova_Report_${Date.now()}.pdf`);
                 Swal.close();
             });
@@ -645,10 +668,15 @@
         function renderOrders() {
             const tbody = document.getElementById('order-list-body');
             tbody.innerHTML = '';
-            let tProf = 0, tFact = 0, tDue = 0, tSales = 0, tExp = 0;
+            let tProf = 0, tFact = 0, tDue = 0, tSales = 0, tExp = 0, tOrderExp = 0;
             
             const searchText = document.getElementById('search-input').value.toLowerCase();
             const searchDate = document.getElementById('filter-date').value;
+            
+            // Set Date Text Indicator
+            const dateDisplay = document.getElementById('dashboard-date-range');
+            if(searchDate) dateDisplay.innerText = `তারিখ: ${searchDate}`;
+            else dateDisplay.innerText = "সব ডাটা দেখানো হচ্ছে";
 
             // Calc Expenses for the filtered date
             expenses.forEach(e => { let m = searchDate ? (e.date === searchDate) : true; if(m) tExp += parseFloat(e.amount); });
@@ -662,7 +690,10 @@
                 if(!matchesText || !matchesDate) return;
 
                 filteredOrders.push(o);
-                tSales += o.totalBill; tProf += o.profit; tFact += o.totalFactoryCost;
+                tSales += o.totalBill; 
+                tProf += o.profit; 
+                tFact += o.totalFactoryCost;
+                tOrderExp += parseFloat(o.otherCost || 0);
                 if(o.status !== 'Paid') tDue += o.due;
             });
 
@@ -705,6 +736,8 @@
             document.getElementById('total-orders').innerText = filteredOrders.length;
             document.getElementById('total-sales').innerText = "৳ " + tSales;
             document.getElementById('total-factory-cost').innerText = "৳ " + tFact;
+            document.getElementById('total-order-cost').innerText = "৳ " + tOrderExp;
+            document.getElementById('total-general-cost').innerText = "৳ " + tExp;
             document.getElementById('total-profit').innerText = "৳ " + (tProf - tExp); // True Net profit (Profit - Expenses)
             document.getElementById('total-due').innerText = "৳ " + tDue;
         }
