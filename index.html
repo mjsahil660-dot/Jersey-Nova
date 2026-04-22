@@ -53,7 +53,7 @@
                     <span class="app-logo-text">JN</span>
                 </div>
                 <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
-                <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP System v8.5</p>
+                <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP System</p>
             </div>
             
             <div class="space-y-4 mb-6">
@@ -77,7 +77,7 @@
                 </div>
                 <div class="overflow-hidden">
                     <h1 class="font-black text-lg text-blue-800 italic uppercase tracking-tight leading-none truncate">Jersey Nova</h1>
-                    <span id="user-badge" class="text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest mt-1 inline-block text-blue-800 bg-blue-100">Role</span>
+                    <span id="user-badge" class="text-[9px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded uppercase tracking-widest mt-1 inline-block">Role</span>
                 </div>
             </div>
             <button onclick="toggleSidebar()" class="text-gray-400 hover:text-red-500 text-2xl p-1 focus:outline-none"><i class="fas fa-times"></i></button>
@@ -118,14 +118,17 @@
                 <button onclick="toggleSidebar()" class="text-blue-800 text-2xl focus:outline-none p-1.5 px-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition active:scale-95">
                     <i class="fas fa-bars"></i>
                 </button>
-                <h1 class="font-black text-lg md:text-xl text-blue-800 italic uppercase tracking-tight hidden sm:block">Jersey Nova</h1>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-blue-800 rounded-lg md:rounded-xl flex items-center justify-center text-white font-black text-xs md:text-sm relative overflow-hidden shadow-sm">
+                        <img class="app-logo absolute inset-0 w-full h-full object-cover hidden" src="" alt="L">
+                        <span class="app-logo-text">JN</span>
+                    </div>
+                    <h1 class="font-black text-lg md:text-xl text-blue-800 italic uppercase tracking-tight hidden sm:block">Jersey Nova</h1>
+                </div>
             </div>
             
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 md:w-10 md:h-10 bg-blue-800 rounded-lg md:rounded-xl flex items-center justify-center text-white font-black text-xs md:text-sm relative overflow-hidden shadow-sm">
-                    <img class="app-logo absolute inset-0 w-full h-full object-cover hidden" src="" alt="L">
-                    <span class="app-logo-text">JN</span>
-                </div>
+            <div class="flex items-center">
+                <span id="header-role-badge" class="text-[10px] font-bold bg-blue-100 text-blue-800 px-3 py-1 rounded-full uppercase tracking-widest hidden sm:inline-block shadow-sm border border-blue-200">Role</span>
             </div>
         </header>
 
@@ -318,13 +321,13 @@
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
                     <h3 class="text-sm font-black text-gray-700 mb-3"><i class="fas fa-user-plus mr-1"></i> নতুন অ্যাকাউন্ট তৈরি করুন</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-3">
-                        <input type="text" id="new-user-name" placeholder="ইউজারনেম (ইংরেজিতে)" class="p-2.5 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
-                        <input type="text" id="new-user-pass" placeholder="পাসওয়ার্ড" class="p-2.5 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
-                        <select id="new-user-role" class="p-2.5 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
+                        <input type="text" id="new-user-name" placeholder="ইউজারনেম" class="p-2 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
+                        <input type="text" id="new-user-pass" placeholder="পাসওয়ার্ড" class="p-2 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
+                        <select id="new-user-role" class="p-2 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
                             <option value="staff">Staff (স্টাফ)</option>
                             <option value="admin">Admin (অ্যাডমিন)</option>
                         </select>
-                        <button onclick="createNewUser()" class="bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow w-full sm:col-span-1">তৈরি করুন</button>
+                        <button onclick="createNewUser()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow w-full sm:col-span-1">তৈরি করুন</button>
                     </div>
                     
                     <h3 class="text-sm font-black text-gray-700 mb-2 mt-5 border-t pt-3"><i class="fas fa-users mr-1"></i> সিস্টেম ইউজার লিস্ট</h3>
@@ -415,11 +418,7 @@
         let currentUserRole = null; 
         let appSettings = { logo: '', qr: '', terms: 'Thank you for choosing Jersey Nova!' };
 
-        // SweetAlert Toast Notification
-        const Toast = Swal.mixin({
-            toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
-            customClass: { popup: 'rounded-xl shadow-lg border border-gray-100' }
-        });
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, customClass: { popup: 'rounded-xl shadow-lg border border-gray-100' }});
 
         function initApp() {
             document.getElementById('order-date').valueAsDate = new Date();
@@ -430,14 +429,13 @@
 
             setupDragAndDrop();
 
-            // Load Settings
-            dbSettings.on('value', snap => {
+            // Load Settings & Accounts Once
+            dbSettings.once('value', snap => {
                 if(snap.val()) { appSettings = { ...appSettings, ...snap.val() }; applySettingsToUI(); } 
                 else dbSettings.set(appSettings);
             });
 
-            // Load Users
-            dbUsers.on('value', snap => {
+            dbUsers.once('value', snap => {
                 if(snap.val()) {
                     usersData = snap.val();
                 } else {
@@ -464,44 +462,6 @@
                 document.querySelectorAll('.app-qr-text').forEach(el => el.classList.add('hidden'));
             }
             document.getElementById('setting-terms').value = appSettings.terms || "";
-        }
-
-        // --- Core Auth Logic ---
-        function checkLogin() {
-            const userInp = document.getElementById('login-username').value.trim();
-            const passInp = document.getElementById('login-pass').value;
-
-            if(!userInp || !passInp) return Swal.fire({icon: 'warning', title: 'খালি রাখা যাবে না!'});
-
-            let matchedUser = null;
-            for(let key in usersData) {
-                if(usersData[key].username === userInp && usersData[key].password === passInp) {
-                    matchedUser = usersData[key]; break;
-                }
-            }
-
-            if(matchedUser) {
-                currentUserRole = matchedUser.role;
-                let bText = matchedUser.role === 'admin' ? 'Admin' : 'Staff';
-                let bClass = matchedUser.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-800';
-                
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('app-wrapper').classList.remove('hidden');
-                document.getElementById('app-wrapper-content').classList.remove('hidden');
-                
-                const badge = document.getElementById('user-badge');
-                badge.innerText = bText + ": " + matchedUser.username;
-                badge.className = `text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest mt-1 inline-block truncate max-w-full ${bClass}`;
-                
-                Toast.fire({ icon: 'success', title: `স্বাগতম, ${matchedUser.username}!` });
-                
-                if(matchedUser.role === 'staff') applyStaffRestrictions();
-                
-                loadAppData();
-            } 
-            else {
-                Swal.fire({icon: 'error', title: 'ভুল তথ্য!', text: 'ইউজারনেম বা পাসওয়ার্ড সঠিক নয়।', customClass: { popup: 'rounded-2xl' }}); 
-            }
         }
 
         function createNewUser() {
@@ -539,6 +499,48 @@
             }
         }
 
+        function checkLogin() {
+            const userInp = document.getElementById('login-username').value.trim();
+            const passInp = document.getElementById('login-pass').value;
+
+            if(!userInp || !passInp) return Swal.fire({icon: 'warning', title: 'খালি রাখা যাবে না!'});
+
+            let matchedUser = null;
+            for(let key in usersData) {
+                if(usersData[key].username === userInp && usersData[key].password === passInp) {
+                    matchedUser = usersData[key]; break;
+                }
+            }
+
+            if(matchedUser) {
+                currentUserRole = matchedUser.role;
+                let bText = matchedUser.role === 'admin' ? 'Admin' : 'Staff';
+                let bClass = matchedUser.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-800';
+                
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('app-wrapper').classList.remove('hidden');
+                document.getElementById('app-wrapper-content').classList.remove('hidden');
+                
+                const badgeDesktop = document.getElementById('user-badge');
+                badgeDesktop.innerText = bText + ": " + matchedUser.username;
+                
+                const badgeMobile = document.getElementById('header-role-badge');
+                if (badgeMobile) {
+                    badgeMobile.innerText = bText + ": " + matchedUser.username;
+                    badgeMobile.classList.remove('hidden');
+                }
+                
+                Toast.fire({ icon: 'success', title: `স্বাগতম, ${matchedUser.username}!` });
+                
+                if(matchedUser.role === 'staff') applyStaffRestrictions();
+                
+                loadAppData();
+            } 
+            else {
+                Swal.fire({icon: 'error', title: 'ভুল তথ্য!', text: 'ইউজারনেম বা পাসওয়ার্ড সঠিক নয়।', customClass: { popup: 'rounded-2xl' }}); 
+            }
+        }
+
         function applyStaffRestrictions() {
             document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.admin-only-th').forEach(el => el.classList.add('hidden'));
@@ -548,7 +550,6 @@
 
         function logout() { location.reload(); }
 
-        // --- Settings & UI Logic ---
         function saveSetting(key, elementId) {
             dbSettings.child(key).set(document.getElementById(elementId).value).then(() => Toast.fire({ icon: 'success', title: 'আপডেট হয়েছে!' }));
         }
@@ -656,7 +657,10 @@
             const id = editId ? parseInt(editId) : Date.now();
             const orderData = { id, date, name, phone, addr, qty, uprice, fRate, pQty, pPrice, pFRate, dCharge, otherCost, totalBill, advance, due: totalBill - advance, totalFactoryCost, profit, status };
 
-            db.child(id).set(orderData).then(() => { Toast.fire({ icon: 'success', title: editId ? 'আপডেট হয়েছে!' : 'সেভ হয়েছে!' }); resetFormUI(); });
+            db.child(id).set(orderData).then(() => { 
+                Toast.fire({ icon: 'success', title: editId ? 'আপডেট হয়েছে!' : 'সেভ হয়েছে!' }); 
+                resetFormUI(); 
+            });
         }
 
         function renderOrders() {
@@ -700,7 +704,7 @@
                 let profitHtml = currentUserRole === 'admin' ? `<td class="p-4 font-black text-gray-700 italic">৳ ${o.profit}</td>` : '';
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-blue-50/50 transition border-b border-gray-50">
+                    <tr class="hover:bg-blue-50/50 transition">
                         <td class="p-4"><span class="font-black text-gray-800">${o.name}</span><br><span class="text-[11px] text-gray-500">${o.phone}</span><br><span class="text-[10px] text-blue-500 mt-1 inline-block">${o.date}</span></td>
                         <td class="p-4 text-center">${qtyDisplay || '-'}</td>
                         <td class="p-4 text-red-600 font-black tracking-tight">৳ ${o.due}</td>
@@ -778,7 +782,7 @@
         function renderExpenses() {
             if(currentUserRole !== 'admin') return;
             const tbody = document.getElementById('expense-list-body'); tbody.innerHTML = '';
-            [...expenses].sort((a,b) => b.id - a.id).forEach(e => { tbody.innerHTML += `<tr class="hover:bg-red-50/50 border-b border-gray-50"><td class="p-4 font-bold text-gray-500">${e.date}</td><td class="p-4 font-bold text-gray-800">${e.desc}</td><td class="p-4 font-black text-red-600">৳ ${e.amount}</td><td class="p-4 text-center"><button onclick="deleteExpense(${e.id})" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`; });
+            [...expenses].sort((a,b) => b.id - a.id).forEach(e => { tbody.innerHTML += `<tr class="hover:bg-red-50/50"><td class="p-4 font-bold text-gray-500">${e.date}</td><td class="p-4 font-bold text-gray-800">${e.desc}</td><td class="p-4 font-black text-red-600">৳ ${e.amount}</td><td class="p-4 text-center"><button onclick="deleteExpense(${e.id})" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`; });
         }
 
         function sendWhatsAppMsg(id) {
