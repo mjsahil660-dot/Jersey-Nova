@@ -267,6 +267,8 @@
                         <button onclick="generateReport('this_month')" class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 hover:bg-blue-100 transition">এই মাস</button>
                         <button onclick="generateReport('last_month')" class="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold border border-gray-200 hover:bg-gray-100 transition">গত মাস</button>
                         <button onclick="generateReport('this_year')" class="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold border border-gray-200 hover:bg-gray-100 transition">এই বছর</button>
+                        <button onclick="generateReport('last_12_months')" class="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg text-sm font-bold border border-indigo-200 hover:bg-indigo-100 transition">শেষ ১২ মাস</button>
+                        
                         <button onclick="downloadReportPDF()" class="ml-auto bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-green-700 transition flex items-center gap-2 shadow-md">
                             <i class="fas fa-file-pdf"></i> Download PDF
                         </button>
@@ -556,13 +558,24 @@
         function isDateInRange(dateStr, range) {
             const d = new Date(dateStr);
             const now = new Date();
+            
             if(range === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            
             if(range === 'last_month') {
                 let m = now.getMonth() - 1, y = now.getFullYear();
                 if(m < 0) { m = 11; y--; }
                 return d.getMonth() === m && d.getFullYear() === y;
             }
+            
             if(range === 'this_year') return d.getFullYear() === now.getFullYear();
+            
+            // NEW LOGIC FOR LAST 12 MONTHS
+            if(range === 'last_12_months') {
+                const pastYear = new Date();
+                pastYear.setFullYear(now.getFullYear() - 1);
+                return d >= pastYear && d <= now;
+            }
+            
             return true;
         }
 
@@ -580,7 +593,13 @@
             
             expenses.forEach(e => { if(isDateInRange(e.date, range)) tExp += parseFloat(e.amount); });
             
-            let titles = { 'this_month': 'এই মাসের রিপোর্ট', 'last_month': 'গত মাসের রিপোর্ট', 'this_year': 'এই বছরের রিপোর্ট' };
+            // ADDED LAST 12 MONTHS TITLE
+            let titles = { 
+                'this_month': 'এই মাসের রিপোর্ট', 
+                'last_month': 'গত মাসের রিপোর্ট', 
+                'this_year': 'এই বছরের রিপোর্ট',
+                'last_12_months': 'শেষ ১২ মাসের রিপোর্ট'
+            };
             document.getElementById('report-title').innerText = titles[range];
             
             document.getElementById('rep-sales').innerText = "৳ " + tSales;
