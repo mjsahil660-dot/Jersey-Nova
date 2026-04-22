@@ -38,24 +38,15 @@
         .drop-zone { border: 2px dashed #93c5fd; background: #eff6ff; transition: 0.3s; }
         .drop-zone.dragover { background: #dbeafe; border-color: #2563eb; }
         
-        /* Tab Navigation Active State */
         .tab-btn.active { background-color: #eff6ff; color: #1d4ed8; font-weight: 900; border-right: 4px solid #1d4ed8; }
-        
-        /* Blurred text for staff mode */
         .staff-hidden { filter: blur(5px); user-select: none; pointer-events: none; }
-        
-        /* Table enhancements for mobile */
         th, td { white-space: nowrap; }
 
         /* Custom Loading Spinner */
         .jn-loader {
-            width: 60px;
-            height: 60px;
-            border: 5px solid #eff6ff;
-            border-top: 5px solid #1e40af;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            width: 60px; height: 60px; border: 5px solid #eff6ff;
+            border-top: 5px solid #1e40af; border-radius: 50%;
+            animation: spin 1s linear infinite; margin: 0 auto 15px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
