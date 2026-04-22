@@ -39,19 +39,13 @@
         .drop-zone.dragover { background: #dbeafe; border-color: #2563eb; }
         
         .tab-btn.active { background-color: #eff6ff; color: #1d4ed8; font-weight: 900; border-right: 4px solid #1d4ed8; }
-        
         .staff-hidden { filter: blur(5px); user-select: none; pointer-events: none; }
         th, td { white-space: nowrap; }
 
-        /* Custom Loading Spinner */
         .jn-loader {
-            width: 60px;
-            height: 60px;
-            border: 5px solid #eff6ff;
-            border-top: 5px solid #1e40af;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            width: 60px; height: 60px; border: 5px solid #eff6ff;
+            border-top: 5px solid #1e40af; border-radius: 50%;
+            animation: spin 1s linear infinite; margin: 0 auto 15px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -66,7 +60,7 @@
                     <span class="app-logo-text">JN</span>
                 </div>
                 <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
-                <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP System</p>
+                <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP System v8.1</p>
             </div>
             
             <div class="space-y-4 mb-6">
@@ -75,24 +69,24 @@
             </div>
             
             <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition shadow-lg active:scale-95">সিস্টেমে প্রবেশ করুন</button>
-            <p class="text-center text-xs text-gray-400 mt-4">ডিফল্ট লগিন: admin / 123</p>
         </div>
     </div>
 
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>
     
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl border-r border-gray-100 transform -translate-x-full transition-transform duration-300 flex flex-col p-5 no-print">
-        
-        <div class="flex items-center gap-3 mb-8 border-b border-gray-50 pb-4 relative">
-            <div class="w-10 h-10 bg-blue-800 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm relative overflow-hidden shrink-0">
-                <img class="app-logo absolute inset-0 w-full h-full object-cover hidden" src="" alt="L">
-                <span class="app-logo-text">JN</span>
+        <div class="flex items-center justify-between mb-8 border-b border-gray-50 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-800 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm relative overflow-hidden shrink-0">
+                    <img class="app-logo absolute inset-0 w-full h-full object-cover hidden" src="" alt="L">
+                    <span class="app-logo-text">JN</span>
+                </div>
+                <div class="overflow-hidden">
+                    <h1 class="font-black text-lg text-blue-800 italic uppercase tracking-tight leading-none truncate">Jersey Nova</h1>
+                    <span id="user-badge" class="text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest mt-1 inline-block">Role</span>
+                </div>
             </div>
-            <div class="overflow-hidden">
-                <h1 class="font-black text-lg xl:text-xl text-blue-800 italic uppercase tracking-tight leading-none truncate">Jersey Nova</h1>
-                <span id="user-badge" class="text-[9px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded uppercase tracking-widest mt-1 inline-block truncate max-w-full">Role</span>
-            </div>
-            <button onclick="toggleSidebar()" class="ml-auto text-gray-400 hover:text-red-500 text-2xl p-1"><i class="fas fa-times"></i></button>
+            <button onclick="toggleSidebar()" class="text-gray-400 hover:text-red-500 text-2xl p-1"><i class="fas fa-times"></i></button>
         </div>
         
         <nav class="flex flex-col gap-2 flex-1 overflow-y-auto pr-2">
@@ -113,9 +107,6 @@
             
             <button onclick="openSettings()" class="admin-only w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
                 <i class="fas fa-cog w-5 text-center"></i> অ্যাকাউন্ট সেটিংস
-            </button>
-            <button onclick="exportData()" class="admin-only w-full bg-gray-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-black transition mt-2">
-                <i class="fas fa-cloud-download-alt w-5 text-center"></i> Backup Data
             </button>
         </nav>
         
@@ -322,7 +313,7 @@
     </div> 
 
     <div id="settings-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
-        <div class="bg-white rounded-3xl w-full max-w-lg p-5 md:p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
+        <div class="bg-white rounded-3xl w-full max-w-2xl p-5 md:p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
                 <h2 class="text-xl font-black text-blue-800">⚙️ অ্যাকাউন্ট ও সেটিংস</h2>
                 <button onclick="closeSettings()" class="text-gray-400 hover:text-red-500 text-2xl"><i class="fas fa-times"></i></button>
@@ -332,41 +323,58 @@
                 
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
                     <h3 class="text-sm font-black text-gray-700 mb-3"><i class="fas fa-user-plus mr-1"></i> নতুন অ্যাকাউন্ট তৈরি করুন</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                        <input type="text" id="new-user-name" placeholder="ইউজারনেম (ইংরেজিতে)" class="p-2.5 border rounded-lg text-sm outline-none focus:border-blue-500 w-full">
-                        <input type="text" id="new-user-pass" placeholder="পাসওয়ার্ড" class="p-2.5 border rounded-lg text-sm outline-none focus:border-blue-500 w-full">
-                        <select id="new-user-role" class="p-2.5 border rounded-lg text-sm outline-none focus:border-blue-500 w-full">
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-3">
+                        <input type="text" id="new-user-name" placeholder="ইউজারনেম" class="p-2 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
+                        <input type="text" id="new-user-pass" placeholder="পাসওয়ার্ড" class="p-2 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
+                        <select id="new-user-role" class="p-2 border rounded-lg text-sm outline-none focus:border-blue-500 w-full sm:col-span-1">
                             <option value="staff">Staff (স্টাফ)</option>
                             <option value="admin">Admin (অ্যাডমিন)</option>
                         </select>
-                        <button onclick="createNewUser()" class="bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow">তৈরি করুন</button>
+                        <button onclick="createNewUser()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow w-full sm:col-span-1">তৈরি করুন</button>
                     </div>
                     
                     <h3 class="text-sm font-black text-gray-700 mb-2 mt-5 border-t pt-3"><i class="fas fa-users mr-1"></i> সিস্টেম ইউজার লিস্ট</h3>
                     <div class="bg-white rounded-lg border border-gray-200 overflow-x-auto">
                         <table class="w-full text-left text-xs">
-                            <thead class="bg-gray-100 text-gray-500"><tr><th class="p-3">ইউজারনেম</th><th class="p-3">রোল</th><th class="p-3 text-center w-16">অ্যাকশন</th></tr></thead>
+                            <thead class="bg-gray-100 text-gray-500"><tr><th class="p-3">ইউজারনেম</th><th class="p-3">পাসওয়ার্ড</th><th class="p-3">রোল</th><th class="p-3 text-center w-16">অ্যাকশন</th></tr></thead>
                             <tbody id="user-list-body" class="divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <label class="block text-xs font-bold text-gray-700 mb-2">ইনভয়েস টার্মস / মেসেজ</label>
-                    <textarea id="setting-terms" rows="2" class="w-full p-2 border rounded-lg outline-none text-sm mb-2"></textarea>
-                    <button onclick="saveSetting('terms', 'setting-terms')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold w-full mt-2">মেসেজ সেভ করুন</button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex flex-col h-full">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">ইনভয়েস টার্মস / মেসেজ</label>
+                        <textarea id="setting-terms" rows="3" class="w-full p-2 border rounded-lg outline-none text-sm mb-2 flex-1"></textarea>
+                        <button onclick="saveSetting('terms', 'setting-terms')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold w-full">মেসেজ সেভ করুন</button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 h-full">
+                        <div class="drop-zone relative rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer bg-white border-2 border-dashed border-blue-300" onclick="document.getElementById('logo-upload').click()">
+                            <i class="fas fa-image text-2xl text-blue-400 mb-1"></i><span class="text-[10px] font-bold text-gray-600">লোগো আপলোড</span>
+                            <input type="file" id="logo-upload" accept="image/*" class="hidden">
+                        </div>
+                        <div class="drop-zone relative rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer bg-white border-2 border-dashed border-blue-300" onclick="document.getElementById('qr-upload').click()">
+                            <i class="fas fa-qrcode text-2xl text-blue-400 mb-1"></i><span class="text-[10px] font-bold text-gray-600">QR আপলোড</span>
+                            <input type="file" id="qr-upload" accept="image/*" class="hidden">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center bg-gray-800 text-white p-4 rounded-xl">
+                    <div>
+                        <p class="text-sm font-bold">ডাটা ব্যাকআপ ও রিস্টোর</p>
+                        <p class="text-[10px] text-gray-400">নিরাপত্তার জন্য মাঝে মাঝে ব্যাকআপ নিন</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="exportData()" class="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded text-xs font-bold transition"><i class="fas fa-download mr-1"></i> Backup</button>
+                        <label class="bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded text-xs font-bold cursor-pointer transition">
+                            <i class="fas fa-upload mr-1"></i> Restore
+                            <input type="file" class="hidden" accept=".json" onchange="importData(event)">
+                        </label>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="drop-zone relative rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer" onclick="document.getElementById('logo-upload').click()">
-                        <i class="fas fa-image text-2xl text-blue-400 mb-1"></i><span class="text-[10px] font-bold">লোগো আপলোড</span>
-                        <input type="file" id="logo-upload" accept="image/*" class="hidden">
-                    </div>
-                    <div class="drop-zone relative rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer" onclick="document.getElementById('qr-upload').click()">
-                        <i class="fas fa-qrcode text-2xl text-blue-400 mb-1"></i><span class="text-[10px] font-bold">QR আপলোড</span>
-                        <input type="file" id="qr-upload" accept="image/*" class="hidden">
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -407,10 +415,11 @@
         const dbExpenses = firebase.database().ref('expenses');
         const dbUsers = firebase.database().ref('users');
 
-        // Global State
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, customClass: { popup: 'rounded-xl shadow-lg border border-gray-100' }});
+
+        // App States
         let orders = [], expenses = [], usersData = {};
         let currentPage = 1; const itemsPerPage = 10; 
-        
         let currentUserRole = null; 
         let appSettings = { logo: '', qr: '', terms: 'Thank you for choosing Jersey Nova!' };
 
@@ -423,13 +432,11 @@
 
             setupDragAndDrop();
 
-            // Load Settings
             dbSettings.on('value', snap => {
                 if(snap.val()) { appSettings = { ...appSettings, ...snap.val() }; applySettingsToUI(); } 
                 else dbSettings.set(appSettings);
             });
 
-            // Load Users (Dynamic Accounts)
             dbUsers.on('value', snap => {
                 if(snap.val()) {
                     usersData = snap.val();
@@ -454,13 +461,6 @@
             document.getElementById('setting-terms').value = appSettings.terms || "";
         }
 
-        // --- Custom SweetAlert styled Toast ---
-        const Toast = Swal.mixin({
-            toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
-            customClass: { popup: 'rounded-xl shadow-lg border border-gray-100' }
-        });
-
-        // --- User Management (Accounts) ---
         function createNewUser() {
             const uName = document.getElementById('new-user-name').value.trim();
             const uPass = document.getElementById('new-user-pass').value.trim();
@@ -490,22 +490,22 @@
             for(let key in usersData) {
                 let u = usersData[key];
                 let roleB = u.role === 'admin' ? '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded uppercase tracking-wide">Admin</span>' : '<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded uppercase tracking-wide">Staff</span>';
-                tbody.innerHTML += `<tr class="border-b border-gray-50 hover:bg-gray-50"><td class="p-3 font-bold text-gray-700">${u.username}</td><td class="p-3 text-[9px] font-black">${roleB}</td><td class="p-3 text-center"><button onclick="deleteUser(${key})" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded"><i class="fas fa-trash"></i></button></td></tr>`;
+                let delBtn = u.username === 'admin' ? '<span class="text-gray-300">-</span>' : `<button onclick="deleteUser('${key}')" class="text-red-500 hover:text-red-700 bg-red-50 p-1 rounded"><i class="fas fa-trash"></i></button>`;
+                // Allow admin to see passwords of staff
+                tbody.innerHTML += `<tr class="border-b border-gray-50 hover:bg-gray-50"><td class="p-3 font-bold text-gray-700">${u.username}</td><td class="p-3 font-mono text-gray-500 text-[10px]">${u.password}</td><td class="p-3 text-[9px] font-black">${roleB}</td><td class="p-3 text-center">${delBtn}</td></tr>`;
             }
         }
 
-        // --- Core Multi-User Auth ---
         function checkLogin() {
             const userInp = document.getElementById('login-username').value.trim();
             const passInp = document.getElementById('login-pass').value;
 
             if(!userInp || !passInp) return Swal.fire({icon: 'warning', title: 'খালি রাখা যাবে না!'});
 
-            // Show custom loading animation
             Swal.fire({
-                html: '<div class="jn-loader"></div><h2 class="text-xl font-bold text-blue-800">লগিন হচ্ছে...</h2>',
+                html: '<div class="jn-loader"></div><h2 class="text-xl font-bold text-blue-800 mb-2">লগিন হচ্ছে...</h2><p class="text-xs text-gray-400">অনুগ্রহ করে অপেক্ষা করুন</p>',
                 showConfirmButton: false, allowOutsideClick: false,
-                customClass: { popup: 'rounded-3xl' }
+                customClass: { popup: 'rounded-3xl p-8' }
             });
 
             setTimeout(() => {
@@ -540,23 +540,18 @@
                 else {
                     Swal.fire({icon: 'error', title: 'ভুল তথ্য!', text: 'ইউজারনেম বা পাসওয়ার্ড সঠিক নয়।', customClass: { popup: 'rounded-3xl' }}); 
                 }
-            }, 800); // Fake delay for smooth animation feel
+            }, 800); 
         }
 
         function applyStaffRestrictions() {
             document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.admin-only-th').forEach(el => el.classList.add('hidden'));
-            
             document.querySelectorAll('.admin-stat').forEach(el => { el.classList.add('staff-hidden'); el.innerText = '৳ ***'; });
-            
-            document.querySelectorAll('.admin-only-input').forEach(el => {
-                el.disabled = true; el.placeholder = "Not Allowed"; el.classList.add('bg-gray-200', 'cursor-not-allowed');
-            });
+            document.querySelectorAll('.admin-only-input').forEach(el => { el.disabled = true; el.placeholder = "Not Allowed"; el.classList.add('bg-gray-200', 'cursor-not-allowed'); });
         }
 
         function logout() { location.reload(); }
 
-        // --- Settings / Sidebar ---
         function saveSetting(key, elementId) {
             dbSettings.child(key).set(document.getElementById(elementId).value).then(() => Toast.fire({ icon: 'success', title: 'আপডেট হয়েছে!' }));
         }
@@ -588,7 +583,7 @@
             }
         }
 
-        function openSettings() { if(window.innerWidth<1024) toggleSidebar(); document.getElementById('settings-modal').classList.remove('hidden'); }
+        function openSettings() { toggleSidebar(); document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
 
         function switchTab(tabId) {
@@ -598,7 +593,7 @@
             document.getElementById('tab-' + tabId).classList.remove('hidden');
             event.currentTarget.classList.add('active', 'text-blue-700', 'bg-blue-50');
             
-            if(window.innerWidth < 1024) toggleSidebar();
+            toggleSidebar(); // Always close sidebar after clicking a tab
             
             if(tabId === 'expenses' && currentUserRole === 'admin') renderExpenses();
             if(tabId === 'crm') renderCRM();
