@@ -38,8 +38,13 @@
         .drop-zone { border: 2px dashed #93c5fd; background: #eff6ff; transition: 0.3s; }
         .drop-zone.dragover { background: #dbeafe; border-color: #2563eb; }
         
-        /* Tab Navigation Active State */
-        .tab-btn.active { background-color: #eff6ff; color: #1d4ed8; font-weight: 900; border-right: 4px solid #1d4ed8; }
+        /* Tab Navigation Active State Fix */
+        .tab-btn.active { 
+            background-color: #eff6ff !important; 
+            color: #1d4ed8 !important; 
+            font-weight: 900 !important; 
+            border-right: 4px solid #1d4ed8 !important; 
+        }
     </style>
 </head>
 <body class="p-2 md:p-6" onload="initApp()">
@@ -263,13 +268,22 @@
             <div id="tab-reports" class="tab-content hidden">
                 <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border border-gray-100 no-print">
                     <h2 class="text-xl font-bold mb-4 text-blue-800 border-b pb-3"><i class="fas fa-chart-line mr-2"></i> রিপোর্ট তৈরি করুন</h2>
-                    <div class="flex flex-wrap gap-3">
-                        <button onclick="generateReport('this_month')" class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 hover:bg-blue-100 transition">এই মাস</button>
-                        <button onclick="generateReport('last_month')" class="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold border border-gray-200 hover:bg-gray-100 transition">গত মাস</button>
-                        <button onclick="generateReport('this_year')" class="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold border border-gray-200 hover:bg-gray-100 transition">এই বছর</button>
-                        <button onclick="generateReport('last_12_months')" class="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg text-sm font-bold border border-indigo-200 hover:bg-indigo-100 transition">শেষ ১২ মাস</button>
+                    
+                    <div class="flex flex-col md:flex-row gap-4 justify-between">
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="generateReport('this_month')" class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 hover:bg-blue-100 transition">এই মাস</button>
+                            <button onclick="generateReport('last_month')" class="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold border border-gray-200 hover:bg-gray-100 transition">গত মাস</button>
+                            <button onclick="generateReport('this_year')" class="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold border border-gray-200 hover:bg-gray-100 transition">এই বছর</button>
+                            <button onclick="generateReport('last_12_months')" class="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg text-sm font-bold border border-indigo-200 hover:bg-indigo-100 transition">শেষ ১২ মাস</button>
+                        </div>
+
+                        <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-xl border border-gray-200">
+                            <span class="text-xs font-bold text-gray-600">যেকোনো মাস খুঁজুন:</span>
+                            <input type="month" id="custom-month-picker" class="p-1.5 border rounded outline-none focus:border-blue-500 text-sm">
+                            <button onclick="generateReport('custom_month')" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold text-sm hover:bg-blue-700">খুঁজুন</button>
+                        </div>
                         
-                        <button onclick="downloadReportPDF()" class="ml-auto bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-green-700 transition flex items-center gap-2 shadow-md">
+                        <button onclick="downloadReportPDF()" class="bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-green-700 transition flex items-center gap-2 shadow-md shrink-0">
                             <i class="fas fa-file-pdf"></i> Download PDF
                         </button>
                     </div>
@@ -399,6 +413,9 @@
         let currentPage = 1;
         const itemsPerPage = 10; 
         let appSettings = { password: 'sahil882', logo: '', qr: '', terms: 'Thank you for choosing Jersey Nova!' };
+        
+        // Month Names for custom display
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         // --- App Initialization ---
         function initApp() {
@@ -479,7 +496,15 @@
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active', 'text-blue-700'));
             
             document.getElementById('tab-' + tabId).classList.remove('hidden');
-            event.currentTarget.classList.add('active', 'text-blue-700');
+            
+            // Add active class to the button that called it (using dataset or explicit id matching logic)
+            // Simplified way using event target:
+            if(event && event.currentTarget) {
+                event.currentTarget.classList.add('active', 'text-blue-700');
+            } else {
+                 // Fallback if called programmatically
+                 document.querySelectorAll(`.tab-btn[onclick*="${tabId}"]`).forEach(el => el.classList.add('active', 'text-blue-700'));
+            }
             
             if(window.innerWidth < 1024) toggleSidebar();
             
@@ -555,7 +580,7 @@
         }
 
         // --- REPORT SYSTEM ---
-        function isDateInRange(dateStr, range) {
+        function isDateInRange(dateStr, range, customMonthStr) {
             const d = new Date(dateStr);
             const now = new Date();
             
@@ -569,11 +594,17 @@
             
             if(range === 'this_year') return d.getFullYear() === now.getFullYear();
             
-            // NEW LOGIC FOR LAST 12 MONTHS
             if(range === 'last_12_months') {
                 const pastYear = new Date();
                 pastYear.setFullYear(now.getFullYear() - 1);
                 return d >= pastYear && d <= now;
+            }
+
+            // NEW: Custom Month Logic
+            if(range === 'custom_month' && customMonthStr) {
+                // customMonthStr format from input type="month" is "YYYY-MM"
+                const [year, month] = customMonthStr.split('-');
+                return d.getFullYear() === parseInt(year) && d.getMonth() === (parseInt(month) - 1);
             }
             
             return true;
@@ -582,8 +613,14 @@
         function generateReport(range) {
             let tSales = 0, tFact = 0, tExp = 0, tRawProfit = 0, tOrderExp = 0;
             
+            const customMonthVal = document.getElementById('custom-month-picker').value;
+
+            if (range === 'custom_month' && !customMonthVal) {
+                return Swal.fire({icon: 'warning', title: 'দয়া করে একটি মাস নির্বাচন করুন!'});
+            }
+
             orders.forEach(o => {
-                if(isDateInRange(o.date, range)) {
+                if(isDateInRange(o.date, range, customMonthVal)) {
                     tSales += o.totalBill; 
                     tFact += o.totalFactoryCost; 
                     tRawProfit += o.profit;
@@ -591,22 +628,29 @@
                 }
             });
             
-            expenses.forEach(e => { if(isDateInRange(e.date, range)) tExp += parseFloat(e.amount); });
+            expenses.forEach(e => { if(isDateInRange(e.date, range, customMonthVal)) tExp += parseFloat(e.amount); });
             
-            // ADDED LAST 12 MONTHS TITLE
             let titles = { 
                 'this_month': 'এই মাসের রিপোর্ট', 
                 'last_month': 'গত মাসের রিপোর্ট', 
                 'this_year': 'এই বছরের রিপোর্ট',
                 'last_12_months': 'শেষ ১২ মাসের রিপোর্ট'
             };
-            document.getElementById('report-title').innerText = titles[range];
+
+            let finalTitle = titles[range];
+
+            // If custom month, format title nicely
+            if (range === 'custom_month') {
+                const [year, month] = customMonthVal.split('-');
+                finalTitle = `${monthNames[parseInt(month) - 1]} ${year} এর রিপোর্ট`;
+            }
+
+            document.getElementById('report-title').innerText = finalTitle;
             
             document.getElementById('rep-sales').innerText = "৳ " + tSales;
             document.getElementById('rep-factory').innerText = "৳ " + tFact;
             document.getElementById('rep-order-cost').innerText = "৳ " + tOrderExp;
             document.getElementById('rep-expenses').innerText = "৳ " + tExp;
-            // net profit = raw profit (which already has order costs deducted) minus general expenses
             document.getElementById('rep-profit').innerText = "৳ " + (tRawProfit - tExp); 
         }
 
