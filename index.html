@@ -38,21 +38,17 @@
         .drop-zone { border: 2px dashed #93c5fd; background: #eff6ff; transition: 0.3s; }
         .drop-zone.dragover { background: #dbeafe; border-color: #2563eb; }
         
+        /* Tab Navigation Active State */
         .tab-btn.active { background-color: #eff6ff; color: #1d4ed8; font-weight: 900; border-right: 4px solid #1d4ed8; }
+        
+        /* Blurred text for staff mode */
         .staff-hidden { filter: blur(5px); user-select: none; pointer-events: none; }
+        
+        /* Table enhancements for mobile */
         th, td { white-space: nowrap; }
     </style>
 </head>
 <body class="text-gray-800 antialiased h-screen overflow-hidden flex" onload="initApp()">
-
-    <div id="jn-loader" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[9999] hidden flex-col items-center justify-center transition-all duration-300">
-        <div class="relative flex justify-center items-center mb-5">
-            <div class="w-20 h-20 border-4 border-blue-100 border-t-4 border-t-blue-700 rounded-full animate-spin absolute"></div>
-            <div class="w-12 h-12 bg-blue-800 rounded-full flex items-center justify-center text-white font-black text-sm z-10 shadow-lg">JN</div>
-        </div>
-        <h2 class="text-2xl font-black text-blue-800 italic uppercase tracking-tighter">Jersey Nova</h2>
-        <p id="loader-msg" class="text-xs font-bold text-gray-500 mt-2 tracking-widest uppercase">অপেক্ষা করুন...</p>
-    </div>
 
     <div id="login-section" class="fixed inset-0 flex items-center justify-center bg-gray-50 z-[100] p-4">
         <div class="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl border border-gray-100 relative">
@@ -62,7 +58,7 @@
                     <span class="app-logo-text">JN</span>
                 </div>
                 <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
-                <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP System v8.3</p>
+                <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP System v8.5</p>
             </div>
             
             <div class="space-y-4 mb-6">
@@ -78,6 +74,7 @@
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>
     
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl border-r border-gray-100 transform -translate-x-full transition-transform duration-300 flex flex-col p-5 no-print">
+        
         <div class="flex items-center justify-between mb-8 border-b border-gray-50 pb-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-blue-800 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm relative overflow-hidden shrink-0">
@@ -85,8 +82,8 @@
                     <span class="app-logo-text">JN</span>
                 </div>
                 <div class="overflow-hidden">
-                    <h1 class="font-black text-lg text-blue-800 italic uppercase tracking-tight leading-none truncate">Jersey Nova</h1>
-                    <span id="user-badge" class="text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest mt-1 inline-block bg-blue-100 text-blue-800">Role</span>
+                    <h1 class="font-black text-lg xl:text-xl text-blue-800 italic uppercase tracking-tight leading-none truncate">Jersey Nova</h1>
+                    <span id="user-badge" class="text-[9px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded uppercase tracking-widest mt-1 inline-block truncate max-w-full">Role</span>
                 </div>
             </div>
             <button onclick="toggleSidebar()" class="text-gray-400 hover:text-red-500 text-2xl p-1 focus:outline-none"><i class="fas fa-times"></i></button>
@@ -124,20 +121,17 @@
         
         <header class="bg-white p-4 shadow-sm border-b border-gray-100 flex justify-between items-center sticky top-0 z-30 no-print">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="text-blue-800 text-2xl focus:outline-none p-1.5 px-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition active:scale-95">
+                <button onclick="toggleSidebar()" class="text-blue-800 text-2xl focus:outline-none p-1.5 bg-blue-50 rounded-lg hover:bg-blue-100 transition active:scale-95">
                     <i class="fas fa-bars"></i>
                 </button>
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 md:w-10 md:h-10 bg-blue-800 rounded-lg md:rounded-xl flex items-center justify-center text-white font-black text-xs md:text-sm relative overflow-hidden shadow-sm">
-                        <img class="app-logo absolute inset-0 w-full h-full object-cover hidden" src="" alt="L">
-                        <span class="app-logo-text">JN</span>
-                    </div>
-                    <h1 class="font-black text-lg md:text-xl text-blue-800 italic uppercase tracking-tight">Jersey Nova</h1>
-                </div>
+                <h1 class="font-black text-lg md:text-xl text-blue-800 italic uppercase tracking-tight hidden sm:block">Jersey Nova</h1>
             </div>
             
-            <div class="flex items-center">
-                <span id="header-role-badge" class="text-[10px] font-bold bg-blue-100 text-blue-800 px-3 py-1 rounded-full uppercase tracking-widest hidden sm:inline-block shadow-sm border border-blue-200">Role</span>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 md:w-10 md:h-10 bg-blue-800 rounded-lg md:rounded-xl flex items-center justify-center text-white font-black text-xs md:text-sm relative overflow-hidden shadow-sm">
+                    <img class="app-logo absolute inset-0 w-full h-full object-cover hidden" src="" alt="L">
+                    <span class="app-logo-text">JN</span>
+                </div>
             </div>
         </header>
 
@@ -427,7 +421,7 @@
         let currentUserRole = null; 
         let appSettings = { logo: '', qr: '', terms: 'Thank you for choosing Jersey Nova!' };
 
-        // Custom JN Toast Config
+        // SweetAlert Toast Notification
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -435,17 +429,6 @@
             timer: 3000,
             customClass: { popup: 'rounded-xl shadow-lg border border-gray-100' }
         });
-
-        // Stylish Custom Loader Functions
-        function showJNLoader(msgText) {
-            document.getElementById('loader-msg').innerText = msgText;
-            document.getElementById('jn-loader').classList.remove('hidden');
-            document.getElementById('jn-loader').classList.add('flex');
-        }
-        function hideJNLoader() {
-            document.getElementById('jn-loader').classList.add('hidden');
-            document.getElementById('jn-loader').classList.remove('flex');
-        }
 
         function initApp() {
             document.getElementById('order-date').valueAsDate = new Date();
@@ -456,12 +439,13 @@
 
             setupDragAndDrop();
 
-            dbSettings.on('value', snap => {
+            // Load Settings & Accounts Once
+            dbSettings.once('value', snap => {
                 if(snap.val()) { appSettings = { ...appSettings, ...snap.val() }; applySettingsToUI(); } 
                 else dbSettings.set(appSettings);
             });
 
-            dbUsers.on('value', snap => {
+            dbUsers.once('value', snap => {
                 if(snap.val()) {
                     usersData = snap.val();
                 } else {
@@ -471,6 +455,48 @@
                 }
                 renderUserList();
             });
+        }
+
+        // --- Core App Load Logic ---
+        function checkLogin() {
+            const userInp = document.getElementById('login-username').value.trim();
+            const passInp = document.getElementById('login-pass').value;
+
+            if(!userInp || !passInp) return Swal.fire({icon: 'warning', title: 'খালি রাখা যাবে না!'});
+
+            let matchedUser = null;
+            for(let key in usersData) {
+                if(usersData[key].username === userInp && usersData[key].password === passInp) {
+                    matchedUser = usersData[key]; break;
+                }
+            }
+
+            if(matchedUser) {
+                currentUserRole = matchedUser.role;
+                let bText = matchedUser.role === 'admin' ? 'Admin' : 'Staff';
+                let bClass = matchedUser.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-800';
+                
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('app-wrapper').classList.remove('hidden');
+                document.getElementById('app-wrapper-content').classList.remove('hidden');
+                
+                const badgeDesktop = document.getElementById('user-badge');
+                badgeDesktop.innerText = bText + ": " + matchedUser.username;
+                badgeDesktop.className = `text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest mt-1 inline-block truncate max-w-full ${bClass}`;
+                
+                Toast.fire({ icon: 'success', title: `স্বাগতম, ${matchedUser.username}!` });
+                
+                if(matchedUser.role === 'staff') applyStaffRestrictions();
+                
+                // Actual real-time data loading
+                db.on('value', snap => { orders = snap.val() ? Object.values(snap.val()) : []; renderOrders(); renderCRM(); });
+                dbExpenses.on('value', snap => { expenses = snap.val() ? Object.values(snap.val()) : []; if(currentUserRole === 'admin') renderExpenses(); renderOrders(); });
+                dbSettings.on('value', snap => { if(snap.val()) { appSettings = { ...appSettings, ...snap.val() }; applySettingsToUI(); } });
+                dbUsers.on('value', snap => { if(snap.val()) { usersData = snap.val(); renderUserList(); } });
+
+            } else {
+                Swal.fire({icon: 'error', title: 'ভুল তথ্য!', text: 'ইউজারনেম বা পাসওয়ার্ড সঠিক নয়।'}); 
+            }
         }
 
         function applySettingsToUI() {
@@ -493,10 +519,8 @@
             if(!uName || !uPass) return Swal.fire('ত্রুটি', 'ইউজারনেম এবং পাসওয়ার্ড দিন!', 'warning');
             for(let k in usersData) { if(usersData[k].username === uName) return Swal.fire('ত্রুটি', 'এই ইউজারনেমটি আগে থেকেই আছে!', 'error'); }
             
-            showJNLoader("অ্যাকাউন্ট তৈরি হচ্ছে...");
             const id = Date.now();
             dbUsers.child(id).set({ username: uName, password: uPass, role: uRole }).then(() => {
-                hideJNLoader();
                 Toast.fire({icon:'success', title:'অ্যাকাউন্ট তৈরি হয়েছে'});
                 document.getElementById('new-user-name').value = '';
                 document.getElementById('new-user-pass').value = '';
@@ -506,10 +530,7 @@
         function deleteUser(id) {
             if(usersData[id].username === 'admin') return Swal.fire('ত্রুটি', 'প্রধান অ্যাডমিন অ্যাকাউন্ট ডিলিট করা যাবে না!', 'error');
             Swal.fire({title: 'ডিলিট করতে চান?', icon:'warning', showCancelButton: true, confirmButtonColor:'#d33'}).then(res => {
-                if(res.isConfirmed) {
-                    showJNLoader("ডিলিট হচ্ছে...");
-                    dbUsers.child(id).remove().then(() => hideJNLoader());
-                }
+                if(res.isConfirmed) dbUsers.child(id).remove();
             });
         }
 
@@ -525,52 +546,6 @@
             }
         }
 
-        function checkLogin() {
-            const userInp = document.getElementById('login-username').value.trim();
-            const passInp = document.getElementById('login-pass').value;
-
-            if(!userInp || !passInp) return Swal.fire({icon: 'warning', title: 'খালি রাখা যাবে না!'});
-
-            showJNLoader("সিস্টেমে লগিন হচ্ছে...");
-
-            setTimeout(() => {
-                let matchedUser = null;
-                for(let key in usersData) {
-                    if(usersData[key].username === userInp && usersData[key].password === passInp) {
-                        matchedUser = usersData[key]; break;
-                    }
-                }
-
-                hideJNLoader();
-
-                if(matchedUser) {
-                    currentUserRole = matchedUser.role;
-                    let bText = matchedUser.role === 'admin' ? 'Admin' : 'Staff';
-                    
-                    document.getElementById('login-section').classList.add('hidden');
-                    document.getElementById('app-wrapper').classList.remove('hidden');
-                    document.getElementById('app-wrapper-content').classList.remove('hidden');
-                    
-                    const badgeDesktop = document.getElementById('user-badge');
-                    badgeDesktop.innerText = bText + ": " + matchedUser.username;
-                    
-                    const badgeMobile = document.getElementById('header-role-badge');
-                    badgeMobile.innerText = bText + ": " + matchedUser.username;
-                    badgeMobile.classList.remove('hidden');
-                    
-                    Toast.fire({ icon: 'success', title: `স্বাগতম, ${matchedUser.username}!` });
-                    
-                    if(matchedUser.role === 'staff') applyStaffRestrictions();
-                    
-                    db.on('value', snap => { orders = snap.val() ? Object.values(snap.val()) : []; renderOrders(); renderCRM(); });
-                    dbExpenses.on('value', snap => { expenses = snap.val() ? Object.values(snap.val()) : []; if(currentUserRole === 'admin') renderExpenses(); renderOrders(); });
-                } 
-                else {
-                    Swal.fire({icon: 'error', title: 'ভুল তথ্য!', text: 'ইউজারনেম বা পাসওয়ার্ড সঠিক নয়।', customClass: { popup: 'rounded-2xl' }}); 
-                }
-            }, 800); 
-        }
-
         function applyStaffRestrictions() {
             document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.admin-only-th').forEach(el => el.classList.add('hidden'));
@@ -581,21 +556,16 @@
         function logout() { location.reload(); }
 
         function saveSetting(key, elementId) {
-            showJNLoader("আপডেট হচ্ছে...");
-            dbSettings.child(key).set(document.getElementById(elementId).value).then(() => {
-                hideJNLoader();
-                Toast.fire({ icon: 'success', title: 'আপডেট হয়েছে!' });
-            });
+            dbSettings.child(key).set(document.getElementById(elementId).value).then(() => Toast.fire({ icon: 'success', title: 'আপডেট হয়েছে!' }));
         }
 
         function processFile(file, dbKey) {
             if(!file.type.startsWith('image/')) return;
-            showJNLoader("ছবি আপলোড হচ্ছে...");
             const reader = new FileReader();
             reader.onload = function(e) {
                 dbSettings.child(dbKey).set(e.target.result).then(() => {
-                    hideJNLoader(); Toast.fire({ icon: 'success', title: 'ছবি সেভ হয়েছে!' });
-                }).catch(err => { hideJNLoader(); Swal.fire({icon: 'error', title: 'সাইজ অনেক বড়!'}); });
+                    Toast.fire({ icon: 'success', title: 'ছবি সেভ হয়েছে!' });
+                }).catch(err => Swal.fire({icon: 'error', title: 'সাইজ অনেক বড়!'}));
             };
             reader.readAsDataURL(file);
         }
@@ -692,9 +662,7 @@
             const id = editId ? parseInt(editId) : Date.now();
             const orderData = { id, date, name, phone, addr, qty, uprice, fRate, pQty, pPrice, pFRate, dCharge, otherCost, totalBill, advance, due: totalBill - advance, totalFactoryCost, profit, status };
 
-            showJNLoader("অর্ডার সেভ হচ্ছে...");
             db.child(id).set(orderData).then(() => { 
-                hideJNLoader();
                 Toast.fire({ icon: 'success', title: editId ? 'আপডেট হয়েছে!' : 'সেভ হয়েছে!' }); 
                 resetFormUI(); 
             });
@@ -741,7 +709,7 @@
                 let profitHtml = currentUserRole === 'admin' ? `<td class="p-4 font-black text-gray-700 italic">৳ ${o.profit}</td>` : '';
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-blue-50/50 transition">
+                    <tr class="hover:bg-blue-50/50 transition border-b border-gray-50">
                         <td class="p-4"><span class="font-black text-gray-800">${o.name}</span><br><span class="text-[11px] text-gray-500">${o.phone}</span><br><span class="text-[10px] text-blue-500 mt-1 inline-block">${o.date}</span></td>
                         <td class="p-4 text-center">${qtyDisplay || '-'}</td>
                         <td class="p-4 text-red-600 font-black tracking-tight">৳ ${o.due}</td>
@@ -797,20 +765,14 @@
 
         function toggleStatus(id) {
             const order = orders.find(o => o.id === id);
-            showJNLoader("স্ট্যাটাস আপডেট হচ্ছে...");
-            db.child(id).update({ status: order.status === 'Paid' ? 'Pending' : 'Paid' }).then(()=> {
-                hideJNLoader();
-                Toast.fire({ icon: 'info', title: 'স্ট্যাটাস আপডেট!' });
-            });
+            db.child(id).update({ status: order.status === 'Paid' ? 'Pending' : 'Paid' });
+            Toast.fire({ icon: 'info', title: 'স্ট্যাটাস আপডেট!' });
         }
 
         function deleteOrder(id) { 
             if(currentUserRole !== 'admin') return Swal.fire({icon: 'error', title: 'অনুমতি নেই', text: 'অ্যাডমিন ছাড়া ডিলিট সম্ভব নয়।'});
             Swal.fire({ title: 'মুছে ফেলতে চান?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'হ্যাঁ' }).then((res) => { 
-                if(res.isConfirmed) {
-                    showJNLoader("ডিলিট হচ্ছে...");
-                    db.child(id).remove().then(() => hideJNLoader());
-                }
+                if(res.isConfirmed) db.child(id).remove();
             });
         }
 
@@ -820,9 +782,7 @@
             const date = document.getElementById('exp-date').value, desc = document.getElementById('exp-desc').value, amt = parseFloat(document.getElementById('exp-amount').value);
             if(!desc || !amt) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
             const id = Date.now(); 
-            showJNLoader("সেভ হচ্ছে...");
             dbExpenses.child(id).set({ id, date, desc, amount: amt }).then(() => { 
-                hideJNLoader();
                 Toast.fire({ icon: 'success', title: 'এন্ট্রি হয়েছে!' }); 
                 document.getElementById('exp-desc').value = ''; document.getElementById('exp-amount').value = ''; 
             });
@@ -831,10 +791,7 @@
         function deleteExpense(id) { 
             if(currentUserRole === 'admin') {
                 Swal.fire({ title: 'ডিলিট?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then((res) => { 
-                    if(res.isConfirmed) {
-                        showJNLoader("ডিলিট হচ্ছে...");
-                        dbExpenses.child(id).remove().then(()=> hideJNLoader());
-                    }
+                    if(res.isConfirmed) dbExpenses.child(id).remove();
                 }); 
             }
         }
@@ -842,7 +799,7 @@
         function renderExpenses() {
             if(currentUserRole !== 'admin') return;
             const tbody = document.getElementById('expense-list-body'); tbody.innerHTML = '';
-            [...expenses].sort((a,b) => b.id - a.id).forEach(e => { tbody.innerHTML += `<tr class="hover:bg-red-50/50"><td class="p-4 font-bold text-gray-500">${e.date}</td><td class="p-4 font-bold text-gray-800">${e.desc}</td><td class="p-4 font-black text-red-600">৳ ${e.amount}</td><td class="p-4 text-center"><button onclick="deleteExpense(${e.id})" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`; });
+            [...expenses].sort((a,b) => b.id - a.id).forEach(e => { tbody.innerHTML += `<tr class="hover:bg-red-50/50 border-b border-gray-50"><td class="p-4 font-bold text-gray-500">${e.date}</td><td class="p-4 font-bold text-gray-800">${e.desc}</td><td class="p-4 font-black text-red-600">৳ ${e.amount}</td><td class="p-4 text-center"><button onclick="deleteExpense(${e.id})" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`; });
         }
 
         function sendWhatsAppMsg(id) {
@@ -862,10 +819,8 @@
         function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
         
         async function downloadInvoiceImage() { 
-            showJNLoader("ইমেজ তৈরি হচ্ছে...");
             const canvas = await html2canvas(document.getElementById('invoice-capture-area'), { scale: 3, useCORS: true, backgroundColor: "#ffffff" }); 
             const link = document.createElement('a'); link.download = `Invoice_${Date.now()}.png`; link.href = canvas.toDataURL("image/png"); link.click(); 
-            hideJNLoader();
         }
 
         function renderCRM() {
@@ -897,28 +852,21 @@
 
         function downloadReportPDF() {
             if(currentUserRole !== 'admin') return;
-            showJNLoader("PDF তৈরি হচ্ছে...");
             html2canvas(document.getElementById('report-print-area'), { scale: 2, useCORS: true }).then(canvas => {
                 const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); const pdfW = pdf.internal.pageSize.getWidth(); const pdfH = (canvas.height * pdfW) / canvas.width;
-                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfW, pdfH); pdf.save(`Report_${Date.now()}.pdf`); 
-                hideJNLoader();
-                Toast.fire({ icon: 'success', title: 'PDF ডাউনলোড সম্পন্ন!' });
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfW, pdfH); pdf.save(`Report_${Date.now()}.pdf`);
             });
         }
 
         function exportData() {
             if(currentUserRole !== 'admin') return;
-            showJNLoader("ব্যাকআপ তৈরি হচ্ছে...");
-            setTimeout(() => {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
-                    orders: orders.reduce((acc, curr) => { acc[curr.id] = curr; return acc; }, {}),
-                    settings: appSettings,
-                    expenses: expenses.reduce((acc, curr) => { acc[curr.id] = curr; return acc; }, {}),
-                    users: usersData
-                }));
-                const node = document.createElement('a'); node.href = dataStr; node.download = `backup_${Date.now()}.json`; document.body.appendChild(node); node.click(); node.remove();
-                hideJNLoader();
-            }, 500);
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+                orders: orders.reduce((acc, curr) => { acc[curr.id] = curr; return acc; }, {}),
+                settings: appSettings,
+                expenses: expenses.reduce((acc, curr) => { acc[curr.id] = curr; return acc; }, {}),
+                users: usersData
+            }));
+            const node = document.createElement('a'); node.href = dataStr; node.download = `backup_${Date.now()}.json`; document.body.appendChild(node); node.click(); node.remove();
         }
         
         function importData(event) {
@@ -926,15 +874,13 @@
             const reader = new FileReader(); reader.onload = function(e) { 
                 Swal.fire({ title: 'রিস্টোর?', icon: 'warning', showCancelButton: true, confirmButtonText: 'হ্যাঁ' }).then((res) => { 
                     if (res.isConfirmed) {
-                        showJNLoader("ডাটা রিস্টোর হচ্ছে...");
                         const data = JSON.parse(e.target.result);
                         if(data.orders) {
                             firebase.database().ref('/').update(data).then(() => { 
-                                hideJNLoader();
                                 Swal.fire('সফল!', 'ডাটা রিস্টোর করা হয়েছে। পেজ রিলোড করুন।', 'success').then(()=>location.reload()); 
                             });
                         } else {
-                            db.update(data).then(() => { hideJNLoader(); Toast.fire({ icon: 'success', title: 'রিস্টোর সফল!' }); }); 
+                            db.update(data).then(() => { Toast.fire({ icon: 'success', title: 'রিস্টোর সফল!' }); }); 
                         }
                     } 
                     event.target.value = ''; 
