@@ -14,8 +14,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -38,12 +38,21 @@
         .drop-zone { border: 2px dashed #93c5fd; background: #eff6ff; transition: 0.3s; }
         .drop-zone.dragover { background: #dbeafe; border-color: #2563eb; }
         
-        /* Tab Navigation Active State Fix */
         .tab-btn.active { 
             background-color: #eff6ff !important; 
             color: #1d4ed8 !important; 
             font-weight: 900 !important; 
             border-right: 4px solid #1d4ed8 !important; 
+        }
+
+        /* Status Dropdown Styling */
+        select.status-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right .7rem top 50%;
+            background-size: .65rem auto;
+            padding-right: 1.5rem !important;
         }
     </style>
 </head>
@@ -87,8 +96,11 @@
                 <button onclick="switchTab('dashboard')" class="tab-btn active w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
                     <i class="fas fa-home w-5 text-center"></i> ড্যাশবোর্ড
                 </button>
+                <button onclick="switchTab('factory')" class="tab-btn w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
+                    <i class="fas fa-industry w-5 text-center"></i> ফ্যাক্টরি লেজার (Factory)
+                </button>
                 <button onclick="switchTab('expenses')" class="tab-btn w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
-                    <i class="fas fa-wallet w-5 text-center"></i> খরচ এন্ট্রি (Expenses)
+                    <i class="fas fa-wallet w-5 text-center"></i> অন্যান্য খরচ (Expenses)
                 </button>
                 <button onclick="switchTab('crm')" class="tab-btn w-full text-gray-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-50 transition">
                     <i class="fas fa-users w-5 text-center"></i> কাস্টমার লিস্ট (CRM)
@@ -135,20 +147,30 @@
                         <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 text-lg"><i class="fas fa-industry"></i></div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-pink-500 flex justify-between items-center">
-                        <div><p class="text-[10px] text-gray-500 uppercase font-black">প্যাকেজিং/অর্ডার খরচ</p><h3 id="total-order-cost" class="text-2xl font-bold text-pink-700">৳ ০</h3></div>
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">প্যাকেজিং খরচ</p><h3 id="total-order-cost" class="text-2xl font-bold text-pink-700">৳ ০</h3></div>
                         <div class="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center text-pink-600 text-lg"><i class="fas fa-box-open"></i></div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-red-500 flex justify-between items-center">
-                        <div><p class="text-[10px] text-gray-500 uppercase font-black">সাধারণ খরচ (Expenses)</p><h3 id="total-general-cost" class="text-2xl font-bold text-red-600">৳ ০</h3></div>
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">সাধারণ খরচ</p><h3 id="total-general-cost" class="text-2xl font-bold text-red-600">৳ ০</h3></div>
                         <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 text-lg"><i class="fas fa-wallet"></i></div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-red-800 flex justify-between items-center">
-                        <div><p class="text-[10px] text-gray-500 uppercase font-black">বাকি (Due)</p><h3 id="total-due" class="text-2xl font-bold text-red-800">৳ ০</h3></div>
+                        <div><p class="text-[10px] text-gray-500 uppercase font-black">কাস্টমার বাকি (Due)</p><h3 id="total-due" class="text-2xl font-bold text-red-800">৳ ০</h3></div>
                         <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-800 text-lg"><i class="fas fa-hand-holding-dollar"></i></div>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-green-600 flex justify-between items-center md:col-span-2">
-                        <div><p class="text-[10px] text-gray-500 uppercase font-black">আসল নিট লাভ (সব খরচ বাদে)</p><h3 id="total-profit" class="text-3xl font-bold text-green-700">৳ ০</h3></div>
-                        <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600 text-xl"><i class="fas fa-chart-pie"></i></div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-purple-500 flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase font-black" title="কাস্টমার থেকে সব টাকা পেলে এই লাভ হবে">Projected Profit</p>
+                            <h3 id="total-projected-profit" class="text-2xl font-bold text-purple-700">৳ ০</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 text-lg"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-green-600 flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase font-black" title="বর্তমানে হাতে থাকা আসল ক্যাশ লাভ">Actual Cash Profit</p>
+                            <h3 id="total-actual-profit" class="text-2xl font-bold text-green-700">৳ ০</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 text-lg"><i class="fas fa-money-bill-alt"></i></div>
                     </div>
                 </div>
 
@@ -160,10 +182,13 @@
                         <input type="date" id="order-date" class="p-3 border rounded-xl outline-none focus:border-blue-500 text-gray-600 bg-gray-50">
                         <select id="order-status" class="p-3 border rounded-xl outline-none focus:border-blue-500 font-bold text-gray-700 bg-white">
                             <option value="Pending">Pending (পেন্ডিং)</option>
-                            <option value="Processing">Processing (প্রসেসিং)</option>
-                            <option value="Hold">Hold (হোল্ড)</option>
+                            <option value="Design">Design (ডিজাইন)</option>
+                            <option value="Printing">Printing (প্রিন্টিং)</option>
+                            <option value="Sewing">Sewing (সেলাই)</option>
+                            <option value="Ready">Ready (ডেলিভারির জন্য প্রস্তুত)</option>
                             <option value="Shipped">Shipped (কুরিয়ারে)</option>
                             <option value="Paid">Paid (পেইড)</option>
+                            <option value="Hold">Hold (হোল্ড)</option>
                         </select>
                         <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-3 border rounded-xl outline-none focus:border-blue-500">
                         <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border rounded-xl outline-none focus:border-blue-500">
@@ -190,7 +215,7 @@
                         <div class="md:col-span-5 grid grid-cols-3 gap-2 bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-300 mt-2">
                             <div class="text-center"><p class="text-[10px] text-gray-500 font-bold">মোট বিল</p><p class="text-lg font-bold">৳ <span id="display-total">০</span></p></div>
                             <div class="text-center text-red-600"><p class="text-[10px] text-gray-500 font-bold">বাকি (COD)</p><p class="text-lg font-bold">৳ <span id="display-due">০</span></p></div>
-                            <div class="text-center text-green-700"><p class="text-[10px] text-gray-500 font-bold">নিট লাভ</p><p class="text-lg font-bold">৳ <span id="display-profit">০</span></p></div>
+                            <div class="text-center text-green-700"><p class="text-[10px] text-gray-500 font-bold">অর্ডার থেকে লাভ</p><p class="text-lg font-bold">৳ <span id="display-profit">০</span></p></div>
                         </div>
 
                         <button id="save-btn" onclick="saveOrder()" class="md:col-span-5 bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition shadow-lg">অর্ডার সেভ করুন</button>
@@ -221,6 +246,45 @@
                     </table>
                 </div>
                 <div id="pagination-controls" class="flex justify-center items-center gap-2 mt-6 mb-4 no-print flex-wrap"></div>
+            </div>
+
+            <div id="tab-factory" class="tab-content hidden">
+                <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border border-gray-100">
+                    <h2 class="text-xl font-bold mb-5 text-orange-600 flex items-center border-b pb-3"><i class="fas fa-industry mr-2"></i> ফ্যাক্টরি পেমেন্ট ও লেজার</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-orange-50 p-4 rounded-xl border border-orange-100">
+                            <p class="text-xs font-bold text-orange-600 uppercase">মোট ফ্যাক্টরি বিল</p>
+                            <h3 id="ledger-total-bill" class="text-2xl font-black text-gray-800">৳ ০</h3>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-xl border border-green-100">
+                            <p class="text-xs font-bold text-green-600 uppercase">ফ্যাক্টরিকে পরিশোধিত</p>
+                            <h3 id="ledger-total-paid" class="text-2xl font-black text-gray-800">৳ ০</h3>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-xl border border-red-100">
+                            <p class="text-xs font-bold text-red-600 uppercase">ফ্যাক্টরি পাবে (Due)</p>
+                            <h3 id="ledger-total-due" class="text-2xl font-black text-red-700">৳ ০</h3>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 border-t pt-4 border-gray-100">
+                        <input type="date" id="fact-pay-date" class="p-3 border rounded-xl outline-none focus:border-orange-500 text-gray-600 bg-gray-50">
+                        <input type="text" id="fact-pay-desc" placeholder="ফ্যাক্টরির নাম বা বিবরণ" class="p-3 border rounded-xl outline-none focus:border-orange-500 md:col-span-2">
+                        <div class="flex gap-2">
+                            <input type="number" id="fact-pay-amount" placeholder="টাকা (৳)" class="w-full p-3 border rounded-xl outline-none focus:border-orange-500 font-bold bg-orange-50">
+                            <button onclick="saveFactoryPayment()" class="bg-orange-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-700 transition">Save</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-3xl shadow-sm overflow-x-auto border border-gray-100">
+                    <table class="w-full text-left">
+                        <thead class="bg-orange-50 text-orange-500 uppercase text-[10px] font-black tracking-widest">
+                            <tr><th class="p-5 w-32">তারিখ</th><th class="p-5">ফ্যাক্টরি / বিবরণ</th><th class="p-5 font-bold">পেমেন্ট অ্যামাউন্ট</th><th class="p-5 text-center w-24">অ্যাকশন</th></tr>
+                        </thead>
+                        <tbody id="factory-list-body" class="divide-y divide-gray-50"></tbody>
+                    </table>
+                </div>
             </div>
 
             <div id="tab-expenses" class="tab-content hidden">
@@ -313,11 +377,22 @@
                             <h3 id="rep-expenses" class="text-xl font-black text-red-900">৳ ০</h3>
                         </div>
                         <div class="bg-green-50 p-4 rounded-2xl border border-green-100 text-center">
-                            <p class="text-xs text-green-600 font-bold uppercase mb-1">আসল নিট লাভ</p>
+                            <p class="text-xs text-green-600 font-bold uppercase mb-1">প্রজেক্টেড লাভ</p>
                             <h3 id="rep-profit" class="text-xl font-black text-green-900">৳ ০</h3>
                         </div>
                     </div>
                     
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 no-print">
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                            <h3 class="text-center text-sm font-bold text-gray-600 mb-4 uppercase">Sales vs Expense Overview</h3>
+                            <canvas id="salesExpenseChart"></canvas>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                            <h3 class="text-center text-sm font-bold text-gray-600 mb-4 uppercase">Top Selling Items (Pcs)</h3>
+                            <canvas id="itemChart"></canvas>
+                        </div>
+                    </div>
+
                     <p class="text-center text-xs text-gray-400 font-bold mt-10 italic">Generated by Jersey Nova ERP System</p>
                 </div>
             </div>
@@ -399,10 +474,14 @@
     <script>
         // --- Firebase Configuration ---
         const firebaseConfig = { databaseURL: "https://jersey-nova-default-rtdb.firebaseio.com/" };
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
         const db = firebase.database().ref('orders');
         const dbSettings = firebase.database().ref('settings');
         const dbExpenses = firebase.database().ref('expenses');
+        const dbFactoryPayments = firebase.database().ref('factory_payments');
 
         // SweetAlert2 Toast Configuration
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
@@ -410,17 +489,22 @@
         // Global State Variables
         let orders = [];
         let expenses = [];
+        let factoryPayments = [];
         let currentPage = 1;
         const itemsPerPage = 10; 
-        let appSettings = { password: 'sahil882', logo: '', qr: '', terms: 'Thank you for choosing Jersey Nova!' };
+        let appSettings = { password: '123', logo: '', qr: '', terms: 'Thank you for choosing Jersey Nova!' };
         
-        // Month Names for custom display
+        // Charts Intsance
+        let salesChartInstance = null;
+        let itemChartInstance = null;
+
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         // --- App Initialization ---
         function initApp() {
             document.getElementById('order-date').valueAsDate = new Date();
             document.getElementById('exp-date').valueAsDate = new Date();
+            document.getElementById('fact-pay-date').valueAsDate = new Date();
             document.getElementById('order-status').value = 'Pending';
             setupDragAndDrop();
 
@@ -468,7 +552,6 @@
             document.getElementById('qr-upload').addEventListener('change', (e) => { if(e.target.files[0]) processFile(e.target.files[0], 'qr'); });
         }
 
-        // --- Core Auth & Tab Logic ---
         function checkLogin() {
             const passInput = document.getElementById('admin-pass').value;
             if(passInput === appSettings.password) {
@@ -478,6 +561,7 @@
                 
                 db.on('value', snap => { orders = snap.val() ? Object.values(snap.val()) : []; renderOrders(); renderCRM(); });
                 dbExpenses.on('value', snap => { expenses = snap.val() ? Object.values(snap.val()) : []; renderExpenses(); renderOrders(); });
+                dbFactoryPayments.on('value', snap => { factoryPayments = snap.val() ? Object.values(snap.val()) : []; renderFactoryLedger(); renderOrders(); });
             } else Swal.fire({icon: 'error', title: 'ভুল পাসওয়ার্ড!'}); 
         }
 
@@ -497,12 +581,9 @@
             
             document.getElementById('tab-' + tabId).classList.remove('hidden');
             
-            // Add active class to the button that called it (using dataset or explicit id matching logic)
-            // Simplified way using event target:
             if(event && event.currentTarget) {
                 event.currentTarget.classList.add('active', 'text-blue-700');
             } else {
-                 // Fallback if called programmatically
                  document.querySelectorAll(`.tab-btn[onclick*="${tabId}"]`).forEach(el => el.classList.add('active', 'text-blue-700'));
             }
             
@@ -510,7 +591,54 @@
             
             if(tabId === 'expenses') renderExpenses();
             if(tabId === 'crm') renderCRM();
+            if(tabId === 'factory') renderFactoryLedger();
             if(tabId === 'reports') generateReport('this_month');
+        }
+
+        // --- FACTORY LEDGER SYSTEM ---
+        function saveFactoryPayment() {
+            const date = document.getElementById('fact-pay-date').value;
+            const desc = document.getElementById('fact-pay-desc').value;
+            const amt = parseFloat(document.getElementById('fact-pay-amount').value);
+            
+            if(!desc || !amt) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
+            
+            const id = Date.now();
+            dbFactoryPayments.child(id).set({ id, date, desc, amount: amt }).then(() => {
+                Toast.fire({ icon: 'success', title: 'ফ্যাক্টরি পেমেন্ট এন্ট্রি হয়েছে!' });
+                document.getElementById('fact-pay-desc').value = '';
+                document.getElementById('fact-pay-amount').value = '';
+            });
+        }
+
+        function deleteFactoryPayment(id) {
+            Swal.fire({ title: 'মুছে ফেলতে চান?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'হ্যাঁ' })
+            .then((res) => { if(res.isConfirmed) dbFactoryPayments.child(id).remove(); });
+        }
+
+        function renderFactoryLedger() {
+            const tbody = document.getElementById('factory-list-body');
+            tbody.innerHTML = '';
+            const sorted = [...factoryPayments].sort((a,b) => b.id - a.id);
+            
+            let totalFactoryBill = 0;
+            orders.forEach(o => totalFactoryBill += parseFloat(o.totalFactoryCost || 0));
+
+            let totalPaid = 0;
+            sorted.forEach(e => {
+                totalPaid += parseFloat(e.amount || 0);
+                tbody.innerHTML += `
+                    <tr class="hover:bg-orange-50/50 transition border-b border-gray-50">
+                        <td class="p-5 font-bold text-gray-500">${e.date}</td>
+                        <td class="p-5 font-bold text-gray-800">${e.desc}</td>
+                        <td class="p-5 font-black text-orange-600">৳ ${e.amount}</td>
+                        <td class="p-5 text-center"><button onclick="deleteFactoryPayment(${e.id})" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
+            });
+
+            document.getElementById('ledger-total-bill').innerText = "৳ " + totalFactoryBill;
+            document.getElementById('ledger-total-paid').innerText = "৳ " + totalPaid;
+            document.getElementById('ledger-total-due').innerText = "৳ " + (totalFactoryBill - totalPaid);
         }
 
         // --- EXPENSES SYSTEM ---
@@ -579,97 +707,6 @@
             });
         }
 
-        // --- REPORT SYSTEM ---
-        function isDateInRange(dateStr, range, customMonthStr) {
-            const d = new Date(dateStr);
-            const now = new Date();
-            
-            if(range === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-            
-            if(range === 'last_month') {
-                let m = now.getMonth() - 1, y = now.getFullYear();
-                if(m < 0) { m = 11; y--; }
-                return d.getMonth() === m && d.getFullYear() === y;
-            }
-            
-            if(range === 'this_year') return d.getFullYear() === now.getFullYear();
-            
-            if(range === 'last_12_months') {
-                const pastYear = new Date();
-                pastYear.setFullYear(now.getFullYear() - 1);
-                return d >= pastYear && d <= now;
-            }
-
-            // NEW: Custom Month Logic
-            if(range === 'custom_month' && customMonthStr) {
-                // customMonthStr format from input type="month" is "YYYY-MM"
-                const [year, month] = customMonthStr.split('-');
-                return d.getFullYear() === parseInt(year) && d.getMonth() === (parseInt(month) - 1);
-            }
-            
-            return true;
-        }
-
-        function generateReport(range) {
-            let tSales = 0, tFact = 0, tExp = 0, tRawProfit = 0, tOrderExp = 0;
-            
-            const customMonthVal = document.getElementById('custom-month-picker').value;
-
-            if (range === 'custom_month' && !customMonthVal) {
-                return Swal.fire({icon: 'warning', title: 'দয়া করে একটি মাস নির্বাচন করুন!'});
-            }
-
-            orders.forEach(o => {
-                if(isDateInRange(o.date, range, customMonthVal)) {
-                    tSales += o.totalBill; 
-                    tFact += o.totalFactoryCost; 
-                    tRawProfit += o.profit;
-                    tOrderExp += parseFloat(o.otherCost || 0);
-                }
-            });
-            
-            expenses.forEach(e => { if(isDateInRange(e.date, range, customMonthVal)) tExp += parseFloat(e.amount); });
-            
-            let titles = { 
-                'this_month': 'এই মাসের রিপোর্ট', 
-                'last_month': 'গত মাসের রিপোর্ট', 
-                'this_year': 'এই বছরের রিপোর্ট',
-                'last_12_months': 'শেষ ১২ মাসের রিপোর্ট'
-            };
-
-            let finalTitle = titles[range];
-
-            // If custom month, format title nicely
-            if (range === 'custom_month') {
-                const [year, month] = customMonthVal.split('-');
-                finalTitle = `${monthNames[parseInt(month) - 1]} ${year} এর রিপোর্ট`;
-            }
-
-            document.getElementById('report-title').innerText = finalTitle;
-            
-            document.getElementById('rep-sales').innerText = "৳ " + tSales;
-            document.getElementById('rep-factory').innerText = "৳ " + tFact;
-            document.getElementById('rep-order-cost').innerText = "৳ " + tOrderExp;
-            document.getElementById('rep-expenses').innerText = "৳ " + tExp;
-            document.getElementById('rep-profit').innerText = "৳ " + (tRawProfit - tExp); 
-        }
-
-        function downloadReportPDF() {
-            const { jsPDF } = window.jspdf;
-            const area = document.getElementById('report-print-area');
-            Swal.fire({ title: 'PDF তৈরি হচ্ছে...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            
-            html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape for better fit
-                const pdfW = pdf.internal.pageSize.getWidth();
-                const pdfH = (canvas.height * pdfW) / canvas.width;
-                pdf.addImage(imgData, 'PNG', 0, 10, pdfW, pdfH);
-                pdf.save(`JerseyNova_Report_${Date.now()}.pdf`);
-                Swal.close();
-            });
-        }
-
         // --- DASHBOARD ORDER SYSTEM ---
         function calculateStats() {
             const qty = parseFloat(document.getElementById('quantity').value) || 0;
@@ -731,18 +768,19 @@
         function renderOrders() {
             const tbody = document.getElementById('order-list-body');
             tbody.innerHTML = '';
-            let tProf = 0, tFact = 0, tDue = 0, tSales = 0, tExp = 0, tOrderExp = 0;
+            
+            let tProf = 0, tFact = 0, tDue = 0, tSales = 0, tExp = 0, tOrderExp = 0, tFactPaid = 0, tCashIn = 0;
             
             const searchText = document.getElementById('search-input').value.toLowerCase();
             const searchDate = document.getElementById('filter-date').value;
             
-            // Set Date Text Indicator
             const dateDisplay = document.getElementById('dashboard-date-range');
             if(searchDate) dateDisplay.innerText = `তারিখ: ${searchDate}`;
             else dateDisplay.innerText = "সব ডাটা দেখানো হচ্ছে";
 
-            // Calc Expenses for the filtered date
+            // Calc Expenses & Factory Paid based on Date Filter
             expenses.forEach(e => { let m = searchDate ? (e.date === searchDate) : true; if(m) tExp += parseFloat(e.amount); });
+            factoryPayments.forEach(fp => { let m = searchDate ? (fp.date === searchDate) : true; if(m) tFactPaid += parseFloat(fp.amount); });
 
             const sortedOrders = [...orders].sort((a,b) => b.id - a.id);
             const filteredOrders = [];
@@ -758,6 +796,9 @@
                 tFact += o.totalFactoryCost;
                 tOrderExp += parseFloat(o.otherCost || 0);
                 if(o.status !== 'Paid') tDue += o.due;
+                
+                // Actual Cash In (Total Bill - Due) => Advance paid or full paid if COD cleared
+                tCashIn += (o.totalBill - o.due);
             });
 
             const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
@@ -771,11 +812,12 @@
                 if(o.qty > 0 && o.pQty > 0) qtyDisplay += `<br>`;
                 if(o.pQty > 0) qtyDisplay += `<span class="text-gray-600">${o.pQty} P</span>`;
 
-                let sCol = 'bg-gray-50 text-gray-600 border-gray-200';
-                if(o.status === 'Pending') sCol = 'bg-yellow-50 text-yellow-600 border-yellow-200';
-                if(o.status === 'Paid') sCol = 'bg-green-50 text-green-600 border-green-200';
-                if(o.status === 'Processing' || o.status === 'Shipped') sCol = 'bg-blue-50 text-blue-600 border-blue-200';
-                if(o.status === 'Hold') sCol = 'bg-red-50 text-red-600 border-red-200';
+                let sCol = 'bg-white text-gray-700 border-gray-300';
+                if(o.status === 'Pending') sCol = 'bg-yellow-50 text-yellow-700 border-yellow-300';
+                if(o.status === 'Paid') sCol = 'bg-green-50 text-green-700 border-green-300';
+                if(o.status === 'Printing' || o.status === 'Design' || o.status === 'Sewing') sCol = 'bg-purple-50 text-purple-700 border-purple-300';
+                if(o.status === 'Ready' || o.status === 'Shipped') sCol = 'bg-blue-50 text-blue-700 border-blue-300';
+                if(o.status === 'Hold') sCol = 'bg-red-50 text-red-700 border-red-300';
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-blue-50 transition border-b border-gray-50">
@@ -783,7 +825,18 @@
                         <td class="p-5 text-center font-black">${qtyDisplay || '-'}</td>
                         <td class="p-5 text-red-600 font-black tracking-tight">৳ ${o.due}</td>
                         <td class="p-5 font-black text-gray-700 italic">৳ ${o.profit}</td>
-                        <td class="p-5 text-center"><button onclick="toggleStatus(${o.id})" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter border-2 ${sCol}">${o.status || 'Pending'}</button></td>
+                        <td class="p-5 text-center">
+                            <select onchange="updateOrderStatus(${o.id}, this.value)" class="status-select text-[10px] font-black uppercase tracking-tighter border-2 rounded p-1 outline-none cursor-pointer ${sCol}">
+                                <option value="Pending" ${o.status=='Pending'?'selected':''}>Pending</option>
+                                <option value="Design" ${o.status=='Design'?'selected':''}>Design</option>
+                                <option value="Printing" ${o.status=='Printing'?'selected':''}>Printing</option>
+                                <option value="Sewing" ${o.status=='Sewing'?'selected':''}>Sewing</option>
+                                <option value="Ready" ${o.status=='Ready'?'selected':''}>Ready</option>
+                                <option value="Shipped" ${o.status=='Shipped'?'selected':''}>Shipped</option>
+                                <option value="Paid" ${o.status=='Paid'?'selected':''}>Paid</option>
+                                <option value="Hold" ${o.status=='Hold'?'selected':''}>Hold</option>
+                            </select>
+                        </td>
                         <td class="p-5 text-center">
                             <div class="flex items-center justify-center space-x-3">
                                 <button onclick="sendWhatsAppMsg(${o.id})" class="text-xl" title="WhatsApp">💬</button>
@@ -796,13 +849,21 @@
             });
             
             renderPagination(totalPages);
+            
+            // Populate Dashboard Stats
             document.getElementById('total-orders').innerText = filteredOrders.length;
             document.getElementById('total-sales').innerText = "৳ " + tSales;
             document.getElementById('total-factory-cost').innerText = "৳ " + tFact;
             document.getElementById('total-order-cost').innerText = "৳ " + tOrderExp;
             document.getElementById('total-general-cost').innerText = "৳ " + tExp;
-            document.getElementById('total-profit').innerText = "৳ " + (tProf - tExp); // True Net profit (Profit - Expenses)
             document.getElementById('total-due').innerText = "৳ " + tDue;
+            
+            // Profit Split Logic
+            let projectedProfit = tProf - tExp; 
+            let actualCashProfit = tCashIn - tFactPaid - tOrderExp - tExp;
+            
+            document.getElementById('total-projected-profit').innerText = "৳ " + projectedProfit;
+            document.getElementById('total-actual-profit').innerText = "৳ " + actualCashProfit; 
         }
 
         function renderPagination(totalPages) {
@@ -837,7 +898,7 @@
         }
 
         function clearForm() { 
-            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(i => i.value = ''); 
+            document.querySelectorAll('input[type="text"]:not(#search-input):not(#fact-pay-desc):not(#exp-desc):not(#setting-password), input[type="number"]:not(#fact-pay-amount):not(#exp-amount)').forEach(i => i.value = ''); 
             document.querySelectorAll('#display-total, #display-due, #display-profit').forEach(s => s.innerText = '0');
             resetFormUI();
         }
@@ -851,11 +912,10 @@
             window.open(`https://wa.me/88${o.phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        function toggleStatus(id) {
-            const order = orders.find(o => o.id === id);
-            const nextStatus = (order.status === 'Paid') ? 'Pending' : 'Paid';
-            db.child(id).update({ status: nextStatus });
-            Toast.fire({ icon: 'info', title: 'স্ট্যাটাস আপডেট হয়েছে!' });
+        function updateOrderStatus(id, nextStatus) {
+            db.child(id).update({ status: nextStatus }).then(() => {
+                Toast.fire({ icon: 'info', title: 'স্ট্যাটাস আপডেট হয়েছে!' });
+            });
         }
 
         function deleteOrder(id) { 
@@ -896,23 +956,143 @@
 
         function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
 
+        // --- REPORT SYSTEM (WITH CHARTS) ---
+        function isDateInRange(dateStr, range, customMonthStr) {
+            const d = new Date(dateStr);
+            const now = new Date();
+            
+            if(range === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            
+            if(range === 'last_month') {
+                let m = now.getMonth() - 1, y = now.getFullYear();
+                if(m < 0) { m = 11; y--; }
+                return d.getMonth() === m && d.getFullYear() === y;
+            }
+            
+            if(range === 'this_year') return d.getFullYear() === now.getFullYear();
+            
+            if(range === 'last_12_months') {
+                const pastYear = new Date();
+                pastYear.setFullYear(now.getFullYear() - 1);
+                return d >= pastYear && d <= now;
+            }
+
+            if(range === 'custom_month' && customMonthStr) {
+                const [year, month] = customMonthStr.split('-');
+                return d.getFullYear() === parseInt(year) && d.getMonth() === (parseInt(month) - 1);
+            }
+            return true;
+        }
+
+        function generateReport(range) {
+            let tSales = 0, tFact = 0, tExp = 0, tRawProfit = 0, tOrderExp = 0;
+            let totalJQty = 0, totalPQty = 0;
+            
+            const customMonthVal = document.getElementById('custom-month-picker').value;
+
+            if (range === 'custom_month' && !customMonthVal) {
+                return Swal.fire({icon: 'warning', title: 'দয়া করে একটি মাস নির্বাচন করুন!'});
+            }
+
+            orders.forEach(o => {
+                if(isDateInRange(o.date, range, customMonthVal)) {
+                    tSales += o.totalBill; 
+                    tFact += o.totalFactoryCost; 
+                    tRawProfit += o.profit;
+                    tOrderExp += parseFloat(o.otherCost || 0);
+                    totalJQty += parseInt(o.qty || 0);
+                    totalPQty += parseInt(o.pQty || 0);
+                }
+            });
+            
+            expenses.forEach(e => { if(isDateInRange(e.date, range, customMonthVal)) tExp += parseFloat(e.amount); });
+            
+            let titles = { 
+                'this_month': 'এই মাসের রিপোর্ট', 
+                'last_month': 'গত মাসের রিপোর্ট', 
+                'this_year': 'এই বছরের রিপোর্ট',
+                'last_12_months': 'শেষ ১২ মাসের রিপোর্ট'
+            };
+
+            let finalTitle = titles[range];
+
+            if (range === 'custom_month') {
+                const [year, month] = customMonthVal.split('-');
+                finalTitle = `${monthNames[parseInt(month) - 1]} ${year} এর রিপোর্ট`;
+            }
+
+            document.getElementById('report-title').innerText = finalTitle;
+            
+            document.getElementById('rep-sales').innerText = "৳ " + tSales;
+            document.getElementById('rep-factory').innerText = "৳ " + tFact;
+            document.getElementById('rep-order-cost').innerText = "৳ " + tOrderExp;
+            document.getElementById('rep-expenses').innerText = "৳ " + tExp;
+            document.getElementById('rep-profit').innerText = "৳ " + (tRawProfit - tExp); 
+
+            // Render Charts
+            renderCharts(tSales, tExp + tOrderExp, totalJQty, totalPQty);
+        }
+
+        function renderCharts(sales, totalExpenses, jQty, pQty) {
+            if(salesChartInstance) salesChartInstance.destroy();
+            if(itemChartInstance) itemChartInstance.destroy();
+
+            const ctxSales = document.getElementById('salesExpenseChart').getContext('2d');
+            salesChartInstance = new Chart(ctxSales, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sales / Income', 'Total Expenses'],
+                    datasets: [{
+                        data: [sales, totalExpenses],
+                        backgroundColor: ['#3b82f6', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            const ctxItem = document.getElementById('itemChart').getContext('2d');
+            itemChartInstance = new Chart(ctxItem, {
+                type: 'bar',
+                data: {
+                    labels: ['Jersey', 'Pant'],
+                    datasets: [{
+                        label: 'Sold Quantity',
+                        data: [jQty, pQty],
+                        backgroundColor: ['#8b5cf6', '#14b8a6'],
+                        borderRadius: 5
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        function downloadReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const area = document.getElementById('report-print-area');
+            Swal.fire({ title: 'PDF তৈরি হচ্ছে...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            
+            html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfW = pdf.internal.pageSize.getWidth();
+                const pdfH = (canvas.height * pdfW) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 0, 10, pdfW, pdfH);
+                pdf.save(`JerseyNova_Report_${Date.now()}.pdf`);
+                Swal.close();
+            });
+        }
+
+        // --- BACKUP & RESTORE ---
         function exportData() {
-            const exportObj = {}; orders.forEach(o => exportObj[o.id] = o);
+            const exportObj = { orders: {}, expenses: {}, factoryPayments: {}, settings: appSettings }; 
+            orders.forEach(o => exportObj.orders[o.id] = o);
+            expenses.forEach(e => exportObj.expenses[e.id] = e);
+            factoryPayments.forEach(fp => exportObj.factoryPayments[fp.id] = fp);
+
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
             const node = document.createElement('a'); node.href = dataStr; node.download = `jerseynova_backup_${new Date().toISOString().split('T')[0]}.json`;
             document.body.appendChild(node); node.click(); node.remove();
-        }
-
-        function importData(event) {
-            const file = event.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                Swal.fire({ title: 'রিস্টোর করতে চান?', icon: 'warning', showCancelButton: true, confirmButtonText: 'হ্যাঁ' }).then((res) => {
-                    if (res.isConfirmed) db.update(JSON.parse(e.target.result)).then(() => Swal.fire('সফল!', '', 'success'));
-                    event.target.value = '';
-                });
-            };
-            reader.readAsText(file);
         }
     </script>
 </body>
