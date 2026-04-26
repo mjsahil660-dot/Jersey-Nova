@@ -54,10 +54,9 @@
             padding-right: 1.5rem !important;
         }
 
-        /* Fix for Chart Size */
         .chart-container {
             position: relative;
-            height: 220px;
+            height: 240px; /* চার্ট যেন সুন্দরভাবে বসে */
             width: 100%;
         }
     </style>
@@ -71,7 +70,7 @@
                 <span class="app-logo-text">JN</span>
             </div>
             <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
-            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP Manager v6.1</p>
+            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP Manager v6.2</p>
         </div>
         <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
         <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">সিস্টেমে প্রবেশ করুন</button>
@@ -579,7 +578,10 @@
             if(tabId === 'expenses') renderExpenses();
             if(tabId === 'crm') renderCRM();
             if(tabId === 'factory') renderFactoryLedger();
-            if(tabId === 'reports') generateReport('this_month');
+            if(tabId === 'reports') {
+                // সামান্য ডিলে দিয়েছি যেন ট্যাব ওপেন হওয়ার পর চার্ট লোড হয়, নইলে ব্ল্যাংক থাকবে
+                setTimeout(() => { generateReport('this_month'); }, 50);
+            }
         }
 
         function saveFactoryPayment() {
@@ -774,7 +776,14 @@
 
                 filteredOrders.push(o);
                 tSales += o.totalBill; 
-                tProf += o.profit; 
+                
+                // পুরোনো ডাটার জন্য প্রফিট সেফভাবে বের করা
+                let calculatedProfit = parseFloat(o.profit);
+                if (isNaN(calculatedProfit)) {
+                    calculatedProfit = o.totalBill - (o.totalFactoryCost + parseFloat(o.dCharge||0) + parseFloat(o.otherCost||0));
+                }
+                tProf += calculatedProfit; 
+                
                 tFact += o.totalFactoryCost;
                 tOrderExp += parseFloat(o.otherCost || 0);
                 if(o.status !== 'Paid') tDue += o.due;
@@ -838,8 +847,8 @@
             let projectedProfit = tProf - tExp; 
             let actualCashProfit = tCashIn - tFactPaid - tOrderExp - tExp;
             
-            document.getElementById('total-projected-profit').innerText = "৳ " + projectedProfit;
-            document.getElementById('total-actual-profit').innerText = "৳ " + actualCashProfit; 
+            document.getElementById('total-projected-profit').innerText = "৳ " + (isNaN(projectedProfit) ? 0 : projectedProfit);
+            document.getElementById('total-actual-profit').innerText = "৳ " + (isNaN(actualCashProfit) ? 0 : actualCashProfit); 
         }
 
         function renderPagination(totalPages) {
@@ -973,7 +982,14 @@
                 if(isDateInRange(o.date, range, customMonthVal)) {
                     tSales += o.totalBill; 
                     tFact += o.totalFactoryCost; 
-                    tRawProfit += o.profit;
+                    
+                    // সেফলি প্রফিট বের করা (পুরোনো ডাটা থাকলেও যেন ক্র্যাশ না করে)
+                    let p = parseFloat(o.profit);
+                    if(isNaN(p)) {
+                        p = o.totalBill - (o.totalFactoryCost + parseFloat(o.dCharge||0) + parseFloat(o.otherCost||0));
+                    }
+                    tRawProfit += p;
+                    
                     tOrderExp += parseFloat(o.otherCost || 0);
                     totalJQty += parseInt(o.qty || 0);
                     totalPQty += parseInt(o.pQty || 0);
@@ -1000,44 +1016,57 @@
             
             document.getElementById('rep-sales').innerText = "৳ " + tSales;
             document.getElementById('rep-factory').innerText = "৳ " + tFact;
-            document.getElementById('rep-order-cost').innerText = "৳ " + (tOrderExp + tExp);
-            document.getElementById('rep-profit').innerText = "৳ " + (tRawProfit - tExp); 
+            
+            // Fixed the element ID here
+            document.getElementById('rep-expenses').innerText = "৳ " + (tOrderExp + tExp);
+            
+            let finalProfit = tRawProfit - tExp;
+            document.getElementById('rep-profit').innerText = "৳ " + (isNaN(finalProfit) ? 0 : finalProfit); 
 
-            renderCharts(tSales, tExp + tOrderExp, totalJQty, totalPQty);
+            // গ্রাফ রেন্ডার কল করা হলো
+            renderCharts(tSales, (tExp + tOrderExp), totalJQty, totalPQty);
         }
 
         function renderCharts(sales, totalExpenses, jQty, pQty) {
-            if(salesChartInstance) salesChartInstance.destroy();
-            if(itemChartInstance) itemChartInstance.destroy();
+            // চার্ট সঠিকভাবে রেন্ডার হওয়ার জন্য ছোট ডিলে যোগ করা হলো
+            setTimeout(() => {
+                if(salesChartInstance) salesChartInstance.destroy();
+                if(itemChartInstance) itemChartInstance.destroy();
 
-            const ctxSales = document.getElementById('salesExpenseChart').getContext('2d');
-            salesChartInstance = new Chart(ctxSales, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Sales / Income', 'Total Expenses'],
-                    datasets: [{
-                        data: [sales, totalExpenses],
-                        backgroundColor: ['#3b82f6', '#ef4444'],
-                        borderWidth: 0
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-            });
+                const canvas1 = document.getElementById('salesExpenseChart');
+                const canvas2 = document.getElementById('itemChart');
 
-            const ctxItem = document.getElementById('itemChart').getContext('2d');
-            itemChartInstance = new Chart(ctxItem, {
-                type: 'bar',
-                data: {
-                    labels: ['Jersey', 'Pant'],
-                    datasets: [{
-                        label: 'Sold Quantity',
-                        data: [jQty, pQty],
-                        backgroundColor: ['#8b5cf6', '#14b8a6'],
-                        borderRadius: 5
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-            });
+                if(!canvas1 || !canvas2) return;
+
+                const ctxSales = canvas1.getContext('2d');
+                salesChartInstance = new Chart(ctxSales, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Sales / Income', 'Total Expenses'],
+                        datasets: [{
+                            data: [Number(sales) || 0, Number(totalExpenses) || 0],
+                            backgroundColor: ['#3b82f6', '#ef4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                });
+
+                const ctxItem = canvas2.getContext('2d');
+                itemChartInstance = new Chart(ctxItem, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jersey', 'Pant'],
+                        datasets: [{
+                            label: 'Sold Quantity',
+                            data: [Number(jQty) || 0, Number(pQty) || 0],
+                            backgroundColor: ['#8b5cf6', '#14b8a6'],
+                            borderRadius: 5
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                });
+            }, 50);
         }
 
         function downloadReportPDF() {
