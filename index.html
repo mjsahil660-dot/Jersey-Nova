@@ -70,7 +70,7 @@
                 <span class="app-logo-text">JN</span>
             </div>
             <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
-            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP Manager v6.3</p>
+            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP Manager v6.4 (Anti-Crash)</p>
         </div>
         <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
         <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">সিস্টেমে প্রবেশ করুন</button>
@@ -487,47 +487,44 @@
 
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-        // --- NEW DATE NORMALIZER FUNCTION ---
-        function normalizeDate(dateStr) {
-            if (!dateStr) return new Date().toISOString().split('T')[0]; // Fallback to today
+        // --- 1. SAFE NUMBER PARSER (ANTI-CRASH) ---
+        const getNum = (val) => {
+            if (val === undefined || val === null || val === '') return 0;
+            const n = parseFloat(String(val).replace(/,/g, ''));
+            return isNaN(n) ? 0 : n;
+        };
+
+        // --- 2. SUPER BULLETPROOF DATE NORMALIZER ---
+        function normalizeDate(str) {
+            if (!str) return new Date().toISOString().split('T')[0]; 
+            str = String(str).trim();
             
-            // 1. Convert Bangla numerals to English
-            const banglaNumbers = {'০':'0', '১':'1', '২':'2', '৩':'3', '৪':'4', '৫':'5', '৬':'6', '৭':'7', '৮':'8', '৯':'9'};
-            let engStr = dateStr.replace(/[০-৯]/g, match => banglaNumbers[match]);
-
-            // 2. Check if already YYYY-MM-DD
-            if (/^\d{4}-\d{2}-\d{2}$/.test(engStr)) {
-                return engStr;
-            }
-
-            // 3. Handle DD/MM/YYYY or D/M/YYYY
-            if (engStr.includes('/')) {
-                let parts = engStr.split('/');
-                if (parts.length === 3) {
-                    let d = parts[0].padStart(2, '0');
-                    let m = parts[1].padStart(2, '0');
-                    let y = parts[2];
-                    
-                    if (y.length === 4) {
-                        return `${y}-${m}-${d}`;
-                    } else if (parts[0].length === 4) { // Handle YYYY/MM/DD just in case
-                        return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
-                    }
-                }
+            // Convert any Bangla digits to English by character loop (100% accurate)
+            const b = "০১২৩৪৫৬৭৮৯";
+            const e = "0123456789";
+            let eng = "";
+            for (let i = 0; i < str.length; i++) {
+                let idx = b.indexOf(str[i]);
+                eng += (idx !== -1) ? e[idx] : str[i];
             }
             
-            // 4. Handle DD-MM-YYYY
-            if (engStr.includes('-')) {
-                let parts = engStr.split('-');
-                if (parts.length === 3 && parts[2].length === 4) {
-                    let d = parts[0].padStart(2, '0');
-                    let m = parts[1].padStart(2, '0');
-                    let y = parts[2];
-                    return `${y}-${m}-${d}`;
+            // Replace separators with hyphen
+            eng = eng.replace(/[\/\.]/g, '-');
+            
+            let parts = eng.split('-');
+            if (parts.length === 3) {
+                let p1 = parts[0].trim(), p2 = parts[1].trim(), p3 = parts[2].trim();
+                
+                // Format: YYYY-MM-DD
+                if (p1.length === 4) {
+                    return `${p1}-${p2.padStart(2, '0')}-${p3.padStart(2, '0')}`;
+                }
+                // Format: DD-MM-YYYY -> Convert to YYYY-MM-DD
+                else if (p3.length === 4) {
+                    return `${p3}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}`;
                 }
             }
-
-            return engStr; // return as is if no match found
+            return eng; 
         }
 
         function initApp() {
@@ -588,7 +585,7 @@
                 document.getElementById('app-wrapper').classList.remove('hidden');
                 Toast.fire({ icon: 'success', title: 'সফলভাবে লগিন হয়েছে!' });
                 
-                // Normalizing Dates upon loading from DB
+                // Normalizing Dates mapping correctly!
                 db.on('value', snap => { 
                     orders = snap.val() ? Object.values(snap.val()).map(o => ({...o, date: normalizeDate(o.date)})) : []; 
                     renderOrders(); 
@@ -642,9 +639,9 @@
         function saveFactoryPayment() {
             const date = document.getElementById('fact-pay-date').value;
             const desc = document.getElementById('fact-pay-desc').value;
-            const amt = parseFloat(document.getElementById('fact-pay-amount').value);
+            const amt = getNum(document.getElementById('fact-pay-amount').value);
             
-            if(!desc || !amt) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
+            if(!desc || amt <= 0) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
             
             const id = Date.now();
             dbFactoryPayments.child(id).set({ id, date, desc, amount: amt }).then(() => {
@@ -665,11 +662,11 @@
             const sorted = [...factoryPayments].sort((a,b) => b.id - a.id);
             
             let totalFactoryBill = 0;
-            orders.forEach(o => totalFactoryBill += parseFloat(o.totalFactoryCost || 0));
+            orders.forEach(o => totalFactoryBill += getNum(o.totalFactoryCost));
 
             let totalPaid = 0;
             sorted.forEach(e => {
-                totalPaid += parseFloat(e.amount || 0);
+                totalPaid += getNum(e.amount);
                 tbody.innerHTML += `
                     <tr class="hover:bg-orange-50/50 transition border-b border-gray-50">
                         <td class="p-5 font-bold text-gray-500">${e.date}</td>
@@ -687,9 +684,9 @@
         function saveExpense() {
             const date = document.getElementById('exp-date').value;
             const desc = document.getElementById('exp-desc').value;
-            const amt = parseFloat(document.getElementById('exp-amount').value);
+            const amt = getNum(document.getElementById('exp-amount').value);
             
-            if(!desc || !amt) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
+            if(!desc || amt <= 0) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
             
             const id = Date.now();
             dbExpenses.child(id).set({ id, date, desc, amount: amt }).then(() => {
@@ -725,7 +722,7 @@
             orders.forEach(o => {
                 if(!unique[o.phone]) unique[o.phone] = { name: o.name, phone: o.phone, addr: o.addr, orders: 0, spent: 0 };
                 unique[o.phone].orders++;
-                unique[o.phone].spent += o.totalBill;
+                unique[o.phone].spent += getNum(o.totalBill);
             });
             
             const tbody = document.getElementById('crm-list-body');
@@ -749,15 +746,15 @@
         }
 
         function calculateStats() {
-            const qty = parseFloat(document.getElementById('quantity').value) || 0;
-            const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
-            const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
-            const pQty = parseFloat(document.getElementById('pant-qty').value) || 0;
-            const pPrice = parseFloat(document.getElementById('pant-price').value) || 0;
-            const pFRate = parseFloat(document.getElementById('pant-factory-rate').value) || 0;
-            const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
-            const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
-            const otherCost = parseFloat(document.getElementById('other-cost').value) || 0;
+            const qty = getNum(document.getElementById('quantity').value);
+            const uprice = getNum(document.getElementById('unit-price').value);
+            const fRate = getNum(document.getElementById('factory-rate').value);
+            const pQty = getNum(document.getElementById('pant-qty').value);
+            const pPrice = getNum(document.getElementById('pant-price').value);
+            const pFRate = getNum(document.getElementById('pant-factory-rate').value);
+            const dCharge = getNum(document.getElementById('delivery-charge').value);
+            const advance = getNum(document.getElementById('advance-paid').value);
+            const otherCost = getNum(document.getElementById('other-cost').value);
 
             const totalBill = (qty * uprice) + (pQty * pPrice) + dCharge;
             const totalFactoryCost = (qty * fRate) + (pQty * pFRate);
@@ -776,15 +773,15 @@
             const phone = document.getElementById('cust-phone').value;
             const addr = document.getElementById('cust-address').value;
             
-            const qty = parseFloat(document.getElementById('quantity').value) || 0;
-            const uprice = parseFloat(document.getElementById('unit-price').value) || 0;
-            const fRate = parseFloat(document.getElementById('factory-rate').value) || 0;
-            const pQty = parseFloat(document.getElementById('pant-qty').value) || 0;
-            const pPrice = parseFloat(document.getElementById('pant-price').value) || 0;
-            const pFRate = parseFloat(document.getElementById('pant-factory-rate').value) || 0;
-            const dCharge = parseFloat(document.getElementById('delivery-charge').value) || 0;
-            const otherCost = parseFloat(document.getElementById('other-cost').value) || 0;
-            const advance = parseFloat(document.getElementById('advance-paid').value) || 0;
+            const qty = getNum(document.getElementById('quantity').value);
+            const uprice = getNum(document.getElementById('unit-price').value);
+            const fRate = getNum(document.getElementById('factory-rate').value);
+            const pQty = getNum(document.getElementById('pant-qty').value);
+            const pPrice = getNum(document.getElementById('pant-price').value);
+            const pFRate = getNum(document.getElementById('pant-factory-rate').value);
+            const dCharge = getNum(document.getElementById('delivery-charge').value);
+            const otherCost = getNum(document.getElementById('other-cost').value);
+            const advance = getNum(document.getElementById('advance-paid').value);
 
             if(!name || !phone || (qty <= 0 && pQty <= 0)) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
 
@@ -818,8 +815,8 @@
             if(searchDate) dateDisplay.innerText = `তারিখ: ${searchDate}`;
             else dateDisplay.innerText = "সব ডাটা দেখানো হচ্ছে";
 
-            expenses.forEach(e => { let m = searchDate ? (e.date === searchDate) : true; if(m) tExp += parseFloat(e.amount); });
-            factoryPayments.forEach(fp => { let m = searchDate ? (fp.date === searchDate) : true; if(m) tFactPaid += parseFloat(fp.amount); });
+            expenses.forEach(e => { let m = searchDate ? (e.date === searchDate) : true; if(m) tExp += getNum(e.amount); });
+            factoryPayments.forEach(fp => { let m = searchDate ? (fp.date === searchDate) : true; if(m) tFactPaid += getNum(fp.amount); });
 
             const sortedOrders = [...orders].sort((a,b) => b.id - a.id);
             const filteredOrders = [];
@@ -830,19 +827,27 @@
                 if(!matchesText || !matchesDate) return;
 
                 filteredOrders.push(o);
-                tSales += o.totalBill; 
                 
-                let calculatedProfit = parseFloat(o.profit);
-                if (isNaN(calculatedProfit)) {
-                    calculatedProfit = o.totalBill - (o.totalFactoryCost + parseFloat(o.dCharge||0) + parseFloat(o.otherCost||0));
+                let bill = getNum(o.totalBill);
+                let factCost = getNum(o.totalFactoryCost);
+                let otherCost = getNum(o.otherCost);
+                let dCharge = getNum(o.dCharge);
+                let due = getNum(o.due);
+
+                tSales += bill; 
+                
+                // Safe profit calculation
+                let calculatedProfit = getNum(o.profit);
+                if (calculatedProfit === 0 && bill > 0) {
+                    calculatedProfit = bill - (factCost + dCharge + otherCost);
                 }
                 tProf += calculatedProfit; 
                 
-                tFact += o.totalFactoryCost;
-                tOrderExp += parseFloat(o.otherCost || 0);
-                if(o.status !== 'Paid') tDue += o.due;
+                tFact += factCost;
+                tOrderExp += otherCost;
+                if(o.status !== 'Paid') tDue += due;
                 
-                tCashIn += (o.totalBill - o.due);
+                tCashIn += (bill - due);
             });
 
             const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
@@ -852,9 +857,9 @@
 
             paginatedOrders.forEach(o => {
                 let qtyDisplay = '';
-                if(o.qty > 0) qtyDisplay += `<span class="text-blue-600">${o.qty} J</span>`;
-                if(o.qty > 0 && o.pQty > 0) qtyDisplay += `<br>`;
-                if(o.pQty > 0) qtyDisplay += `<span class="text-gray-600">${o.pQty} P</span>`;
+                if(getNum(o.qty) > 0) qtyDisplay += `<span class="text-blue-600">${o.qty} J</span>`;
+                if(getNum(o.qty) > 0 && getNum(o.pQty) > 0) qtyDisplay += `<br>`;
+                if(getNum(o.pQty) > 0) qtyDisplay += `<span class="text-gray-600">${o.pQty} P</span>`;
 
                 let sCol = 'bg-white text-gray-700 border-gray-300';
                 if(o.status === 'Pending') sCol = 'bg-yellow-50 text-yellow-700 border-yellow-300';
@@ -867,7 +872,7 @@
                     <tr class="hover:bg-blue-50 transition border-b border-gray-50">
                         <td class="p-5"><span class="font-black text-gray-800">${o.name}</span><br><span class="text-[11px] font-bold text-gray-500">${o.phone}</span><br><span class="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">${o.date}</span></td>
                         <td class="p-5 text-center font-black">${qtyDisplay || '-'}</td>
-                        <td class="p-5 text-red-600 font-black tracking-tight">৳ ${o.due}</td>
+                        <td class="p-5 text-red-600 font-black tracking-tight">৳ ${getNum(o.due)}</td>
                         <td class="p-5 text-center">
                             <select onchange="updateOrderStatus(${o.id}, this.value)" class="status-select text-[10px] font-black uppercase tracking-tighter border-2 rounded p-1 outline-none cursor-pointer ${sCol}">
                                 <option value="Pending" ${o.status=='Pending'?'selected':''}>Pending</option>
@@ -901,8 +906,8 @@
             let projectedProfit = tProf - tExp; 
             let actualCashProfit = tCashIn - tFactPaid - tOrderExp - tExp;
             
-            document.getElementById('total-projected-profit').innerText = "৳ " + (isNaN(projectedProfit) ? 0 : projectedProfit);
-            document.getElementById('total-actual-profit').innerText = "৳ " + (isNaN(actualCashProfit) ? 0 : actualCashProfit); 
+            document.getElementById('total-projected-profit').innerText = "৳ " + projectedProfit;
+            document.getElementById('total-actual-profit').innerText = "৳ " + actualCashProfit; 
         }
 
         function renderPagination(totalPages) {
@@ -947,7 +952,7 @@
 
         function sendWhatsAppMsg(id) {
             const o = orders.find(x => x.id === id);
-            const msg = `আসসালামু আলাইকুম ${o.name}!\nআপনার অর্ডারটি কনফার্ম হয়েছে।\nবাকি টাকা (COD): ৳${o.due}\nধন্যবাদ - Jersey Nova`;
+            const msg = `আসসালামু আলাইকুম ${o.name}!\nআপনার অর্ডারটি কনফার্ম হয়েছে।\nবাকি টাকা (COD): ৳${getNum(o.due)}\nধন্যবাদ - Jersey Nova`;
             window.open(`https://wa.me/88${o.phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
@@ -965,8 +970,10 @@
         function openInvoice(id) {
             const o = orders.find(x => x.id === id);
             let itemsHtml = '';
-            if(o.qty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold"><span>Jersey (${o.qty} pcs)</span> <span>৳ ${o.qty * o.uprice}</span></div>`;
-            if(o.pQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold text-gray-700"><span>Pant (${o.pQty} pcs)</span> <span>৳ ${o.pQty * o.pPrice}</span></div>`;
+            let qty = getNum(o.qty), pQty = getNum(o.pQty), uprice = getNum(o.uprice), pPrice = getNum(o.pPrice);
+
+            if(qty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold"><span>Jersey (${qty} pcs)</span> <span>৳ ${qty * uprice}</span></div>`;
+            if(pQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold text-gray-700"><span>Pant (${pQty} pcs)</span> <span>৳ ${pQty * pPrice}</span></div>`;
 
             document.getElementById('invoice-terms-display').innerText = appSettings.terms || "Thank you for choosing Jersey Nova!";
 
@@ -975,12 +982,12 @@
                 <div class="mt-4"><p class="font-black text-xl text-blue-900 leading-tight">${o.name}</p><p class="text-sm font-bold text-gray-600">${o.phone}</p><p class="text-[11px] text-gray-500 mt-1">${o.addr}</p></div>
                 <div class="bg-blue-50 p-4 rounded-xl mt-4 space-y-2">
                     ${itemsHtml}
-                    <div class="flex justify-between text-xs font-bold"><span>Delivery Charge</span> <span>৳ ${o.dCharge}</span></div>
-                    <div class="flex justify-between font-black border-t border-blue-100 pt-2 text-blue-700"><span>Total Bill</span> <span>৳ ${o.totalBill}</span></div>
-                    <div class="flex justify-between text-green-600 text-[10px] font-black italic"><span>Advance Paid</span> <span>- ৳ ${o.advance}</span></div>
+                    <div class="flex justify-between text-xs font-bold"><span>Delivery Charge</span> <span>৳ ${getNum(o.dCharge)}</span></div>
+                    <div class="flex justify-between font-black border-t border-blue-100 pt-2 text-blue-700"><span>Total Bill</span> <span>৳ ${getNum(o.totalBill)}</span></div>
+                    <div class="flex justify-between text-green-600 text-[10px] font-black italic"><span>Advance Paid</span> <span>- ৳ ${getNum(o.advance)}</span></div>
                 </div>
                 <div class="bg-blue-800 p-4 rounded-xl mt-3 flex justify-between items-center text-white shadow-lg">
-                    <span class="text-[9px] font-black uppercase tracking-wider">Cash on Delivery</span><span class="text-2xl font-black">৳ ${o.due}</span>
+                    <span class="text-[9px] font-black uppercase tracking-wider">Cash on Delivery</span><span class="text-2xl font-black">৳ ${getNum(o.due)}</span>
                 </div>
             `;
             document.getElementById('invoice-modal').classList.remove('hidden');
@@ -995,6 +1002,36 @@
 
         function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
 
+        function isDateInRange(dateStr, range, customMonthStr) {
+            let dStr = normalizeDate(dateStr); 
+            const d = new Date(dStr);
+            const now = new Date();
+            
+            if (isNaN(d.getTime())) return true; // যদি তারিখ ভুলও হয়, তাও মিস করবে না
+            
+            if(range === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            
+            if(range === 'last_month') {
+                let m = now.getMonth() - 1, y = now.getFullYear();
+                if(m < 0) { m = 11; y--; }
+                return d.getMonth() === m && d.getFullYear() === y;
+            }
+            
+            if(range === 'this_year') return d.getFullYear() === now.getFullYear();
+            
+            if(range === 'last_12_months') {
+                const pastYear = new Date();
+                pastYear.setFullYear(now.getFullYear() - 1);
+                return d >= pastYear && d <= now;
+            }
+
+            if(range === 'custom_month' && customMonthStr) {
+                const [year, month] = customMonthStr.split('-');
+                return d.getFullYear() === parseInt(year) && d.getMonth() === (parseInt(month) - 1);
+            }
+            return true;
+        }
+
         function generateReport(range) {
             let tSales = 0, tFact = 0, tExp = 0, tRawProfit = 0, tOrderExp = 0;
             let totalJQty = 0, totalPQty = 0;
@@ -1007,22 +1044,27 @@
 
             orders.forEach(o => {
                 if(isDateInRange(o.date, range, customMonthVal)) {
-                    tSales += o.totalBill; 
-                    tFact += o.totalFactoryCost; 
+                    let bill = getNum(o.totalBill);
+                    let factCost = getNum(o.totalFactoryCost);
+                    let otherCost = getNum(o.otherCost);
+                    let dCharge = getNum(o.dCharge);
+
+                    tSales += bill; 
+                    tFact += factCost; 
                     
-                    let p = parseFloat(o.profit);
-                    if(isNaN(p)) {
-                        p = o.totalBill - (o.totalFactoryCost + parseFloat(o.dCharge||0) + parseFloat(o.otherCost||0));
+                    let p = getNum(o.profit);
+                    if(p === 0 && bill > 0) {
+                        p = bill - (factCost + dCharge + otherCost);
                     }
                     tRawProfit += p;
                     
-                    tOrderExp += parseFloat(o.otherCost || 0);
-                    totalJQty += parseInt(o.qty || 0);
-                    totalPQty += parseInt(o.pQty || 0);
+                    tOrderExp += otherCost;
+                    totalJQty += getNum(o.qty);
+                    totalPQty += getNum(o.pQty);
                 }
             });
             
-            expenses.forEach(e => { if(isDateInRange(e.date, range, customMonthVal)) tExp += parseFloat(e.amount); });
+            expenses.forEach(e => { if(isDateInRange(e.date, range, customMonthVal)) tExp += getNum(e.amount); });
             
             let titles = { 
                 'this_month': 'এই মাসের রিপোর্ট', 
@@ -1042,11 +1084,10 @@
             
             document.getElementById('rep-sales').innerText = "৳ " + tSales;
             document.getElementById('rep-factory').innerText = "৳ " + tFact;
-            
             document.getElementById('rep-expenses').innerText = "৳ " + (tOrderExp + tExp);
             
             let finalProfit = tRawProfit - tExp;
-            document.getElementById('rep-profit').innerText = "৳ " + (isNaN(finalProfit) ? 0 : finalProfit); 
+            document.getElementById('rep-profit').innerText = "৳ " + finalProfit; 
 
             renderCharts(tSales, (tExp + tOrderExp), totalJQty, totalPQty);
         }
