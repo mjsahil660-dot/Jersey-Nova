@@ -56,7 +56,7 @@
 
         .chart-container {
             position: relative;
-            height: 240px; /* চার্ট যেন সুন্দরভাবে বসে */
+            height: 240px; 
             width: 100%;
         }
     </style>
@@ -70,7 +70,7 @@
                 <span class="app-logo-text">JN</span>
             </div>
             <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
-            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP Manager v6.2</p>
+            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP Manager v6.3</p>
         </div>
         <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
         <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">সিস্টেমে প্রবেশ করুন</button>
@@ -487,6 +487,49 @@
 
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+        // --- NEW DATE NORMALIZER FUNCTION ---
+        function normalizeDate(dateStr) {
+            if (!dateStr) return new Date().toISOString().split('T')[0]; // Fallback to today
+            
+            // 1. Convert Bangla numerals to English
+            const banglaNumbers = {'০':'0', '১':'1', '২':'2', '৩':'3', '৪':'4', '৫':'5', '৬':'6', '৭':'7', '৮':'8', '৯':'9'};
+            let engStr = dateStr.replace(/[০-৯]/g, match => banglaNumbers[match]);
+
+            // 2. Check if already YYYY-MM-DD
+            if (/^\d{4}-\d{2}-\d{2}$/.test(engStr)) {
+                return engStr;
+            }
+
+            // 3. Handle DD/MM/YYYY or D/M/YYYY
+            if (engStr.includes('/')) {
+                let parts = engStr.split('/');
+                if (parts.length === 3) {
+                    let d = parts[0].padStart(2, '0');
+                    let m = parts[1].padStart(2, '0');
+                    let y = parts[2];
+                    
+                    if (y.length === 4) {
+                        return `${y}-${m}-${d}`;
+                    } else if (parts[0].length === 4) { // Handle YYYY/MM/DD just in case
+                        return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+                    }
+                }
+            }
+            
+            // 4. Handle DD-MM-YYYY
+            if (engStr.includes('-')) {
+                let parts = engStr.split('-');
+                if (parts.length === 3 && parts[2].length === 4) {
+                    let d = parts[0].padStart(2, '0');
+                    let m = parts[1].padStart(2, '0');
+                    let y = parts[2];
+                    return `${y}-${m}-${d}`;
+                }
+            }
+
+            return engStr; // return as is if no match found
+        }
+
         function initApp() {
             document.getElementById('order-date').valueAsDate = new Date();
             document.getElementById('exp-date').valueAsDate = new Date();
@@ -545,9 +588,22 @@
                 document.getElementById('app-wrapper').classList.remove('hidden');
                 Toast.fire({ icon: 'success', title: 'সফলভাবে লগিন হয়েছে!' });
                 
-                db.on('value', snap => { orders = snap.val() ? Object.values(snap.val()) : []; renderOrders(); renderCRM(); });
-                dbExpenses.on('value', snap => { expenses = snap.val() ? Object.values(snap.val()) : []; renderExpenses(); renderOrders(); });
-                dbFactoryPayments.on('value', snap => { factoryPayments = snap.val() ? Object.values(snap.val()) : []; renderFactoryLedger(); renderOrders(); });
+                // Normalizing Dates upon loading from DB
+                db.on('value', snap => { 
+                    orders = snap.val() ? Object.values(snap.val()).map(o => ({...o, date: normalizeDate(o.date)})) : []; 
+                    renderOrders(); 
+                    renderCRM(); 
+                });
+                dbExpenses.on('value', snap => { 
+                    expenses = snap.val() ? Object.values(snap.val()).map(e => ({...e, date: normalizeDate(e.date)})) : []; 
+                    renderExpenses(); 
+                    renderOrders(); 
+                });
+                dbFactoryPayments.on('value', snap => { 
+                    factoryPayments = snap.val() ? Object.values(snap.val()).map(fp => ({...fp, date: normalizeDate(fp.date)})) : []; 
+                    renderFactoryLedger(); 
+                    renderOrders(); 
+                });
             } else Swal.fire({icon: 'error', title: 'ভুল পাসওয়ার্ড!'}); 
         }
 
@@ -579,7 +635,6 @@
             if(tabId === 'crm') renderCRM();
             if(tabId === 'factory') renderFactoryLedger();
             if(tabId === 'reports') {
-                // সামান্য ডিলে দিয়েছি যেন ট্যাব ওপেন হওয়ার পর চার্ট লোড হয়, নইলে ব্ল্যাংক থাকবে
                 setTimeout(() => { generateReport('this_month'); }, 50);
             }
         }
@@ -777,7 +832,6 @@
                 filteredOrders.push(o);
                 tSales += o.totalBill; 
                 
-                // পুরোনো ডাটার জন্য প্রফিট সেফভাবে বের করা
                 let calculatedProfit = parseFloat(o.profit);
                 if (isNaN(calculatedProfit)) {
                     calculatedProfit = o.totalBill - (o.totalFactoryCost + parseFloat(o.dCharge||0) + parseFloat(o.otherCost||0));
@@ -941,33 +995,6 @@
 
         function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
 
-        function isDateInRange(dateStr, range, customMonthStr) {
-            const d = new Date(dateStr);
-            const now = new Date();
-            
-            if(range === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-            
-            if(range === 'last_month') {
-                let m = now.getMonth() - 1, y = now.getFullYear();
-                if(m < 0) { m = 11; y--; }
-                return d.getMonth() === m && d.getFullYear() === y;
-            }
-            
-            if(range === 'this_year') return d.getFullYear() === now.getFullYear();
-            
-            if(range === 'last_12_months') {
-                const pastYear = new Date();
-                pastYear.setFullYear(now.getFullYear() - 1);
-                return d >= pastYear && d <= now;
-            }
-
-            if(range === 'custom_month' && customMonthStr) {
-                const [year, month] = customMonthStr.split('-');
-                return d.getFullYear() === parseInt(year) && d.getMonth() === (parseInt(month) - 1);
-            }
-            return true;
-        }
-
         function generateReport(range) {
             let tSales = 0, tFact = 0, tExp = 0, tRawProfit = 0, tOrderExp = 0;
             let totalJQty = 0, totalPQty = 0;
@@ -983,7 +1010,6 @@
                     tSales += o.totalBill; 
                     tFact += o.totalFactoryCost; 
                     
-                    // সেফলি প্রফিট বের করা (পুরোনো ডাটা থাকলেও যেন ক্র্যাশ না করে)
                     let p = parseFloat(o.profit);
                     if(isNaN(p)) {
                         p = o.totalBill - (o.totalFactoryCost + parseFloat(o.dCharge||0) + parseFloat(o.otherCost||0));
@@ -1017,18 +1043,15 @@
             document.getElementById('rep-sales').innerText = "৳ " + tSales;
             document.getElementById('rep-factory').innerText = "৳ " + tFact;
             
-            // Fixed the element ID here
             document.getElementById('rep-expenses').innerText = "৳ " + (tOrderExp + tExp);
             
             let finalProfit = tRawProfit - tExp;
             document.getElementById('rep-profit').innerText = "৳ " + (isNaN(finalProfit) ? 0 : finalProfit); 
 
-            // গ্রাফ রেন্ডার কল করা হলো
             renderCharts(tSales, (tExp + tOrderExp), totalJQty, totalPQty);
         }
 
         function renderCharts(sales, totalExpenses, jQty, pQty) {
-            // চার্ট সঠিকভাবে রেন্ডার হওয়ার জন্য ছোট ডিলে যোগ করা হলো
             setTimeout(() => {
                 if(salesChartInstance) salesChartInstance.destroy();
                 if(itemChartInstance) itemChartInstance.destroy();
