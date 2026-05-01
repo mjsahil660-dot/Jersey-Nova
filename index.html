@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jersey Nova - Premium Smart Manager</title>
+    <title>Smart ERP Manager</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -63,27 +63,41 @@
 </head>
 <body class="p-2 md:p-6" onload="initApp()">
 
-    <div id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-2xl mt-16 border border-gray-100">
+    <!-- AUTHENTICATION SECTION (LOGIN / REGISTER) -->
+    <div id="auth-section" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-2xl mt-16 border border-gray-100">
         <div class="text-center mb-6">
             <div class="logo-container">
-                <img class="app-logo hidden" src="" alt="JN">
-                <span class="app-logo-text">JN</span>
+                <span class="app-logo-text">ERP</span>
             </div>
-            <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
-            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP Manager v6.4 (Anti-Crash)</p>
+            <h2 id="auth-title" class="text-3xl font-black text-blue-800 uppercase tracking-tighter">সিস্টেমে প্রবেশ করুন</h2>
+            <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Cloud Manager v7.0</p>
         </div>
-        <input type="text" id="login-id" placeholder="ইউজার আইডি (যেমন: admin)" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
-        <input type="password" id="login-pass" placeholder="পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
-        <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">সিস্টেমে প্রবেশ করুন</button>
+        
+        <!-- Login Box -->
+        <div id="login-box">
+            <input type="text" id="login-id" placeholder="আপনার ইউজার আইডি" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+            <input type="password" id="login-pass" placeholder="পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+            <button onclick="loginUser()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">লগিন করুন</button>
+            <p class="text-center text-sm font-bold text-gray-500 mt-5">অ্যাকাউন্ট নেই? <button onclick="toggleAuthMode()" class="text-blue-600 hover:underline">নতুন অ্যাকাউন্ট খুলুন</button></p>
+        </div>
+
+        <!-- Register Box -->
+        <div id="reg-box" class="hidden">
+            <input type="text" id="reg-id" placeholder="নতুন ইউজার আইডি (ইংরেজিতে)" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-green-500 outline-none font-bold bg-green-50">
+            <input type="password" id="reg-pass" placeholder="নতুন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-green-500 outline-none font-bold bg-green-50">
+            <button onclick="registerUser()" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition active:scale-95 shadow-lg">রেজিস্ট্রেশন করুন</button>
+            <p class="text-center text-sm font-bold text-gray-500 mt-5">আগে থেকে অ্যাকাউন্ট আছে? <button onclick="toggleAuthMode()" class="text-blue-600 hover:underline">লগিন করুন</button></p>
+        </div>
     </div>
 
+    <!-- MAIN APP WRAPPER -->
     <div id="app-wrapper" class="hidden max-w-7xl mx-auto flex flex-col gap-4 mt-2">
         
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center no-print sticky top-0 z-30">
             <div class="flex items-center gap-3">
                 <img class="app-logo w-10 h-10 rounded-xl object-cover hidden shadow-sm" src="" alt="Logo">
-                <div class="app-logo-text w-10 h-10 bg-blue-800 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm">JN</div>
-                <h1 class="font-black text-xl text-blue-800 italic uppercase tracking-tight">Jersey Nova</h1>
+                <div class="app-logo-text w-10 h-10 bg-blue-800 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm biz-icon-text">JN</div>
+                <h1 class="font-black text-xl text-blue-800 italic uppercase tracking-tight biz-name-display">Jersey Nova</h1>
             </div>
             <button onclick="toggleSidebar()" class="text-blue-800 text-2xl focus:outline-none p-2 px-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition active:scale-95">
                 <i class="fas fa-bars"></i>
@@ -118,7 +132,7 @@
                 <hr class="my-2 border-gray-50">
                 
                 <button onclick="openSettings()" class="w-full text-gray-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-gray-100 transition">
-                    <i class="fas fa-cog w-5 text-center"></i> অ্যাকাউন্ট সেটিংস
+                    <i class="fas fa-cog w-5 text-center"></i> পেজ ও অ্যাকাউন্ট সেটিংস
                 </button>
                 <button onclick="exportData()" class="w-full bg-gray-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-black transition mt-2">
                     <i class="fas fa-cloud-download-alt w-5 text-center"></i> Backup Data
@@ -133,7 +147,6 @@
         <div class="flex-1 overflow-hidden min-w-0 relative">
 
             <div id="tab-dashboard" class="tab-content block">
-                
                 <div class="flex flex-col mb-4 no-print px-2">
                     <h2 class="text-2xl font-black text-blue-800">ড্যাশবোর্ড ওভারভিউ</h2>
                     <p id="dashboard-date-range" class="text-sm font-bold text-gray-500">সব ডাটা দেখানো হচ্ছে</p>
@@ -240,6 +253,7 @@
                 <div id="pagination-controls" class="flex justify-center items-center gap-2 mt-6 mb-4 no-print flex-wrap"></div>
             </div>
 
+            <!-- FACTORY TAB -->
             <div id="tab-factory" class="tab-content hidden">
                 <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border border-gray-100">
                     <h2 class="text-xl font-bold mb-5 text-orange-600 flex items-center border-b pb-3"><i class="fas fa-industry mr-2"></i> ফ্যাক্টরি পেমেন্ট ও লেজার</h2>
@@ -279,6 +293,7 @@
                 </div>
             </div>
 
+            <!-- EXPENSES TAB -->
             <div id="tab-expenses" class="tab-content hidden">
                 <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border border-gray-100">
                     <h2 class="text-xl font-bold mb-5 text-red-600 flex items-center border-b pb-3"><i class="fas fa-wallet mr-2"></i> নতুন খরচ এন্ট্রি</h2>
@@ -301,6 +316,7 @@
                 </div>
             </div>
 
+            <!-- CRM TAB -->
             <div id="tab-crm" class="tab-content hidden">
                 <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border border-gray-100 flex justify-between items-center">
                     <div>
@@ -321,6 +337,7 @@
                 </div>
             </div>
 
+            <!-- REPORTS TAB -->
             <div id="tab-reports" class="tab-content hidden">
                 <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border border-gray-100 no-print">
                     <h2 class="text-xl font-bold mb-4 text-blue-800 border-b pb-3"><i class="fas fa-chart-line mr-2"></i> রিপোর্ট তৈরি করুন</h2>
@@ -347,7 +364,7 @@
 
                 <div id="report-print-area" class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 min-h-[500px]">
                     <div class="text-center mb-8 border-b-2 border-gray-100 pb-6">
-                        <h1 class="text-3xl font-black text-blue-900 uppercase italic tracking-tighter">Jersey Nova</h1>
+                        <h1 class="text-3xl font-black text-blue-900 uppercase italic tracking-tighter biz-name-display">Jersey Nova</h1>
                         <h2 id="report-title" class="text-lg font-bold text-gray-600 mt-1">Monthly Report</h2>
                     </div>
                     
@@ -385,7 +402,7 @@
                         </div>
                     </div>
 
-                    <p class="text-center text-xs text-gray-400 font-bold mt-10 italic">Generated by Jersey Nova ERP System</p>
+                    <p class="text-center text-xs text-gray-400 font-bold mt-10 italic">Generated by <span class="biz-name-display">Jersey Nova</span> ERP System</p>
                 </div>
             </div>
 
@@ -396,18 +413,30 @@
     <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4 transition-opacity">
         <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeSettings()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl"><i class="fas fa-times"></i></button>
-            <h2 class="text-2xl font-black mb-6 text-blue-800 border-b pb-3">⚙️ অ্যাকাউন্ট সেটিংস</h2>
+            <h2 class="text-2xl font-black mb-6 text-blue-800 border-b pb-3">⚙️ পেজ প্রোফাইল সেটিংস</h2>
             
             <div class="space-y-6">
-                <!-- MULTIPLE ID SETTINGS -->
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">ইউজার আইডি ও পাসওয়ার্ড (Login System)</label>
-                    <div class="flex gap-2 mb-2">
-                        <input type="text" id="new-user-id" placeholder="নতুন ইউজার আইডি" class="w-full p-2 border rounded-xl outline-none focus:border-blue-500 text-sm">
-                        <input type="text" id="new-user-pass" placeholder="পাসওয়ার্ড" class="w-full p-2 border rounded-xl outline-none focus:border-blue-500 text-sm">
-                        <button onclick="addUser()" class="bg-gray-800 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition">Add</button>
+                
+                <!-- NEW: Business Profile Customization -->
+                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                    <label class="block text-sm font-bold text-indigo-700 mb-2">আপনার পেজের / ব্যবসার নাম</label>
+                    <input type="text" id="setting-biz-name" placeholder="যেমন: Jersey Zone" class="w-full p-3 border rounded-xl outline-none focus:border-indigo-500 text-sm mb-3 font-bold text-gray-700">
+                    
+                    <label class="block text-sm font-bold text-indigo-700 mb-2">ইনভয়েসের থিম কালার (Color)</label>
+                    <div class="flex items-center gap-3 mb-3">
+                        <input type="color" id="setting-theme-color" class="w-12 h-12 rounded cursor-pointer border-0 p-0" value="#1e40af">
+                        <span class="text-xs font-bold text-gray-500">আপনার ব্র্যান্ড কালার সিলেক্ট করুন</span>
                     </div>
-                    <div id="users-list" class="space-y-2 mt-3 max-h-32 overflow-y-auto"></div>
+                    
+                    <button onclick="saveBusinessProfile()" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-indigo-700 transition">প্রোফাইল আপডেট করুন</button>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">পাসওয়ার্ড পরিবর্তন (বর্তমান অ্যাকাউন্টের)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="setting-password" placeholder="নতুন পাসওয়ার্ড লিখুন" class="w-full p-3 border rounded-xl outline-none focus:border-blue-500 text-sm">
+                        <button onclick="saveSetting('password', 'setting-password')" class="bg-gray-800 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition">আপডেট</button>
+                    </div>
                 </div>
 
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
@@ -437,21 +466,23 @@
         </div>
     </div>
     
-    <!-- INVOICE MODAL -->
+    <!-- INVOICE MODAL (Now fully Dynamic & Themed) -->
     <div id="invoice-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-2 relative">
-            <div id="invoice-capture-area" class="p-6 bg-white border-2 border-blue-600 rounded-2xl shadow-xl relative overflow-hidden">
+            <div id="inv-main-box" class="p-6 bg-white border-2 rounded-2xl shadow-xl relative overflow-hidden" style="border-color: #1e40af;">
                 <img class="app-logo absolute inset-0 m-auto opacity-[0.05] w-56 h-56 object-contain pointer-events-none z-0 hidden" src="" alt="Watermark">
                 
                 <div class="relative z-10">
-                    <div class="relative text-center border-b-2 border-blue-100 pb-4 mb-4">
+                    <div id="inv-top-border" class="relative text-center border-b-2 pb-4 mb-4" style="border-color: #dbeafe;">
                         <img class="app-logo absolute left-0 top-0 w-12 h-12 rounded-lg object-cover shadow-sm hidden" src="" alt="Logo">
-                        <div class="app-logo-text absolute left-0 top-0 w-12 h-12 bg-blue-800 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-sm">JN</div>
+                        
+                        <div id="inv-logo-box" class="app-logo-text absolute left-0 top-0 w-12 h-12 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-sm biz-icon-text" style="background-color: #1e40af;">JN</div>
                         
                         <img class="app-qr absolute right-0 top-0 w-12 h-12 object-cover border border-gray-200 rounded p-0.5 bg-white hidden" src="" alt="QR">
                         <div class="app-qr-text absolute right-0 top-0 w-12 h-12 border border-dashed border-gray-300 rounded flex items-center justify-center text-gray-300 text-[8px] font-bold">No QR</div>
                         
-                        <h1 class="text-3xl font-black text-blue-800 italic">JERSEY NOVA</h1>
+                        <!-- Dynamic Business Name with Color -->
+                        <h1 id="inv-brand-name" class="text-3xl font-black italic uppercase biz-name-display" style="color: #1e40af;">Jersey Nova</h1>
                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Premium Sports Apparel</p>
                     </div>
                     <div id="invoice-content" class="text-sm space-y-3"></div>
@@ -474,10 +505,9 @@
             firebase.initializeApp(firebaseConfig);
         }
         
-        const db = firebase.database().ref('orders');
-        const dbSettings = firebase.database().ref('settings');
-        const dbExpenses = firebase.database().ref('expenses');
-        const dbFactoryPayments = firebase.database().ref('factory_payments');
+        // Multi-tenant Global Refs
+        let db, dbSettings, dbExpenses, dbFactoryPayments;
+        let currentUserId = null;
 
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
@@ -487,8 +517,7 @@
         let currentPage = 1;
         const itemsPerPage = 10; 
         
-        // NEW: Default settings now include 'users'
-        let appSettings = { users: { 'admin': '123' }, logo: '', qr: '', terms: 'Thank you for choosing Jersey Nova!' };
+        let appSettings = { businessName: 'Jersey Nova', themeColor: '#1e40af', logo: '', qr: '', terms: 'Thank you for choosing our service!' };
         
         let salesChartInstance = null;
         let itemChartInstance = null;
@@ -504,27 +533,16 @@
         function normalizeDate(str) {
             if (!str) return new Date().toISOString().split('T')[0]; 
             str = String(str).trim();
-            
-            const b = "০১২৩৪৫৬৭৮৯";
-            const e = "0123456789";
-            let eng = "";
+            const b = "০১২৩৪৫৬৭৮৯"; const e = "0123456789"; let eng = "";
             for (let i = 0; i < str.length; i++) {
-                let idx = b.indexOf(str[i]);
-                eng += (idx !== -1) ? e[idx] : str[i];
+                let idx = b.indexOf(str[i]); eng += (idx !== -1) ? e[idx] : str[i];
             }
-            
             eng = eng.replace(/[\/\.]/g, '-');
-            
             let parts = eng.split('-');
             if (parts.length === 3) {
                 let p1 = parts[0].trim(), p2 = parts[1].trim(), p3 = parts[2].trim();
-                
-                if (p1.length === 4) {
-                    return `${p1}-${p2.padStart(2, '0')}-${p3.padStart(2, '0')}`;
-                }
-                else if (p3.length === 4) {
-                    return `${p3}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}`;
-                }
+                if (p1.length === 4) return `${p1}-${p2.padStart(2, '0')}-${p3.padStart(2, '0')}`;
+                else if (p3.length === 4) return `${p3}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}`;
             }
             return eng; 
         }
@@ -535,16 +553,113 @@
             document.getElementById('fact-pay-date').valueAsDate = new Date();
             document.getElementById('order-status').value = 'Pending';
             setupDragAndDrop();
+        }
 
-            dbSettings.on('value', snap => {
-                if(snap.val()) {
-                    appSettings = { ...appSettings, ...snap.val() };
-                    applySettingsToUI();
-                } else dbSettings.set(appSettings);
+        // --- AUTHENTICATION (MULTI-USER ISOLATION) ---
+        function toggleAuthMode() {
+            document.getElementById('login-box').classList.toggle('hidden');
+            document.getElementById('reg-box').classList.toggle('hidden');
+            
+            const isReg = !document.getElementById('reg-box').classList.contains('hidden');
+            document.getElementById('auth-title').innerText = isReg ? 'নতুন অ্যাকাউন্ট খুলুন' : 'সিস্টেমে প্রবেশ করুন';
+        }
+
+        function loginUser() {
+            const uid = document.getElementById('login-id').value.trim();
+            const pwd = document.getElementById('login-pass').value.trim();
+            if(!uid || !pwd) return Swal.fire({icon: 'warning', title: 'সব ঘর পূরণ করুন!'});
+
+            // Fallback for previous users who didn't have an explicit 'users/auth' structure yet.
+            // If they are 'admin' we check the old root level first.
+            if(uid === 'admin' && pwd === '123') {
+               startSession(uid, true); // True means use root path (backward compatible)
+               return;
+            }
+
+            firebase.database().ref('user_accounts/' + uid).once('value', snap => {
+                if(snap.exists() && snap.val() === pwd) {
+                    startSession(uid, false);
+                } else {
+                    Swal.fire({icon: 'error', title: 'ভুল ইউজার আইডি বা পাসওয়ার্ড!'}); 
+                }
             });
         }
 
-        function applySettingsToUI() {
+        function registerUser() {
+            const uid = document.getElementById('reg-id').value.trim();
+            const pwd = document.getElementById('reg-pass').value.trim();
+            if(!uid || !pwd) return Swal.fire({icon: 'warning', title: 'সব ঘর পূরণ করুন!'});
+            if(uid.toLowerCase() === 'admin') return Swal.fire({icon: 'error', title: 'এই আইডিটি নেওয়া যাবে না!'});
+
+            firebase.database().ref('user_accounts/' + uid).once('value', snap => {
+                if(snap.exists()) {
+                    Swal.fire({icon: 'error', title: 'এই আইডিটি আগে থেকেই ব্যবহার হচ্ছে!'}); 
+                } else {
+                    firebase.database().ref('user_accounts/' + uid).set(pwd).then(() => {
+                        startSession(uid, false);
+                    });
+                }
+            });
+        }
+
+        function startSession(uid, isLegacyAdmin) {
+            currentUserId = uid;
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('app-wrapper').classList.remove('hidden');
+            Toast.fire({ icon: 'success', title: 'স্বাগতম, ' + uid + '!' });
+            
+            // ISOLATED DATA PATHS PER USER
+            let basePath = isLegacyAdmin ? '' : ('tenant_data/' + uid + '/');
+            
+            db = firebase.database().ref(basePath + 'orders');
+            dbSettings = firebase.database().ref(basePath + 'settings');
+            dbExpenses = firebase.database().ref(basePath + 'expenses');
+            dbFactoryPayments = firebase.database().ref(basePath + 'factory_payments');
+
+            // Load Tenant Settings
+            dbSettings.on('value', snap => {
+                if(snap.val()) {
+                    appSettings = { ...appSettings, ...snap.val() };
+                } else {
+                    dbSettings.set(appSettings);
+                }
+                applyThemeAndSettings();
+            });
+
+            // Load Tenant Data
+            db.on('value', snap => { 
+                orders = snap.val() ? Object.values(snap.val()).map(o => ({...o, date: normalizeDate(o.date)})) : []; 
+                renderOrders(); renderCRM(); 
+            });
+            dbExpenses.on('value', snap => { 
+                expenses = snap.val() ? Object.values(snap.val()).map(e => ({...e, date: normalizeDate(e.date)})) : []; 
+                renderExpenses(); renderOrders(); 
+            });
+            dbFactoryPayments.on('value', snap => { 
+                factoryPayments = snap.val() ? Object.values(snap.val()).map(fp => ({...fp, date: normalizeDate(fp.date)})) : []; 
+                renderFactoryLedger(); renderOrders(); 
+            });
+        }
+
+        function applyThemeAndSettings() {
+            // Business Name
+            let bName = appSettings.businessName || 'Jersey Nova';
+            document.querySelectorAll('.biz-name-display').forEach(el => el.innerText = bName);
+            document.querySelectorAll('.biz-icon-text').forEach(el => el.innerText = bName.substring(0, 2).toUpperCase());
+            document.getElementById('setting-biz-name').value = bName;
+
+            // Invoice Theme Color Application
+            let tColor = appSettings.themeColor || '#1e40af';
+            document.getElementById('setting-theme-color').value = tColor;
+            
+            // Set dynamic colors to Invoice Elements
+            document.getElementById('inv-main-box').style.borderColor = tColor;
+            document.getElementById('inv-brand-name').style.color = tColor;
+            document.getElementById('inv-logo-box').style.backgroundColor = tColor;
+            
+            // Provide a light version of the color for the border bottom (optional fallback)
+            document.getElementById('inv-top-border').style.borderColor = tColor + '40'; // 40 is hex opacity
+
             if(appSettings.logo) {
                 document.querySelectorAll('.app-logo').forEach(img => { img.src = appSettings.logo; img.classList.remove('hidden'); });
                 document.querySelectorAll('.app-logo-text').forEach(el => el.classList.add('hidden'));
@@ -553,65 +668,32 @@
                 document.querySelectorAll('.app-qr').forEach(img => { img.src = appSettings.qr; img.classList.remove('hidden'); });
                 document.querySelectorAll('.app-qr-text').forEach(el => el.classList.add('hidden'));
             }
+            
             document.getElementById('setting-terms').value = appSettings.terms || "";
-            
-            // Render Multi-users
-            if(appSettings.users) {
-                renderUsersList();
-            } else if (appSettings.password) {
-                // Migration for old database structure to new multiple users
-                appSettings.users = { 'admin': appSettings.password };
-                dbSettings.child('users').set(appSettings.users);
-                renderUsersList();
-            }
+            document.getElementById('setting-password').value = ""; // Don't show pass by default
         }
 
-        // --- NEW: MULTI USER FUNCTIONS ---
-        function renderUsersList() {
-            const list = document.getElementById('users-list');
-            list.innerHTML = '';
-            if(appSettings.users) {
-                Object.keys(appSettings.users).forEach(uid => {
-                    list.innerHTML += `
-                    <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 text-sm">
-                        <span class="font-bold text-gray-700">${uid} <span class="text-xs font-normal text-gray-400 ml-2">(Pass: ${appSettings.users[uid]})</span></span>
-                        <button onclick="deleteUser('${uid}')" class="text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded"><i class="fas fa-trash"></i></button>
-                    </div>`;
-                });
-            }
-        }
-
-        function addUser() {
-            const uid = document.getElementById('new-user-id').value.trim();
-            const pass = document.getElementById('new-user-pass').value.trim();
-            if(!uid || !pass) return Swal.fire({icon: 'warning', title: 'খালি রাখা যাবে না!'});
+        function saveBusinessProfile() {
+            const bName = document.getElementById('setting-biz-name').value.trim();
+            const tColor = document.getElementById('setting-theme-color').value;
             
-            let currentUsers = appSettings.users || {};
-            currentUsers[uid] = pass;
+            if(!bName) return Swal.fire({icon:'warning', title: 'নাম খালি রাখা যাবে না!'});
             
-            dbSettings.child('users').set(currentUsers).then(() => {
-                Toast.fire({ icon: 'success', title: 'নতুন ইউজার যোগ হয়েছে!' });
-                document.getElementById('new-user-id').value = '';
-                document.getElementById('new-user-pass').value = '';
-            });
-        }
-
-        function deleteUser(uid) {
-            if(Object.keys(appSettings.users).length <= 1) return Swal.fire({icon: 'error', title: 'কমপক্ষে ১টি ইউজার আইডি থাকতে হবে!'});
-            
-            Swal.fire({ title: 'মুছে ফেলতে চান?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'হ্যাঁ' })
-            .then((res) => { 
-                if(res.isConfirmed) {
-                    dbSettings.child('users/' + uid).remove().then(() => {
-                        Toast.fire({ icon: 'success', title: 'ইউজার মুছে ফেলা হয়েছে!' });
-                    });
-                }
+            dbSettings.update({ businessName: bName, themeColor: tColor }).then(() => {
+                Toast.fire({ icon: 'success', title: 'প্রোফাইল আপডেট হয়েছে!' });
             });
         }
 
         function saveSetting(key, elementId) {
             const val = document.getElementById(elementId).value;
-            dbSettings.child(key).set(val).then(() => Toast.fire({ icon: 'success', title: 'সেটিংস আপডেট হয়েছে!' }));
+            if(key === 'password' && val) {
+                // Changing password updates the main auth table too
+                firebase.database().ref('user_accounts/' + currentUserId).set(val);
+                document.getElementById(elementId).value = '';
+            } else if (key !== 'password') {
+                dbSettings.child(key).set(val);
+            }
+            Toast.fire({ icon: 'success', title: 'সেটিংস আপডেট হয়েছে!' });
         }
 
         function processFile(file, dbKey) {
@@ -629,42 +711,6 @@
         function setupDragAndDrop() {
             document.getElementById('logo-upload').addEventListener('change', (e) => { if(e.target.files[0]) processFile(e.target.files[0], 'logo'); });
             document.getElementById('qr-upload').addEventListener('change', (e) => { if(e.target.files[0]) processFile(e.target.files[0], 'qr'); });
-        }
-
-        // --- MODIFIED CHECK LOGIN FOR MULTIPLE ID ---
-        function checkLogin() {
-            const idInput = document.getElementById('login-id').value.trim();
-            const passInput = document.getElementById('login-pass').value;
-            
-            // Backward compatibility checks
-            if(!appSettings.users && appSettings.password) {
-                appSettings.users = { 'admin': appSettings.password };
-                dbSettings.child('users').set(appSettings.users);
-            }
-
-            if(appSettings.users && appSettings.users[idInput] === passInput) {
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('app-wrapper').classList.remove('hidden');
-                Toast.fire({ icon: 'success', title: 'সফলভাবে লগিন হয়েছে!' });
-                
-                db.on('value', snap => { 
-                    orders = snap.val() ? Object.values(snap.val()).map(o => ({...o, date: normalizeDate(o.date)})) : []; 
-                    renderOrders(); 
-                    renderCRM(); 
-                });
-                dbExpenses.on('value', snap => { 
-                    expenses = snap.val() ? Object.values(snap.val()).map(e => ({...e, date: normalizeDate(e.date)})) : []; 
-                    renderExpenses(); 
-                    renderOrders(); 
-                });
-                dbFactoryPayments.on('value', snap => { 
-                    factoryPayments = snap.val() ? Object.values(snap.val()).map(fp => ({...fp, date: normalizeDate(fp.date)})) : []; 
-                    renderFactoryLedger(); 
-                    renderOrders(); 
-                });
-            } else {
-                Swal.fire({icon: 'error', title: 'ভুল ইউজার আইডি বা পাসওয়ার্ড!'}); 
-            }
         }
 
         function logout() { location.reload(); }
@@ -1004,7 +1050,7 @@
         }
 
         function clearForm() { 
-            document.querySelectorAll('input[type="text"]:not(#search-input):not(#fact-pay-desc):not(#exp-desc):not(#setting-password):not(#new-user-id):not(#new-user-pass), input[type="number"]:not(#fact-pay-amount):not(#exp-amount)').forEach(i => i.value = ''); 
+            document.querySelectorAll('input[type="text"]:not(#search-input):not(#fact-pay-desc):not(#exp-desc):not(#setting-password):not(#login-id):not(#reg-id), input[type="number"]:not(#fact-pay-amount):not(#exp-amount)').forEach(i => i.value = ''); 
             document.querySelectorAll('#display-total, #display-due, #display-profit').forEach(s => s.innerText = '0');
             resetFormUI();
         }
@@ -1014,7 +1060,8 @@
 
         function sendWhatsAppMsg(id) {
             const o = orders.find(x => x.id === id);
-            const msg = `আসসালামু আলাইকুম ${o.name}!\nআপনার অর্ডারটি কনফার্ম হয়েছে।\nবাকি টাকা (COD): ৳${getNum(o.due)}\nধন্যবাদ - Jersey Nova`;
+            const bName = appSettings.businessName || 'Jersey Nova';
+            const msg = `আসসালামু আলাইকুম ${o.name}!\nআপনার অর্ডারটি কনফার্ম হয়েছে।\nবাকি টাকা (COD): ৳${getNum(o.due)}\nধন্যবাদ - ${bName}`;
             window.open(`https://wa.me/88${o.phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
@@ -1033,22 +1080,23 @@
             const o = orders.find(x => x.id === id);
             let itemsHtml = '';
             let qty = getNum(o.qty), pQty = getNum(o.pQty), uprice = getNum(o.uprice), pPrice = getNum(o.pPrice);
+            let tColor = appSettings.themeColor || '#1e40af';
 
             if(qty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold"><span>Jersey (${qty} pcs)</span> <span>৳ ${qty * uprice}</span></div>`;
             if(pQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold text-gray-700"><span>Pant (${pQty} pcs)</span> <span>৳ ${pQty * pPrice}</span></div>`;
 
-            document.getElementById('invoice-terms-display').innerText = appSettings.terms || "Thank you for choosing Jersey Nova!";
+            document.getElementById('invoice-terms-display').innerText = appSettings.terms || "Thank you for choosing our service!";
 
             document.getElementById('invoice-content').innerHTML = `
                 <div class="flex justify-between text-[9px] text-gray-400 font-bold uppercase"><span>Date: ${o.date}</span> <span>Order ID: #${o.id.toString().slice(-4)}</span></div>
                 <div class="mt-4"><p class="font-black text-xl text-blue-900 leading-tight">${o.name}</p><p class="text-sm font-bold text-gray-600">${o.phone}</p><p class="text-[11px] text-gray-500 mt-1">${o.addr}</p></div>
-                <div class="bg-blue-50 p-4 rounded-xl mt-4 space-y-2">
+                <div class="p-4 rounded-xl mt-4 space-y-2" style="background-color: ${tColor}10;">
                     ${itemsHtml}
                     <div class="flex justify-between text-xs font-bold"><span>Delivery Charge</span> <span>৳ ${getNum(o.dCharge)}</span></div>
-                    <div class="flex justify-between font-black border-t border-blue-100 pt-2 text-blue-700"><span>Total Bill</span> <span>৳ ${getNum(o.totalBill)}</span></div>
+                    <div class="flex justify-between font-black border-t pt-2" style="border-color: ${tColor}40; color: ${tColor};"><span>Total Bill</span> <span>৳ ${getNum(o.totalBill)}</span></div>
                     <div class="flex justify-between text-green-600 text-[10px] font-black italic"><span>Advance Paid</span> <span>- ৳ ${getNum(o.advance)}</span></div>
                 </div>
-                <div class="bg-blue-800 p-4 rounded-xl mt-3 flex justify-between items-center text-white shadow-lg">
+                <div class="p-4 rounded-xl mt-3 flex justify-between items-center text-white shadow-lg" style="background-color: ${tColor};">
                     <span class="text-[9px] font-black uppercase tracking-wider">Cash on Delivery</span><span class="text-2xl font-black">৳ ${getNum(o.due)}</span>
                 </div>
             `;
@@ -1058,7 +1106,9 @@
         async function downloadInvoiceImage() {
             const area = document.getElementById('invoice-capture-area');
             const canvas = await html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
-            const link = document.createElement('a'); link.download = `JerseyNova_Invoice_${Date.now()}.png`;
+            const link = document.createElement('a'); 
+            const bName = appSettings.businessName ? appSettings.businessName.replace(/\s+/g, '') : 'Invoice';
+            link.download = `${bName}_Invoice_${Date.now()}.png`;
             link.href = canvas.toDataURL("image/png"); link.click();
         }
 
@@ -1206,7 +1256,9 @@
                 const pdfW = pdf.internal.pageSize.getWidth();
                 const pdfH = (canvas.height * pdfW) / canvas.width;
                 pdf.addImage(imgData, 'PNG', 0, 10, pdfW, pdfH);
-                pdf.save(`JerseyNova_Report_${Date.now()}.pdf`);
+                
+                const bName = appSettings.businessName ? appSettings.businessName.replace(/\s+/g, '') : 'Report';
+                pdf.save(`${bName}_${Date.now()}.pdf`);
                 Swal.close();
             });
         }
@@ -1218,7 +1270,7 @@
             factoryPayments.forEach(fp => exportObj.factoryPayments[fp.id] = fp);
 
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
-            const node = document.createElement('a'); node.href = dataStr; node.download = `jerseynova_backup_${new Date().toISOString().split('T')[0]}.json`;
+            const node = document.createElement('a'); node.href = dataStr; node.download = `Business_Backup_${new Date().toISOString().split('T')[0]}.json`;
             document.body.appendChild(node); node.click(); node.remove();
         }
     </script>
