@@ -72,7 +72,8 @@
             <h2 class="text-4xl font-black text-blue-800 italic uppercase tracking-tighter">JERSEY NOVA</h2>
             <p class="text-gray-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">ERP Manager v6.4 (Anti-Crash)</p>
         </div>
-        <input type="password" id="admin-pass" placeholder="অ্যাডমিন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+        <input type="text" id="login-id" placeholder="ইউজার আইডি (যেমন: admin)" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+        <input type="password" id="login-pass" placeholder="পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
         <button onclick="checkLogin()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition active:scale-95 shadow-lg">সিস্টেমে প্রবেশ করুন</button>
     </div>
 
@@ -391,18 +392,22 @@
         </div>
     </div> 
 
+    <!-- SETTINGS MODAL -->
     <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4 transition-opacity">
         <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeSettings()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl"><i class="fas fa-times"></i></button>
             <h2 class="text-2xl font-black mb-6 text-blue-800 border-b pb-3">⚙️ অ্যাকাউন্ট সেটিংস</h2>
             
             <div class="space-y-6">
+                <!-- MULTIPLE ID SETTINGS -->
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">পাসওয়ার্ড পরিবর্তন</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="setting-password" placeholder="নতুন পাসওয়ার্ড লিখুন" class="w-full p-3 border rounded-xl outline-none focus:border-blue-500 text-sm">
-                        <button onclick="saveSetting('password', 'setting-password')" class="bg-gray-800 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition">আপডেট</button>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">ইউজার আইডি ও পাসওয়ার্ড (Login System)</label>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="new-user-id" placeholder="নতুন ইউজার আইডি" class="w-full p-2 border rounded-xl outline-none focus:border-blue-500 text-sm">
+                        <input type="text" id="new-user-pass" placeholder="পাসওয়ার্ড" class="w-full p-2 border rounded-xl outline-none focus:border-blue-500 text-sm">
+                        <button onclick="addUser()" class="bg-gray-800 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition">Add</button>
                     </div>
+                    <div id="users-list" class="space-y-2 mt-3 max-h-32 overflow-y-auto"></div>
                 </div>
 
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
@@ -432,6 +437,7 @@
         </div>
     </div>
     
+    <!-- INVOICE MODAL -->
     <div id="invoice-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-2 relative">
             <div id="invoice-capture-area" class="p-6 bg-white border-2 border-blue-600 rounded-2xl shadow-xl relative overflow-hidden">
@@ -480,26 +486,25 @@
         let factoryPayments = [];
         let currentPage = 1;
         const itemsPerPage = 10; 
-        let appSettings = { password: '123', logo: '', qr: '', terms: 'Thank you for choosing Jersey Nova!' };
+        
+        // NEW: Default settings now include 'users'
+        let appSettings = { users: { 'admin': '123' }, logo: '', qr: '', terms: 'Thank you for choosing Jersey Nova!' };
         
         let salesChartInstance = null;
         let itemChartInstance = null;
 
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-        // --- 1. SAFE NUMBER PARSER (ANTI-CRASH) ---
         const getNum = (val) => {
             if (val === undefined || val === null || val === '') return 0;
             const n = parseFloat(String(val).replace(/,/g, ''));
             return isNaN(n) ? 0 : n;
         };
 
-        // --- 2. SUPER BULLETPROOF DATE NORMALIZER ---
         function normalizeDate(str) {
             if (!str) return new Date().toISOString().split('T')[0]; 
             str = String(str).trim();
             
-            // Convert any Bangla digits to English by character loop (100% accurate)
             const b = "০১২৩৪৫৬৭৮৯";
             const e = "0123456789";
             let eng = "";
@@ -508,18 +513,15 @@
                 eng += (idx !== -1) ? e[idx] : str[i];
             }
             
-            // Replace separators with hyphen
             eng = eng.replace(/[\/\.]/g, '-');
             
             let parts = eng.split('-');
             if (parts.length === 3) {
                 let p1 = parts[0].trim(), p2 = parts[1].trim(), p3 = parts[2].trim();
                 
-                // Format: YYYY-MM-DD
                 if (p1.length === 4) {
                     return `${p1}-${p2.padStart(2, '0')}-${p3.padStart(2, '0')}`;
                 }
-                // Format: DD-MM-YYYY -> Convert to YYYY-MM-DD
                 else if (p3.length === 4) {
                     return `${p3}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}`;
                 }
@@ -551,13 +553,64 @@
                 document.querySelectorAll('.app-qr').forEach(img => { img.src = appSettings.qr; img.classList.remove('hidden'); });
                 document.querySelectorAll('.app-qr-text').forEach(el => el.classList.add('hidden'));
             }
-            document.getElementById('setting-password').value = appSettings.password;
             document.getElementById('setting-terms').value = appSettings.terms || "";
+            
+            // Render Multi-users
+            if(appSettings.users) {
+                renderUsersList();
+            } else if (appSettings.password) {
+                // Migration for old database structure to new multiple users
+                appSettings.users = { 'admin': appSettings.password };
+                dbSettings.child('users').set(appSettings.users);
+                renderUsersList();
+            }
+        }
+
+        // --- NEW: MULTI USER FUNCTIONS ---
+        function renderUsersList() {
+            const list = document.getElementById('users-list');
+            list.innerHTML = '';
+            if(appSettings.users) {
+                Object.keys(appSettings.users).forEach(uid => {
+                    list.innerHTML += `
+                    <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 text-sm">
+                        <span class="font-bold text-gray-700">${uid} <span class="text-xs font-normal text-gray-400 ml-2">(Pass: ${appSettings.users[uid]})</span></span>
+                        <button onclick="deleteUser('${uid}')" class="text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded"><i class="fas fa-trash"></i></button>
+                    </div>`;
+                });
+            }
+        }
+
+        function addUser() {
+            const uid = document.getElementById('new-user-id').value.trim();
+            const pass = document.getElementById('new-user-pass').value.trim();
+            if(!uid || !pass) return Swal.fire({icon: 'warning', title: 'খালি রাখা যাবে না!'});
+            
+            let currentUsers = appSettings.users || {};
+            currentUsers[uid] = pass;
+            
+            dbSettings.child('users').set(currentUsers).then(() => {
+                Toast.fire({ icon: 'success', title: 'নতুন ইউজার যোগ হয়েছে!' });
+                document.getElementById('new-user-id').value = '';
+                document.getElementById('new-user-pass').value = '';
+            });
+        }
+
+        function deleteUser(uid) {
+            if(Object.keys(appSettings.users).length <= 1) return Swal.fire({icon: 'error', title: 'কমপক্ষে ১টি ইউজার আইডি থাকতে হবে!'});
+            
+            Swal.fire({ title: 'মুছে ফেলতে চান?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'হ্যাঁ' })
+            .then((res) => { 
+                if(res.isConfirmed) {
+                    dbSettings.child('users/' + uid).remove().then(() => {
+                        Toast.fire({ icon: 'success', title: 'ইউজার মুছে ফেলা হয়েছে!' });
+                    });
+                }
+            });
         }
 
         function saveSetting(key, elementId) {
             const val = document.getElementById(elementId).value;
-            if(!val.trim() && key==='password') return Swal.fire({icon: 'warning', title: 'খালি রাখা যাবে না!'});
             dbSettings.child(key).set(val).then(() => Toast.fire({ icon: 'success', title: 'সেটিংস আপডেট হয়েছে!' }));
         }
 
@@ -578,14 +631,22 @@
             document.getElementById('qr-upload').addEventListener('change', (e) => { if(e.target.files[0]) processFile(e.target.files[0], 'qr'); });
         }
 
+        // --- MODIFIED CHECK LOGIN FOR MULTIPLE ID ---
         function checkLogin() {
-            const passInput = document.getElementById('admin-pass').value;
-            if(passInput === appSettings.password) {
+            const idInput = document.getElementById('login-id').value.trim();
+            const passInput = document.getElementById('login-pass').value;
+            
+            // Backward compatibility checks
+            if(!appSettings.users && appSettings.password) {
+                appSettings.users = { 'admin': appSettings.password };
+                dbSettings.child('users').set(appSettings.users);
+            }
+
+            if(appSettings.users && appSettings.users[idInput] === passInput) {
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('app-wrapper').classList.remove('hidden');
                 Toast.fire({ icon: 'success', title: 'সফলভাবে লগিন হয়েছে!' });
                 
-                // Normalizing Dates mapping correctly!
                 db.on('value', snap => { 
                     orders = snap.val() ? Object.values(snap.val()).map(o => ({...o, date: normalizeDate(o.date)})) : []; 
                     renderOrders(); 
@@ -601,7 +662,9 @@
                     renderFactoryLedger(); 
                     renderOrders(); 
                 });
-            } else Swal.fire({icon: 'error', title: 'ভুল পাসওয়ার্ড!'}); 
+            } else {
+                Swal.fire({icon: 'error', title: 'ভুল ইউজার আইডি বা পাসওয়ার্ড!'}); 
+            }
         }
 
         function logout() { location.reload(); }
@@ -836,7 +899,6 @@
 
                 tSales += bill; 
                 
-                // Safe profit calculation
                 let calculatedProfit = getNum(o.profit);
                 if (calculatedProfit === 0 && bill > 0) {
                     calculatedProfit = bill - (factCost + dCharge + otherCost);
@@ -942,7 +1004,7 @@
         }
 
         function clearForm() { 
-            document.querySelectorAll('input[type="text"]:not(#search-input):not(#fact-pay-desc):not(#exp-desc):not(#setting-password), input[type="number"]:not(#fact-pay-amount):not(#exp-amount)').forEach(i => i.value = ''); 
+            document.querySelectorAll('input[type="text"]:not(#search-input):not(#fact-pay-desc):not(#exp-desc):not(#setting-password):not(#new-user-id):not(#new-user-pass), input[type="number"]:not(#fact-pay-amount):not(#exp-amount)').forEach(i => i.value = ''); 
             document.querySelectorAll('#display-total, #display-due, #display-profit').forEach(s => s.innerText = '0');
             resetFormUI();
         }
@@ -1007,7 +1069,7 @@
             const d = new Date(dStr);
             const now = new Date();
             
-            if (isNaN(d.getTime())) return true; // যদি তারিখ ভুলও হয়, তাও মিস করবে না
+            if (isNaN(d.getTime())) return true; 
             
             if(range === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
             
