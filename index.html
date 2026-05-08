@@ -22,22 +22,62 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
-        /* Modified for Colorful Background */
-        body { font-family: 'Hind Siliguri', sans-serif; background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 50%, #f3e8ff 100%); min-height: 100vh; -webkit-tap-highlight-color: transparent; }
-        .hidden { display: none !important; }
-        @media print { .no-print { display: none; } }
         
+        :root {
+            --card-grad-start: #4f46e5; /* Default matched to your image */
+            --card-grad-end: #d946ef;
+        }
+
+        /* Base Styles */
+        body { font-family: 'Hind Siliguri', sans-serif; background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 50%, #f3e8ff 100%); min-height: 100vh; -webkit-tap-highlight-color: transparent; transition: background 0.3s ease; }
+        .hidden { display: none !important; }
+        @media print { .no-print { display: none !important; } }
+        
+        /* Dashboard Gradient Card CSS */
+        .dash-grad-card {
+            background: linear-gradient(135deg, var(--card-grad-start), var(--card-grad-end));
+            transition: all 0.3s ease;
+        }
+        .dash-grad-card:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -5px rgba(0,0,0,0.3); }
+
+        /* Dark Mode Overrides */
+        body.dark-mode { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%); 
+            color: #f1f5f9; 
+        }
+        body.dark-mode .bg-white\/90, body.dark-mode .bg-white\/95, body.dark-mode .bg-white { 
+            background-color: #1e293b !important; border-color: #334155 !important; color: #f1f5f9; 
+        }
+        body.dark-mode .text-gray-800, body.dark-mode .text-gray-700, body.dark-mode .text-indigo-900, body.dark-mode .text-indigo-800 { 
+            color: #f8fafc !important; 
+        }
+        body.dark-mode .text-gray-600, body.dark-mode .text-gray-500 { color: #cbd5e1 !important; }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea { 
+            background-color: #0f172a !important; color: #f1f5f9 !important; border-color: #475569 !important; 
+        }
+        body.dark-mode table thead { background-color: #334155 !important; color: #cbd5e1 !important; }
+        body.dark-mode tr:hover { background-color: #334155 !important; }
+        body.dark-mode .bg-gray-50, body.dark-mode .bg-blue-50\/50, body.dark-mode .bg-indigo-50\/50, body.dark-mode .bg-orange-50\/50, body.dark-mode .bg-emerald-50\/50, body.dark-mode .bg-pink-50\/50, body.dark-mode .bg-purple-50\/50, body.dark-mode .bg-red-50\/50 {
+            background-color: #0f172a !important; border-color: #334155 !important;
+        }
+        body.dark-mode .text-blue-800, body.dark-mode .text-indigo-800 { color: #818cf8 !important; }
+        body.dark-mode .text-orange-800 { color: #fb923c !important; }
+        body.dark-mode .border-b, body.dark-mode .border-t { border-color: #334155 !important; }
+        body.dark-mode #auth-section { background-color: rgba(30, 41, 59, 0.9) !important; }
+        body.dark-mode #sidebar { background-color: #1e293b !important; }
+        body.dark-mode .tab-btn:hover { background-color: #334155 !important; }
+        body.dark-mode .tab-btn.active { background: #334155 !important; color: #a5b4fc !important; border-right-color: #818cf8 !important; }
+
         .logo-container {
             width: 80px; height: 80px; margin: 0 auto 15px;
-            background: linear-gradient(135deg, #1e40af, #4f46e5); border-radius: 22px;
+            background: linear-gradient(135deg, var(--card-grad-start), var(--card-grad-end)); border-radius: 22px;
             display: flex; align-items: center; justify-content: center;
             color: white; font-size: 32px; font-weight: 900;
-            box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.4); overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); overflow: hidden;
         }
         .logo-container img { width: 100%; height: 100%; object-fit: cover; }
         
-        .drop-zone { border: 2px dashed #93c5fd; background: #eff6ff; transition: 0.3s; }
-        .drop-zone.dragover { background: #dbeafe; border-color: #2563eb; }
+        .drop-zone { border: 2px dashed #93c5fd; transition: 0.3s; }
         
         .tab-btn.active { 
             background: linear-gradient(to right, #eff6ff, #ffffff) !important; 
@@ -55,52 +95,44 @@
             padding-right: 1.5rem !important;
         }
 
-        .chart-container {
-            position: relative;
-            height: 240px; 
-            width: 100%;
-        }
+        .chart-container { position: relative; height: 240px; width: 100%; }
     </style>
 </head>
 <body class="p-2 md:p-6" onload="initApp()">
 
-    <!-- AUTHENTICATION SECTION (LOGIN / REGISTER) -->
     <div id="auth-section" class="max-w-md mx-auto bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-2xl mt-16 border border-white/50">
         <div class="text-center mb-6">
             <div class="logo-container">
                 <span class="app-logo-text">ERP</span>
             </div>
             <h2 id="auth-title" class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-purple-600 uppercase tracking-tighter">সিস্টেমে প্রবেশ করুন</h2>
-            <p class="text-purple-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Cloud Manager v7.2</p>
+            <p class="text-purple-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Cloud Manager v7.3</p>
         </div>
         
-        <!-- Login Box -->
         <div id="login-box">
-            <input type="text" id="login-id" placeholder="আপনার ইউজার আইডি" class="w-full p-4 border border-blue-100 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none font-bold bg-white/80">
-            <input type="password" id="login-pass" placeholder="পাসওয়ার্ড" class="w-full p-4 border border-blue-100 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none font-bold bg-white/80">
-            <button onclick="loginUser()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-indigo-800 transition active:scale-95 shadow-lg shadow-blue-500/30">লগিন করুন</button>
+            <input type="text" id="login-id" placeholder="আপনার ইউজার আইডি" class="w-full p-4 border border-blue-100 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none font-bold bg-white/80">
+            <input type="password" id="login-pass" placeholder="পাসওয়ার্ড" class="w-full p-4 border border-blue-100 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none font-bold bg-white/80">
+            <button onclick="loginUser()" class="dash-grad-card w-full text-white py-4 rounded-xl font-bold text-lg transition active:scale-95 shadow-lg">লগিন করুন</button>
             <p class="text-center text-sm font-bold text-gray-500 mt-5">অ্যাকাউন্ট নেই? <button onclick="toggleAuthMode()" class="text-purple-600 hover:underline">নতুন অ্যাকাউন্ট খুলুন</button></p>
         </div>
 
-        <!-- Register Box -->
         <div id="reg-box" class="hidden">
             <input type="text" id="reg-id" placeholder="নতুন ইউজার আইডি (ইংরেজিতে)" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-green-500 outline-none font-bold bg-green-50 border-green-100">
             <input type="password" id="reg-pass" placeholder="নতুন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-green-500 outline-none font-bold bg-green-50 border-green-100">
             <button onclick="registerUser()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition active:scale-95 shadow-lg shadow-green-500/30">রেজিস্ট্রেশন করুন</button>
-            <p class="text-center text-sm font-bold text-gray-500 mt-5">আগে থেকে অ্যাকাউন্ট আছে? <button onclick="toggleAuthMode()" class="text-blue-600 hover:underline">লগিন করুন</button></p>
+            <p class="text-center text-sm font-bold text-gray-500 mt-5">আগে থেকে অ্যাকাউন্ট আছে? <button onclick="toggleAuthMode()" class="text-purple-600 hover:underline">লগিন করুন</button></p>
         </div>
     </div>
 
-    <!-- MAIN APP WRAPPER -->
     <div id="app-wrapper" class="hidden max-w-7xl mx-auto flex flex-col gap-4 mt-2">
         
         <div class="bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-white/50 flex justify-between items-center no-print sticky top-0 z-30">
             <div class="flex items-center gap-3">
                 <img class="app-logo w-10 h-10 rounded-xl object-cover hidden shadow-sm" src="" alt="Logo">
-                <div class="app-logo-text w-10 h-10 bg-gradient-to-br from-blue-700 to-indigo-800 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm biz-icon-text">JN</div>
-                <h1 class="font-black text-xl text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-indigo-600 italic uppercase tracking-tight biz-name-display">Jersey Nova</h1>
+                <div class="dash-grad-card app-logo-text w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-sm biz-icon-text">JN</div>
+                <h1 class="font-black text-xl text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-purple-600 italic uppercase tracking-tight biz-name-display">Jersey Nova</h1>
             </div>
-            <button onclick="toggleSidebar()" class="text-blue-800 text-2xl focus:outline-none p-2 px-3 bg-blue-50/50 rounded-xl hover:bg-blue-100 transition active:scale-95">
+            <button onclick="toggleSidebar()" class="text-purple-800 text-2xl focus:outline-none p-2 px-3 bg-purple-50/50 rounded-xl hover:bg-purple-100 transition active:scale-95">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -132,8 +164,8 @@
                 
                 <hr class="my-2 border-gray-100">
                 
-                <button onclick="openSettings()" class="w-full text-gray-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-indigo-50 transition">
-                    <i class="fas fa-cog w-5 text-center text-indigo-500"></i> পেজ ও অ্যাকাউন্ট সেটিংস
+                <button onclick="openSettings()" class="w-full text-gray-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:bg-purple-50 transition">
+                    <i class="fas fa-cog w-5 text-center text-purple-500"></i> পেজ ও অ্যাকাউন্ট সেটিংস
                 </button>
                 <button onclick="exportData()" class="w-full bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 hover:from-black hover:to-gray-800 transition mt-2 shadow-md">
                     <i class="fas fa-cloud-download-alt w-5 text-center"></i> Backup Data
@@ -149,35 +181,50 @@
 
             <div id="tab-dashboard" class="tab-content block">
                 <div class="flex flex-col mb-4 no-print px-2">
-                    <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-indigo-600">ড্যাশবোর্ড ওভারভিউ</h2>
-                    <p id="dashboard-date-range" class="text-sm font-bold text-indigo-500/80">সব ডাটা দেখানো হচ্ছে</p>
+                    <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-purple-600">ড্যাশবোর্ড ওভারভিউ</h2>
+                    <p id="dashboard-date-range" class="text-sm font-bold text-purple-500/80">সব ডাটা দেখানো হচ্ছে</p>
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 no-print">
-                    <div class="bg-gradient-to-br from-white to-blue-50 p-5 rounded-2xl shadow-sm border-b-4 border-blue-500 flex justify-between items-center">
-                        <div><p class="text-[10px] text-blue-500 uppercase font-black">মোট অর্ডার</p><h3 id="total-orders" class="text-2xl font-bold text-gray-800">০</h3></div>
-                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-lg"><i class="fas fa-shopping-bag"></i></div>
-                    </div>
-                    <div class="bg-gradient-to-br from-white to-indigo-50 p-5 rounded-2xl shadow-sm border-b-4 border-indigo-500 flex justify-between items-center">
-                        <div><p class="text-[10px] text-indigo-500 uppercase font-black">মোট বিক্রি</p><h3 id="total-sales" class="text-2xl font-bold text-indigo-800">৳ ০</h3></div>
-                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-lg"><i class="fas fa-money-bill-wave"></i></div>
-                    </div>
-                    <div class="bg-gradient-to-br from-white to-orange-50 p-5 rounded-2xl shadow-sm border-b-4 border-orange-400 flex justify-between items-center">
-                        <div><p class="text-[10px] text-orange-500 uppercase font-black">ফ্যাক্টরি বিল</p><h3 id="total-factory-cost" class="text-2xl font-bold text-gray-800">৳ ০</h3></div>
-                        <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-lg"><i class="fas fa-industry"></i></div>
-                    </div>
-                    <div class="bg-gradient-to-br from-white to-red-50 p-5 rounded-2xl shadow-sm border-b-4 border-pink-500 flex justify-between items-center">
-                        <div><p class="text-[10px] text-pink-500 uppercase font-black">কাস্টমার বাকি (Due)</p><h3 id="total-due" class="text-2xl font-bold text-pink-800">৳ ০</h3></div>
-                        <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 text-lg"><i class="fas fa-hand-holding-dollar"></i></div>
+                    <div class="dash-grad-card p-5 rounded-2xl shadow-lg flex justify-between items-center relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-[11px] text-white/80 uppercase font-black mb-1 drop-shadow-md">মোট অর্ডার</p>
+                            <h3 id="total-orders" class="text-3xl font-black text-white drop-shadow-md">০</h3>
+                        </div>
+                        <div class="relative z-10 w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white text-xl backdrop-blur-sm border border-white/30 group-hover:scale-110 transition-transform"><i class="fas fa-shopping-bag"></i></div>
                     </div>
                     
-                    <div class="bg-gradient-to-br from-white to-emerald-50 p-5 rounded-2xl shadow-sm border-b-4 border-emerald-500 flex justify-between items-center md:col-span-4">
-                        <div>
-                            <p class="text-[11px] text-emerald-600 uppercase font-black">বর্তমান ক্যাশ নিট লাভ</p>
-                            <h3 id="total-actual-profit" class="text-3xl font-black text-emerald-800">৳ ০</h3>
-                            <p class="text-[12px] text-emerald-600/70 mt-1 font-bold">প্রজেক্টেড লাভ (সব বাকি টাকা উঠলে): <span id="total-projected-profit" class="text-gray-700">৳ ০</span></p>
+                    <div class="dash-grad-card p-5 rounded-2xl shadow-lg flex justify-between items-center relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-[11px] text-white/80 uppercase font-black mb-1 drop-shadow-md">মোট বিক্রি</p>
+                            <h3 id="total-sales" class="text-2xl font-black text-white drop-shadow-md">৳ ০</h3>
                         </div>
-                        <div class="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-2xl"><i class="fas fa-wallet"></i></div>
+                        <div class="relative z-10 w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white text-xl backdrop-blur-sm border border-white/30 group-hover:scale-110 transition-transform"><i class="fas fa-money-bill-wave"></i></div>
+                    </div>
+                    
+                    <div class="dash-grad-card p-5 rounded-2xl shadow-lg flex justify-between items-center relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-[11px] text-white/80 uppercase font-black mb-1 drop-shadow-md">ফ্যাক্টরি বিল</p>
+                            <h3 id="total-factory-cost" class="text-2xl font-black text-white drop-shadow-md">৳ ০</h3>
+                        </div>
+                        <div class="relative z-10 w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white text-xl backdrop-blur-sm border border-white/30 group-hover:scale-110 transition-transform"><i class="fas fa-industry"></i></div>
+                    </div>
+                    
+                    <div class="dash-grad-card p-5 rounded-2xl shadow-lg flex justify-between items-center relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-[11px] text-white/80 uppercase font-black mb-1 drop-shadow-md">কাস্টমার বাকি (Due)</p>
+                            <h3 id="total-due" class="text-2xl font-black text-white drop-shadow-md">৳ ০</h3>
+                        </div>
+                        <div class="relative z-10 w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white text-xl backdrop-blur-sm border border-white/30 group-hover:scale-110 transition-transform"><i class="fas fa-hand-holding-dollar"></i></div>
+                    </div>
+                    
+                    <div class="dash-grad-card p-6 rounded-2xl shadow-lg flex justify-between items-center md:col-span-4 relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-[12px] text-white/80 uppercase font-black mb-1 drop-shadow-md">বর্তমান ক্যাশ নিট লাভ</p>
+                            <h3 id="total-actual-profit" class="text-4xl font-black text-white drop-shadow-md">৳ ০</h3>
+                            <p class="text-[13px] text-white/90 mt-2 font-bold drop-shadow-md bg-black/10 px-3 py-1 rounded-lg inline-block">প্রজেক্টেড লাভ (সব বাকি টাকা উঠলে): <span id="total-projected-profit" class="text-white">৳ ০</span></p>
+                        </div>
+                        <div class="relative z-10 w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-3xl backdrop-blur-sm border border-white/30 group-hover:scale-110 transition-transform"><i class="fas fa-wallet"></i></div>
                     </div>
                 </div>
 
@@ -186,8 +233,8 @@
                     <input type="hidden" id="edit-id">
                     
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
-                        <input type="date" id="order-date" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-indigo-500 text-gray-600 bg-gray-50/50">
-                        <select id="order-status" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-indigo-500 font-bold text-gray-700 bg-white">
+                        <input type="date" id="order-date" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-purple-500 text-gray-600 bg-gray-50/50">
+                        <select id="order-status" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-purple-500 font-bold text-gray-700 bg-white">
                             <option value="Pending">Pending (পেন্ডিং)</option>
                             <option value="Design">Design (ডিজাইন)</option>
                             <option value="Printing">Printing (প্রিন্টিং)</option>
@@ -197,9 +244,9 @@
                             <option value="Paid">Paid (পেইড)</option>
                             <option value="Hold">Hold (হোল্ড)</option>
                         </select>
-                        <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-indigo-500">
-                        <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-indigo-500">
-                        <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-indigo-500">
+                        <input type="text" id="cust-name" placeholder="কাস্টমারের নাম" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-purple-500">
+                        <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-purple-500">
+                        <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-purple-500">
                         
                         <div class="md:col-span-5 grid grid-cols-1 md:grid-cols-2 gap-3 mb-1">
                             <select id="cust-type" class="p-3 border border-purple-200 rounded-xl outline-none focus:border-purple-500 font-bold text-purple-700 bg-purple-50/50 md:col-span-2">
@@ -208,29 +255,26 @@
                             </select>
                         </div>
 
-                        <!-- Round Neck Row -->
                         <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-1 mt-2 border-t border-gray-100 pt-3">
                             <input type="number" id="round-qty" oninput="calculateStats()" placeholder="গোল গলা (পিস)" class="p-3 border border-blue-100 rounded-xl bg-blue-50/50 font-bold text-blue-800">
-                            <input type="number" id="round-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border border-blue-100 rounded-xl bg-blue-50/50 font-bold text-blue-800">
+                            <input type="number" id="round-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border border-blue-100 rounded-xl bg-blue-50/50 font-bold text-blue-800">
                             <input type="number" id="round-factory-rate" oninput="calculateStats()" placeholder="ফ্যাক্টরি রেট (৳)" class="p-3 border border-orange-100 rounded-xl bg-orange-50/50 font-bold text-orange-800">
                         </div>
 
-                        <!-- Collar Neck Row -->
                         <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-2">
                             <input type="number" id="collar-qty" oninput="calculateStats()" placeholder="কলার (পিস)" class="p-3 border border-indigo-100 rounded-xl bg-indigo-50/50 font-bold text-indigo-800">
-                            <input type="number" id="collar-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border border-indigo-100 rounded-xl bg-indigo-50/50 font-bold text-indigo-800">
+                            <input type="number" id="collar-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border border-indigo-100 rounded-xl bg-indigo-50/50 font-bold text-indigo-800">
                             <input type="number" id="collar-factory-rate" oninput="calculateStats()" placeholder="ফ্যাক্টরি রেট (৳)" class="p-3 border border-orange-100 rounded-xl bg-orange-50/50 font-bold text-orange-800">
                         </div>
                         
-                        <!-- Pant Row -->
                         <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-2 border-t border-gray-100 pt-3 pb-4 border-b">
                             <input type="number" id="pant-qty" oninput="calculateStats()" placeholder="প্যান্ট (পিস)" class="p-3 border border-gray-200 rounded-xl bg-gray-50 font-bold text-gray-700">
-                            <input type="number" id="pant-price" oninput="calculateStats()" placeholder="প্যান্ট বিক্রয় রেট (৳)" class="p-3 border border-gray-200 rounded-xl bg-gray-50 font-bold text-gray-700">
+                            <input type="number" id="pant-price" oninput="calculateStats()" placeholder="প্যান্ট বিক্রয় রেট (৳)" class="p-3 border border-gray-200 rounded-xl bg-gray-50 font-bold text-gray-700">
                             <input type="number" id="pant-factory-rate" oninput="calculateStats()" placeholder="প্যান্ট ফ্যাক্টরি রেট (৳)" class="p-3 border border-orange-100 rounded-xl bg-orange-50/50 font-bold text-orange-800">
                         </div>
 
                         <div class="md:col-span-5 grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-indigo-500">
+                            <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-purple-500">
                             <input type="number" id="other-cost" oninput="calculateStats()" placeholder="প্যাকেজিং/অর্ডার খরচ (৳)" class="p-3 border border-red-100 rounded-xl bg-red-50/50 font-bold text-red-600">
                             <input type="number" id="advance-paid" oninput="calculateStats()" placeholder="অ্যাডভান্স জমা (৳)" class="p-3 border border-emerald-100 rounded-xl bg-emerald-50/50 font-bold text-emerald-700">
                         </div>
@@ -241,21 +285,21 @@
                             <div class="text-center text-emerald-600"><p class="text-[10px] text-emerald-500 font-bold">অর্ডার থেকে লাভ</p><p class="text-lg font-bold text-emerald-700">৳ <span id="display-profit">০</span></p></div>
                         </div>
 
-                        <button id="save-btn" onclick="saveOrder()" class="md:col-span-5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-indigo-800 transition shadow-lg shadow-indigo-500/30">অর্ডার সেভ করুন</button>
+                        <button id="save-btn" onclick="saveOrder()" class="dash-grad-card md:col-span-5 text-white py-4 rounded-xl font-bold text-lg">অর্ডার সেভ করুন</button>
                     </div>
                 </div>
 
                 <div class="flex flex-col md:flex-row justify-between gap-4 mb-4 no-print items-center">
                     <div class="flex flex-col md:flex-row gap-2 w-full">
-                        <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন দিয়ে খুঁজুন..." class="flex-1 p-3 border border-white rounded-xl outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm text-sm bg-white/90 backdrop-blur-sm">
-                        <input type="date" id="filter-date" onchange="searchOrders()" class="w-full md:w-48 p-3 border border-white rounded-xl outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm text-sm text-gray-600 cursor-pointer bg-white/90 backdrop-blur-sm">
+                        <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন দিয়ে খুঁজুন..." class="flex-1 p-3 border border-white rounded-xl outline-none focus:ring-2 focus:ring-purple-400 shadow-sm text-sm bg-white/90 backdrop-blur-sm">
+                        <input type="date" id="filter-date" onchange="searchOrders()" class="w-full md:w-48 p-3 border border-white rounded-xl outline-none focus:ring-2 focus:ring-purple-400 shadow-sm text-sm text-gray-600 cursor-pointer bg-white/90 backdrop-blur-sm">
                         <button onclick="clearDateFilter()" class="bg-white/80 border border-gray-200 text-gray-600 px-4 py-3 rounded-xl text-xs font-bold hover:bg-gray-100 transition shadow-sm">Clear</button>
                     </div>
                 </div>
 
                 <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-sm overflow-x-auto no-print border border-white/60">
                     <table class="w-full text-left min-w-[1000px]">
-                        <thead class="bg-indigo-50/50 text-indigo-400 uppercase text-[10px] font-black tracking-widest border-b border-indigo-100">
+                        <thead class="bg-purple-50/50 text-purple-600 uppercase text-[10px] font-black tracking-widest border-b border-purple-100">
                             <tr>
                                 <th class="p-5">কাস্টমার প্রোফাইল ও তারিখ</th>
                                 <th class="p-5 text-center">কোয়ান্টিটি ও ধরন</th>
@@ -270,7 +314,6 @@
                 <div id="pagination-controls" class="flex justify-center items-center gap-2 mt-6 mb-4 no-print flex-wrap"></div>
             </div>
 
-            <!-- FACTORY TAB -->
             <div id="tab-factory" class="tab-content hidden">
                 <div class="bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-sm mb-6 border border-white/60">
                     <h2 class="text-xl font-bold mb-5 text-orange-600 flex items-center border-b border-orange-100 pb-3"><i class="fas fa-industry mr-2"></i> ফ্যাক্টরি পেমেন্ট ও লেজার</h2>
@@ -310,7 +353,6 @@
                 </div>
             </div>
 
-            <!-- EXPENSES TAB -->
             <div id="tab-expenses" class="tab-content hidden">
                 <div class="bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-sm mb-6 border border-white/60">
                     <h2 class="text-xl font-bold mb-5 text-pink-600 flex items-center border-b border-pink-100 pb-3"><i class="fas fa-wallet mr-2"></i> নতুন খরচ এন্ট্রি</h2>
@@ -333,14 +375,13 @@
                 </div>
             </div>
 
-            <!-- CRM TAB -->
             <div id="tab-crm" class="tab-content hidden">
                 <div class="bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-sm mb-6 border border-white/60 flex justify-between items-center">
                     <div>
-                        <h2 class="text-xl font-bold text-indigo-800"><i class="fas fa-users mr-2 text-indigo-500"></i> কাস্টমার ও রিসেলার ডাটাবেজ</h2>
+                        <h2 class="text-xl font-bold text-indigo-800"><i class="fas fa-users mr-2 text-purple-500"></i> কাস্টমার ও রিসেলার ডাটাবেজ</h2>
                         <p class="text-xs text-indigo-400 mt-1">সব ইউনিক কাস্টমারের লিস্ট</p>
                     </div>
-                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-700 font-bold px-4 py-2 rounded-xl text-sm border border-indigo-100 shadow-sm">
+                    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 font-bold px-4 py-2 rounded-xl text-sm border border-purple-100 shadow-sm">
                         মোট কাস্টমার: <span id="crm-total-count">০</span>
                     </div>
                 </div>
@@ -354,7 +395,6 @@
                 </div>
             </div>
 
-            <!-- REPORTS TAB -->
             <div id="tab-reports" class="tab-content hidden">
                 <div class="bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-sm mb-6 border border-white/60 no-print">
                     <h2 class="text-xl font-bold mb-4 text-indigo-800 border-b border-indigo-100 pb-3"><i class="fas fa-chart-line mr-2"></i> রিপোর্ট তৈরি করুন</h2>
@@ -370,7 +410,7 @@
                         <div class="flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-gray-200 shadow-sm">
                             <span class="text-xs font-bold text-gray-600">যেকোনো মাস খুঁজুন:</span>
                             <input type="month" id="custom-month-picker" class="p-1.5 border rounded outline-none focus:border-indigo-500 text-sm bg-white">
-                            <button onclick="generateReport('custom_month')" class="bg-gradient-to-r from-indigo-500 to-blue-600 text-white px-3 py-1.5 rounded font-bold text-sm hover:from-indigo-600 hover:to-blue-700">খুঁজুন</button>
+                            <button onclick="generateReport('custom_month')" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1.5 rounded font-bold text-sm hover:from-indigo-600 hover:to-purple-700">খুঁজুন</button>
                         </div>
                         
                         <button onclick="downloadReportPDF()" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:from-emerald-600 hover:to-teal-700 transition flex items-center gap-2 shadow-md shrink-0">
@@ -426,14 +466,31 @@
         </div>
     </div> 
 
-    <!-- SETTINGS MODAL -->
     <div id="settings-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 transition-opacity">
         <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeSettings()" class="absolute top-4 right-4 text-gray-400 hover:text-pink-500 text-xl"><i class="fas fa-times"></i></button>
-            <h2 class="text-2xl font-black mb-6 text-indigo-800 border-b pb-3">⚙️ পেজ প্রোফাইল সেটিংস</h2>
+            <h2 class="text-2xl font-black mb-6 text-indigo-800 border-b pb-3">⚙️ সেটিংস ও প্রোফাইল</h2>
             
             <div class="space-y-6">
                 
+                <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-100">
+                    <label class="block text-sm font-bold text-purple-700 mb-2">ড্যাশবোর্ড কার্ডের কালার (Gradient)</label>
+                    <div class="flex items-center gap-3 mb-3">
+                        <input type="color" id="setting-card-grad1" class="w-10 h-10 rounded cursor-pointer border-0 p-0" value="#4f46e5">
+                        <span class="text-xs font-bold text-gray-500">Left Color</span>
+                        <input type="color" id="setting-card-grad2" class="w-10 h-10 rounded cursor-pointer border-0 p-0" value="#d946ef">
+                        <span class="text-xs font-bold text-gray-500">Right Color</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between border-t border-purple-100 pt-3 mt-2 mb-2">
+                        <label class="text-sm font-bold text-gray-800">ডার্ক মোড (Dark Mode)</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" id="setting-dark-mode" class="sr-only peer" onchange="toggleDarkModePreview(this)">
+                          <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
                     <label class="block text-sm font-bold text-indigo-700 mb-2">আপনার পেজের / ব্যবসার নাম</label>
                     <input type="text" id="setting-biz-name" placeholder="যেমন: Jersey Zone" class="w-full p-3 border border-indigo-200 rounded-xl outline-none focus:border-indigo-500 text-sm mb-3 font-bold text-gray-700 bg-white">
@@ -441,10 +498,10 @@
                     <label class="block text-sm font-bold text-indigo-700 mb-2">ইনভয়েসের থিম কালার (Color)</label>
                     <div class="flex items-center gap-3 mb-3">
                         <input type="color" id="setting-theme-color" class="w-12 h-12 rounded cursor-pointer border-0 p-0" value="#4f46e5">
-                        <span class="text-xs font-bold text-gray-500">আপনার ব্র্যান্ড কালার সিলেক্ট করুন</span>
+                        <span class="text-xs font-bold text-gray-500">ইনভয়েসের ব্র্যান্ড কালার</span>
                     </div>
                     
-                    <button onclick="saveBusinessProfile()" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:from-indigo-700 hover:to-blue-700 transition shadow-md">প্রোফাইল আপডেট করুন</button>
+                    <button onclick="saveBusinessProfile()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:from-indigo-700 hover:to-purple-700 transition shadow-md">প্রোফাইল ও কালার আপডেট করুন</button>
                 </div>
 
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -482,7 +539,6 @@
         </div>
     </div>
     
-    <!-- INVOICE MODAL (Now fully Dynamic & Themed) -->
     <div id="invoice-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-2 relative">
             <div id="inv-main-box" class="p-6 bg-white border-2 rounded-2xl shadow-xl relative overflow-hidden" style="border-color: #4f46e5;">
@@ -492,12 +548,11 @@
                     <div id="inv-top-border" class="relative text-center border-b-2 pb-4 mb-4" style="border-color: #e0e7ff;">
                         <img class="app-logo absolute left-0 top-0 w-12 h-12 rounded-lg object-cover shadow-sm hidden" src="" alt="Logo">
                         
-                        <div id="inv-logo-box" class="app-logo-text absolute left-0 top-0 w-12 h-12 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-sm biz-icon-text" style="background-color: #4f46e5;">JN</div>
+                        <div id="inv-logo-box" class="dash-grad-card app-logo-text absolute left-0 top-0 w-12 h-12 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-sm biz-icon-text">JN</div>
                         
                         <img class="app-qr absolute right-0 top-0 w-12 h-12 object-cover border border-gray-200 rounded p-0.5 bg-white hidden" src="" alt="QR">
                         <div class="app-qr-text absolute right-0 top-0 w-12 h-12 border border-dashed border-gray-300 rounded flex items-center justify-center text-gray-300 text-[8px] font-bold">No QR</div>
                         
-                        <!-- Dynamic Business Name with Color -->
                         <h1 id="inv-brand-name" class="text-3xl font-black italic uppercase biz-name-display" style="color: #4f46e5;">Jersey Nova</h1>
                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Premium Sports Apparel</p>
                     </div>
@@ -509,7 +564,7 @@
             </div>
 
             <div class="flex flex-col gap-2 mt-4 p-2">
-                <button onclick="downloadInvoiceImage()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-xl font-bold hover:from-emerald-600 hover:to-teal-700 shadow-md">📸 ইনভয়েস ইমেজ ডাউনলোড করুন</button>
+                <button onclick="downloadInvoiceImage()" class="dash-grad-card w-full text-white py-3 rounded-xl font-bold shadow-md">📸 ইনভয়েস ইমেজ ডাউনলোড করুন</button>
                 <button onclick="closeInvoice()" class="w-full bg-gray-100 text-gray-500 py-2 rounded-xl font-bold text-xs hover:bg-gray-200 transition">বন্ধ করুন</button>
             </div>
         </div>
@@ -533,7 +588,14 @@
         let currentPage = 1;
         const itemsPerPage = 10; 
         
-        let appSettings = { businessName: 'Jersey Nova', themeColor: '#4f46e5', logo: '', qr: '', terms: 'Thank you for choosing our service!' };
+        let appSettings = { 
+            businessName: 'Jersey Nova', 
+            themeColor: '#4f46e5', 
+            cardGrad1: '#4f46e5', 
+            cardGrad2: '#d946ef', 
+            themeMode: 'light',
+            logo: '', qr: '', terms: 'Thank you for choosing our service!' 
+        };
         
         let salesChartInstance = null;
         let itemChartInstance = null;
@@ -571,7 +633,6 @@
             setupDragAndDrop();
         }
 
-        // --- AUTHENTICATION (MULTI-USER ISOLATION) ---
         function toggleAuthMode() {
             document.getElementById('login-box').classList.toggle('hidden');
             document.getElementById('reg-box').classList.toggle('hidden');
@@ -663,9 +724,21 @@
             
             document.getElementById('inv-main-box').style.borderColor = tColor;
             document.getElementById('inv-brand-name').style.color = tColor;
-            document.getElementById('inv-logo-box').style.backgroundColor = tColor;
-            
             document.getElementById('inv-top-border').style.borderColor = tColor + '40';
+            
+            // Appply Card Gradients
+            let cg1 = appSettings.cardGrad1 || '#4f46e5';
+            let cg2 = appSettings.cardGrad2 || '#d946ef';
+            document.documentElement.style.setProperty('--card-grad-start', cg1);
+            document.documentElement.style.setProperty('--card-grad-end', cg2);
+            document.getElementById('setting-card-grad1').value = cg1;
+            document.getElementById('setting-card-grad2').value = cg2;
+            
+            // Apply Dark Mode
+            let themeMode = appSettings.themeMode || 'light';
+            document.getElementById('setting-dark-mode').checked = (themeMode === 'dark');
+            if(themeMode === 'dark') document.body.classList.add('dark-mode');
+            else document.body.classList.remove('dark-mode');
 
             if(appSettings.logo) {
                 document.querySelectorAll('.app-logo').forEach(img => { img.src = appSettings.logo; img.classList.remove('hidden'); });
@@ -679,14 +752,28 @@
             document.getElementById('setting-terms').value = appSettings.terms || "";
             document.getElementById('setting-password').value = ""; 
         }
+        
+        function toggleDarkModePreview(cb) {
+            if(cb.checked) document.body.classList.add('dark-mode');
+            else document.body.classList.remove('dark-mode');
+        }
 
         function saveBusinessProfile() {
             const bName = document.getElementById('setting-biz-name').value.trim();
             const tColor = document.getElementById('setting-theme-color').value;
+            const cg1 = document.getElementById('setting-card-grad1').value;
+            const cg2 = document.getElementById('setting-card-grad2').value;
+            const themeMode = document.getElementById('setting-dark-mode').checked ? 'dark' : 'light';
             
             if(!bName) return Swal.fire({icon:'warning', title: 'নাম খালি রাখা যাবে না!'});
             
-            dbSettings.update({ businessName: bName, themeColor: tColor }).then(() => {
+            dbSettings.update({ 
+                businessName: bName, 
+                themeColor: tColor,
+                cardGrad1: cg1,
+                cardGrad2: cg2,
+                themeMode: themeMode
+            }).then(() => {
                 Toast.fire({ icon: 'success', title: 'প্রোফাইল আপডেট হয়েছে!' });
             });
         }
@@ -727,7 +814,7 @@
         }
 
         function openSettings() { toggleSidebar(); document.getElementById('settings-modal').classList.remove('hidden'); }
-        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); applyThemeAndSettings(); /* revert if not saved */ }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -783,7 +870,7 @@
             sorted.forEach(e => {
                 totalPaid += getNum(e.amount);
                 tbody.innerHTML += `
-                    <tr class="hover:bg-orange-50/50 transition border-b border-gray-100">
+                    <tr class="hover:bg-orange-50/40 transition border-b border-gray-100">
                         <td class="p-5 font-bold text-gray-500">${e.date}</td>
                         <td class="p-5 font-bold text-gray-800">${e.desc}</td>
                         <td class="p-5 font-black text-orange-600">৳ ${e.amount}</td>
@@ -823,7 +910,7 @@
             
             sorted.forEach(e => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-pink-50/50 transition border-b border-gray-100">
+                    <tr class="hover:bg-pink-50/40 transition border-b border-gray-100">
                         <td class="p-5 font-bold text-gray-500">${e.date}</td>
                         <td class="p-5 font-bold text-gray-800">${e.desc}</td>
                         <td class="p-5 font-black text-pink-600">৳ ${e.amount}</td>
@@ -850,7 +937,7 @@
             arr.forEach(c => {
                 let badge = c.custType === 'Reseller' ? `<span class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold ml-1 shadow-sm">Reseller</span>` : '';
                 tbody.innerHTML += `
-                    <tr class="hover:bg-indigo-50/50 transition border-b border-gray-100">
+                    <tr class="hover:bg-indigo-50/40 transition border-b border-gray-100">
                         <td class="p-5">
                             <span class="font-black text-indigo-900">${c.name} ${badge}</span><br>
                             <span class="text-[11px] text-gray-500">${c.addr}</span>
@@ -1063,7 +1150,7 @@
             const container = document.getElementById('pagination-controls');
             container.innerHTML = '';
             if (totalPages <= 1) return;
-            for (let i = 1; i <= totalPages; i++) container.innerHTML += `<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg font-bold text-sm ${currentPage === i ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-gray-100 shadow-sm border border-gray-200'} transition">${i}</button>`;
+            for (let i = 1; i <= totalPages; i++) container.innerHTML += `<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg font-bold text-sm ${currentPage === i ? 'dash-grad-card text-white shadow-md' : 'bg-white text-gray-600 hover:bg-gray-100 shadow-sm border border-gray-200'} transition">${i}</button>`;
         }
 
         function goToPage(page) { currentPage = page; renderOrders(); }
@@ -1100,8 +1187,6 @@
             
             document.getElementById('form-title').innerText = "✏️ অর্ডার সংশোধন";
             document.getElementById('save-btn').innerText = "আপডেট করুন";
-            document.getElementById('save-btn').classList.replace('from-blue-600', 'from-orange-500');
-            document.getElementById('save-btn').classList.replace('to-indigo-700', 'to-orange-600');
             calculateStats(); window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
@@ -1109,8 +1194,6 @@
             document.getElementById('edit-id').value = "";
             document.getElementById('form-title').innerText = "🆕 নতুন অর্ডার এন্ট্রি";
             document.getElementById('save-btn').innerText = "অর্ডার সেভ করুন";
-            document.getElementById('save-btn').classList.replace('from-orange-500', 'from-blue-600');
-            document.getElementById('save-btn').classList.replace('to-orange-600', 'to-indigo-700');
             document.getElementById('order-date').valueAsDate = new Date();
             document.getElementById('order-status').value = 'Pending';
         }
