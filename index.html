@@ -71,7 +71,7 @@
                 <span class="app-logo-text">ERP</span>
             </div>
             <h2 id="auth-title" class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-purple-600 uppercase tracking-tighter">সিস্টেমে প্রবেশ করুন</h2>
-            <p class="text-purple-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Cloud Manager v7.1</p>
+            <p class="text-purple-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Cloud Manager v7.2</p>
         </div>
         
         <!-- Login Box -->
@@ -201,25 +201,29 @@
                         <input type="text" id="cust-phone" placeholder="ফোন নাম্বার" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-indigo-500">
                         <input type="text" id="cust-address" placeholder="ঠিকানা" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-indigo-500">
                         
-                        <!-- NEW: Customer Type & Neck Type Options -->
                         <div class="md:col-span-5 grid grid-cols-1 md:grid-cols-2 gap-3 mb-1">
-                            <select id="cust-type" class="p-3 border border-purple-200 rounded-xl outline-none focus:border-purple-500 font-bold text-purple-700 bg-purple-50/50">
+                            <select id="cust-type" class="p-3 border border-purple-200 rounded-xl outline-none focus:border-purple-500 font-bold text-purple-700 bg-purple-50/50 md:col-span-2">
                                 <option value="Regular">কাস্টমার টাইপ: রেগুলার (Regular)</option>
                                 <option value="Reseller">কাস্টমার টাইপ: রিসেলার (Reseller)</option>
                             </select>
-                            <select id="neck-type" class="p-3 border border-blue-200 rounded-xl outline-none focus:border-blue-500 font-bold text-blue-700 bg-blue-50/50">
-                                <option value="Round">জার্সির ধরন: গোল গলা (Round Neck)</option>
-                                <option value="Collar">জার্সির ধরন: কলার ওয়ালা (Collar)</option>
-                            </select>
                         </div>
 
+                        <!-- Round Neck Row -->
                         <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-1 mt-2 border-t border-gray-100 pt-3">
-                            <input type="number" id="quantity" oninput="calculateStats()" placeholder="জার্সি (পিস)" class="p-3 border border-blue-100 rounded-xl bg-blue-50/50 font-bold text-blue-800">
-                            <input type="number" id="unit-price" oninput="calculateStats()" placeholder="জার্সি বিক্রয় রেট (৳)" class="p-3 border border-blue-100 rounded-xl bg-blue-50/50 font-bold text-blue-800">
-                            <input type="number" id="factory-rate" oninput="calculateStats()" placeholder="জার্সি ফ্যাক্টরি রেট (৳)" class="p-3 border border-orange-100 rounded-xl bg-orange-50/50 font-bold text-orange-800">
+                            <input type="number" id="round-qty" oninput="calculateStats()" placeholder="গোল গলা (পিস)" class="p-3 border border-blue-100 rounded-xl bg-blue-50/50 font-bold text-blue-800">
+                            <input type="number" id="round-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border border-blue-100 rounded-xl bg-blue-50/50 font-bold text-blue-800">
+                            <input type="number" id="round-factory-rate" oninput="calculateStats()" placeholder="ফ্যাক্টরি রেট (৳)" class="p-3 border border-orange-100 rounded-xl bg-orange-50/50 font-bold text-orange-800">
+                        </div>
+
+                        <!-- Collar Neck Row -->
+                        <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-2">
+                            <input type="number" id="collar-qty" oninput="calculateStats()" placeholder="কলার (পিস)" class="p-3 border border-indigo-100 rounded-xl bg-indigo-50/50 font-bold text-indigo-800">
+                            <input type="number" id="collar-price" oninput="calculateStats()" placeholder="বিক্রয় রেট (৳)" class="p-3 border border-indigo-100 rounded-xl bg-indigo-50/50 font-bold text-indigo-800">
+                            <input type="number" id="collar-factory-rate" oninput="calculateStats()" placeholder="ফ্যাক্টরি রেট (৳)" class="p-3 border border-orange-100 rounded-xl bg-orange-50/50 font-bold text-orange-800">
                         </div>
                         
-                        <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-2 border-b border-gray-100 pb-4">
+                        <!-- Pant Row -->
+                        <div class="md:col-span-5 grid grid-cols-3 gap-3 mb-2 border-t border-gray-100 pt-3 pb-4 border-b">
                             <input type="number" id="pant-qty" oninput="calculateStats()" placeholder="প্যান্ট (পিস)" class="p-3 border border-gray-200 rounded-xl bg-gray-50 font-bold text-gray-700">
                             <input type="number" id="pant-price" oninput="calculateStats()" placeholder="প্যান্ট বিক্রয় রেট (৳)" class="p-3 border border-gray-200 rounded-xl bg-gray-50 font-bold text-gray-700">
                             <input type="number" id="pant-factory-rate" oninput="calculateStats()" placeholder="প্যান্ট ফ্যাক্টরি রেট (৳)" class="p-3 border border-orange-100 rounded-xl bg-orange-50/50 font-bold text-orange-800">
@@ -834,7 +838,6 @@
                 if(!unique[o.phone]) unique[o.phone] = { name: o.name, phone: o.phone, addr: o.addr, orders: 0, spent: 0, custType: o.custType || 'Regular' };
                 unique[o.phone].orders++;
                 unique[o.phone].spent += getNum(o.totalBill);
-                // Update to Reseller status if any order marks them as Reseller
                 if(o.custType === 'Reseller') unique[o.phone].custType = 'Reseller';
             });
             
@@ -860,18 +863,24 @@
         }
 
         function calculateStats() {
-            const qty = getNum(document.getElementById('quantity').value);
-            const uprice = getNum(document.getElementById('unit-price').value);
-            const fRate = getNum(document.getElementById('factory-rate').value);
+            const rQty = getNum(document.getElementById('round-qty').value);
+            const rPrice = getNum(document.getElementById('round-price').value);
+            const rFRate = getNum(document.getElementById('round-factory-rate').value);
+
+            const cQty = getNum(document.getElementById('collar-qty').value);
+            const cPrice = getNum(document.getElementById('collar-price').value);
+            const cFRate = getNum(document.getElementById('collar-factory-rate').value);
+            
             const pQty = getNum(document.getElementById('pant-qty').value);
             const pPrice = getNum(document.getElementById('pant-price').value);
             const pFRate = getNum(document.getElementById('pant-factory-rate').value);
+            
             const dCharge = getNum(document.getElementById('delivery-charge').value);
             const advance = getNum(document.getElementById('advance-paid').value);
             const otherCost = getNum(document.getElementById('other-cost').value);
 
-            const totalBill = (qty * uprice) + (pQty * pPrice) + dCharge;
-            const totalFactoryCost = (qty * fRate) + (pQty * pFRate);
+            const totalBill = (rQty * rPrice) + (cQty * cPrice) + (pQty * pPrice) + dCharge;
+            const totalFactoryCost = (rQty * rFRate) + (cQty * cFRate) + (pQty * pFRate);
             const profit = totalBill - (totalFactoryCost + dCharge + otherCost);
             
             document.getElementById('display-total').innerText = totalBill;
@@ -888,29 +897,38 @@
             const addr = document.getElementById('cust-address').value;
             
             const custType = document.getElementById('cust-type').value;
-            const neckType = document.getElementById('neck-type').value;
             
-            const qty = getNum(document.getElementById('quantity').value);
-            const uprice = getNum(document.getElementById('unit-price').value);
-            const fRate = getNum(document.getElementById('factory-rate').value);
+            const rQty = getNum(document.getElementById('round-qty').value);
+            const rPrice = getNum(document.getElementById('round-price').value);
+            const rFRate = getNum(document.getElementById('round-factory-rate').value);
+
+            const cQty = getNum(document.getElementById('collar-qty').value);
+            const cPrice = getNum(document.getElementById('collar-price').value);
+            const cFRate = getNum(document.getElementById('collar-factory-rate').value);
+            
             const pQty = getNum(document.getElementById('pant-qty').value);
             const pPrice = getNum(document.getElementById('pant-price').value);
             const pFRate = getNum(document.getElementById('pant-factory-rate').value);
+            
             const dCharge = getNum(document.getElementById('delivery-charge').value);
             const otherCost = getNum(document.getElementById('other-cost').value);
             const advance = getNum(document.getElementById('advance-paid').value);
 
-            if(!name || !phone || (qty <= 0 && pQty <= 0)) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
+            if(!name || !phone || (rQty <= 0 && cQty <= 0 && pQty <= 0)) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
 
-            const totalBill = (qty * uprice) + (pQty * pPrice) + dCharge;
-            const totalFactoryCost = (qty * fRate) + (pQty * pFRate);
+            const totalBill = (rQty * rPrice) + (cQty * cPrice) + (pQty * pPrice) + dCharge;
+            const totalFactoryCost = (rQty * rFRate) + (cQty * cFRate) + (pQty * pFRate);
             const id = editId ? parseInt(editId) : Date.now();
             
             const orderData = {
-                id: id, date: date, name, phone, addr, qty, uprice, fRate, pQty, pPrice, pFRate, dCharge, otherCost, totalBill, advance,
+                id: id, date: date, name, phone, addr, 
+                rQty, rPrice, rFRate, 
+                cQty, cPrice, cFRate, 
+                pQty, pPrice, pFRate, 
+                dCharge, otherCost, totalBill, advance,
                 due: totalBill - advance, totalFactoryCost: totalFactoryCost,
                 profit: totalBill - (totalFactoryCost + dCharge + otherCost), status: status,
-                custType: custType, neckType: neckType 
+                custType: custType
             };
 
             db.child(id).set(orderData).then(() => {
@@ -976,11 +994,20 @@
                 let badge = o.custType === 'Reseller' ? `<span class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold ml-1 shadow-sm">Reseller</span>` : '';
                 
                 let qtyDisplay = '';
-                if(getNum(o.qty) > 0) {
-                    let neckTypeDisplay = o.neckType === 'Collar' ? 'Collar' : 'Round';
-                    qtyDisplay += `<span class="text-indigo-700 font-black">${o.qty} J <span class="text-[9px] text-gray-500 font-bold">(${neckTypeDisplay})</span></span>`;
+                
+                // For old orders before update
+                let oldQty = getNum(o.qty);
+                if(oldQty > 0) {
+                    let neck = o.neckType === 'Collar' ? 'Collar' : 'Round';
+                    qtyDisplay += `<span class="text-indigo-700 font-black">${oldQty} J <span class="text-[9px] text-gray-500 font-bold">(${neck})</span></span><br>`;
                 }
-                if(getNum(o.qty) > 0 && getNum(o.pQty) > 0) qtyDisplay += `<br>`;
+                
+                // For new separate inputs
+                let rQty = getNum(o.rQty);
+                let cQty = getNum(o.cQty);
+                if(rQty > 0) qtyDisplay += `<span class="text-indigo-700 font-black">${rQty} J <span class="text-[9px] text-gray-500 font-bold">(Round)</span></span><br>`;
+                if(cQty > 0) qtyDisplay += `<span class="text-blue-700 font-black">${cQty} J <span class="text-[9px] text-gray-500 font-bold">(Collar)</span></span><br>`;
+                
                 if(getNum(o.pQty) > 0) qtyDisplay += `<span class="text-gray-600 font-black">${o.pQty} P</span>`;
 
                 let sCol = 'bg-white text-gray-700 border-gray-300';
@@ -1044,12 +1071,32 @@
         function editOrder(id) {
             const o = orders.find(x => x.id === id);
             document.getElementById('edit-id').value = o.id;
-            ['order-date','order-status','cust-name','cust-phone','cust-address','quantity','unit-price','factory-rate','pant-qty','pant-price','pant-factory-rate','delivery-charge','other-cost','advance-paid'].forEach(k => {
-                let v = o[k==='cust-name'?'name':k==='cust-phone'?'phone':k==='cust-address'?'addr':k==='order-date'?'date':k==='order-status'?'status':k==='quantity'?'qty':k==='unit-price'?'uprice':k==='factory-rate'?'fRate':k==='pant-qty'?'pQty':k==='pant-price'?'pPrice':k==='pant-factory-rate'?'pFRate':k==='delivery-charge'?'dCharge':k==='other-cost'?'otherCost':'advance'];
+            
+            ['order-date','order-status','cust-name','cust-phone','cust-address','pant-qty','pant-price','pant-factory-rate','delivery-charge','other-cost','advance-paid'].forEach(k => {
+                let v = o[k==='cust-name'?'name':k==='cust-phone'?'phone':k==='cust-address'?'addr':k==='order-date'?'date':k==='order-status'?'status':k==='pant-qty'?'pQty':k==='pant-price'?'pPrice':k==='pant-factory-rate'?'pFRate':k==='delivery-charge'?'dCharge':k==='other-cost'?'otherCost':'advance'];
                 document.getElementById(k).value = v || (k==='order-status'?'Pending':"");
             });
             document.getElementById('cust-type').value = o.custType || 'Regular';
-            document.getElementById('neck-type').value = o.neckType || 'Round';
+            
+            // Backward compatibility for old orders editing
+            let rQ = o.rQty, rP = o.rPrice, rF = o.rFRate;
+            let cQ = o.cQty, cP = o.cPrice, cF = o.cFRate;
+
+            if (o.qty && !o.rQty && !o.cQty) {
+                if (o.neckType === 'Collar') {
+                    cQ = o.qty; cP = o.uprice; cF = o.fRate;
+                } else {
+                    rQ = o.qty; rP = o.uprice; rF = o.fRate;
+                }
+            }
+            
+            document.getElementById('round-qty').value = rQ || "";
+            document.getElementById('round-price').value = rP || "";
+            document.getElementById('round-factory-rate').value = rF || "";
+            
+            document.getElementById('collar-qty').value = cQ || "";
+            document.getElementById('collar-price').value = cP || "";
+            document.getElementById('collar-factory-rate').value = cF || "";
             
             document.getElementById('form-title').innerText = "✏️ অর্ডার সংশোধন";
             document.getElementById('save-btn').innerText = "আপডেট করুন";
@@ -1072,7 +1119,6 @@
             document.querySelectorAll('input[type="text"]:not(#search-input):not(#fact-pay-desc):not(#exp-desc):not(#setting-password):not(#login-id):not(#reg-id), input[type="number"]:not(#fact-pay-amount):not(#exp-amount)').forEach(i => i.value = ''); 
             document.querySelectorAll('#display-total, #display-due, #display-profit').forEach(s => s.innerText = '0');
             document.getElementById('cust-type').value = 'Regular';
-            document.getElementById('neck-type').value = 'Round';
             resetFormUI();
         }
 
@@ -1100,13 +1146,22 @@
         function openInvoice(id) {
             const o = orders.find(x => x.id === id);
             let itemsHtml = '';
-            let qty = getNum(o.qty), pQty = getNum(o.pQty), uprice = getNum(o.uprice), pPrice = getNum(o.pPrice);
+            let pQty = getNum(o.pQty), pPrice = getNum(o.pPrice);
             let tColor = appSettings.themeColor || '#4f46e5';
 
-            if(qty > 0) {
-                let neckTypeDisplay = o.neckType === 'Collar' ? 'Collar' : 'Round Neck';
-                itemsHtml += `<div class="flex justify-between text-xs font-bold"><span>Jersey - ${neckTypeDisplay} (${qty} pcs)</span> <span>৳ ${qty * uprice}</span></div>`;
+            // Legacy support
+            let oldQty = getNum(o.qty);
+            if(oldQty > 0) {
+                let neck = o.neckType === 'Collar' ? 'Collar' : 'Round Neck';
+                itemsHtml += `<div class="flex justify-between text-xs font-bold"><span>Jersey - ${neck} (${oldQty} pcs)</span> <span>৳ ${oldQty * getNum(o.uprice)}</span></div>`;
             }
+            
+            // New separate inputs
+            let rQty = getNum(o.rQty);
+            let cQty = getNum(o.cQty);
+            
+            if(rQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold"><span>Jersey - Round Neck (${rQty} pcs)</span> <span>৳ ${rQty * getNum(o.rPrice)}</span></div>`;
+            if(cQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold text-gray-700"><span>Jersey - Collar (${cQty} pcs)</span> <span>৳ ${cQty * getNum(o.cPrice)}</span></div>`;
             if(pQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold text-gray-700"><span>Pant (${pQty} pcs)</span> <span>৳ ${pQty * pPrice}</span></div>`;
 
             document.getElementById('invoice-terms-display').innerText = appSettings.terms || "Thank you for choosing our service!";
@@ -1195,7 +1250,9 @@
                     tRawProfit += p;
                     
                     tOrderExp += otherCost;
-                    totalJQty += getNum(o.qty);
+                    
+                    // Sum all jerseys (new format and legacy format)
+                    totalJQty += getNum(o.qty) + getNum(o.rQty) + getNum(o.cQty);
                     totalPQty += getNum(o.pQty);
                 }
             });
@@ -1256,7 +1313,7 @@
                 itemChartInstance = new Chart(ctxItem, {
                     type: 'bar',
                     data: {
-                        labels: ['Jersey', 'Pant'],
+                        labels: ['Jersey (All Types)', 'Pant'],
                         datasets: [{
                             label: 'Sold Quantity',
                             data: [Number(jQty) || 0, Number(pQty) || 0],
