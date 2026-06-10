@@ -623,11 +623,25 @@
                             <input type="month" id="custom-month-picker" class="p-1.5 border rounded outline-none focus:border-indigo-500 text-sm bg-white">
                             <button onclick="generateReport('custom_month')" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1.5 rounded font-bold text-sm hover:from-indigo-600 hover:to-purple-700">খুঁজুন</button>
                         </div>
-                        
-                        <button onclick="downloadReportPDF()" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:from-emerald-600 hover:to-teal-700 transition flex items-center gap-2 shadow-md shrink-0">
-                            <i class="fas fa-file-pdf"></i> Download PDF
-                        </button>
+
+                        <div class="flex gap-2 flex-wrap">
+                            <button onclick="downloadReportPDF()" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:from-emerald-600 hover:to-teal-700 transition flex items-center gap-2 shadow-md">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button onclick="printReport()" class="bg-gradient-to-r from-slate-600 to-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold hover:from-slate-700 hover:to-slate-900 transition flex items-center gap-2 shadow-md">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                            <button onclick="shareReportWhatsApp()" class="bg-gradient-to-r from-green-500 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold hover:from-green-600 hover:to-green-800 transition flex items-center gap-2 shadow-md">
+                                <i class="fab fa-whatsapp"></i> Share
+                            </button>
+                        </div>
                     </div>
+                </div>
+
+                <div id="report-empty-state" class="hidden bg-white p-10 rounded-3xl shadow-sm border border-gray-100 text-center mb-6">
+                    <div class="text-5xl mb-3">📭</div>
+                    <h3 class="text-lg font-black text-gray-700">এই সময়ে কোনো অর্ডার নেই</h3>
+                    <p class="text-sm text-gray-400 mt-2">অন্য মাস / বছর সিলেক্ট করে দেখুন</p>
                 </div>
 
                 <div id="report-print-area" class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 min-h-[500px]">
@@ -676,6 +690,19 @@
                             <div class="chart-container">
                                 <canvas id="itemChart"></canvas>
                             </div>
+                        </div>
+                    </div>
+
+                    <div id="monthly-breakdown-wrap" class="hidden bg-gradient-to-br from-indigo-50/40 to-purple-50/40 p-5 rounded-2xl border border-indigo-100 mb-8">
+                        <h3 class="text-center text-sm font-black text-indigo-600 mb-4 uppercase tracking-wider">📈 মাসিক বিভাজন (Sales · Factory · Expense · Profit)</h3>
+                        <div style="position:relative;height:300px;width:100%"><canvas id="monthlyBreakdownChart"></canvas></div>
+                        <div class="overflow-x-auto mt-4">
+                            <table class="w-full text-xs text-left">
+                                <thead class="bg-white/70 text-indigo-600 uppercase text-[10px] font-black">
+                                    <tr><th class="p-2">মাস</th><th class="p-2 text-right">বিক্রি</th><th class="p-2 text-right">ফ্যাক্টরি</th><th class="p-2 text-right">খরচ</th><th class="p-2 text-right">লাভ</th><th class="p-2 text-right">মার্জিন %</th></tr>
+                                </thead>
+                                <tbody id="monthly-breakdown-tbody" class="divide-y divide-indigo-50"></tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -865,14 +892,23 @@
         
         let salesChartInstance = null;
         let itemChartInstance = null;
+        let monthlyBreakdownChartInstance = null;
+        let lastReportData = null;
 
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         const getNum = (val) => {
             if (val === undefined || val === null || val === '') return 0;
             const n = parseFloat(String(val).replace(/,/g, ''));
-            return isNaN(n) ? 0 : n;
+            return Number.isFinite(n) ? n : 0;
         };
+        const roundNum = (n) => Math.round((Number(n)||0) * 100) / 100;
+        const fmtBDT = (n) => {
+            const v = roundNum(n);
+            try { return '৳ ' + v.toLocaleString('bn-BD', {maximumFractionDigits: 2}); }
+            catch(e){ return '৳ ' + v.toLocaleString(); }
+        };
+        const slugify = (s) => String(s||'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase() || 'report';
 
         function normalizeDate(str) {
             if (!str) return new Date().toISOString().split('T')[0]; 
@@ -896,6 +932,11 @@
             document.getElementById('exp-date').valueAsDate = new Date();
             document.getElementById('fact-pay-date').valueAsDate = new Date();
             document.getElementById('order-status').value = 'Pending';
+            const cp = document.getElementById('custom-month-picker');
+            if(cp){
+                const n = new Date();
+                cp.max = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;
+            }
             setupDragAndDrop();
         }
 
@@ -1775,155 +1816,327 @@
 
         function closeInvoice() { document.getElementById('invoice-modal').classList.add('hidden'); }
 
-        function isDateInRange(dateStr, range, customMonthStr) {
-            let dStr = normalizeDate(dateStr); 
-            const d = new Date(dStr);
-            const now = new Date();
-            
-            if (isNaN(d.getTime())) return true; 
-            
-            if(range === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-            
-            if(range === 'last_month') {
-                let m = now.getMonth() - 1, y = now.getFullYear();
-                if(m < 0) { m = 11; y--; }
-                return d.getMonth() === m && d.getFullYear() === y;
-            }
-            
-            if(range === 'this_year') return d.getFullYear() === now.getFullYear();
-            
-            if(range === 'last_12_months') {
-                const pastYear = new Date();
-                pastYear.setFullYear(now.getFullYear() - 1);
-                return d >= pastYear && d <= now;
-            }
+        function isoYMD(dateStr){
+            const s = normalizeDate(dateStr);
+            const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+            return m ? {y: +m[1], mo: +m[2], d: +m[3], str: `${m[1]}-${m[2]}-${m[3]}`} : null;
+        }
 
-            if(range === 'custom_month' && customMonthStr) {
-                const [year, month] = customMonthStr.split('-');
-                return d.getFullYear() === parseInt(year) && d.getMonth() === (parseInt(month) - 1);
+        function isDateInRange(dateStr, range, customMonthStr) {
+            const parsed = isoYMD(dateStr);
+            if(!parsed) return false;
+            const now = new Date();
+            const ny = now.getFullYear(), nm = now.getMonth()+1;
+
+            if(range === 'this_month') return parsed.y === ny && parsed.mo === nm;
+            if(range === 'last_month') {
+                let m = nm - 1, y = ny;
+                if(m < 1){ m = 12; y--; }
+                return parsed.y === y && parsed.mo === m;
+            }
+            if(range === 'this_year') return parsed.y === ny;
+            if(range === 'last_12_months') {
+                // last 12 calendar months including current
+                const startY = nm === 12 ? ny : ny - 1;
+                const startM = nm === 12 ? 1 : nm + 1;
+                const startKey = startY*100 + startM;
+                const endKey = ny*100 + nm;
+                const key = parsed.y*100 + parsed.mo;
+                return key >= startKey && key <= endKey;
+            }
+            if(range === 'custom_month' && customMonthStr){
+                const [yy, mm] = customMonthStr.split('-').map(Number);
+                return parsed.y === yy && parsed.mo === mm;
             }
             return true;
         }
 
         function generateReport(range) {
             let tSales = 0, tFact = 0, tExp = 0, tRawProfit = 0, tOrderExp = 0;
-            let totalJQty = 0, totalPQty = 0;
-            
-            const customMonthVal = document.getElementById('custom-month-picker').value;
+            let totalJQty = 0, totalPQty = 0, orderCount = 0;
 
-            if (range === 'custom_month' && !customMonthVal) {
-                return Swal.fire({icon: 'warning', title: 'দয়া করে একটি মাস নির্বাচন করুন!'});
+            const customPicker = document.getElementById('custom-month-picker');
+            const customMonthVal = customPicker ? customPicker.value : '';
+
+            if (range === 'custom_month'){
+                if(!customMonthVal) return Swal.fire({icon:'warning', title:'দয়া করে একটি মাস নির্বাচন করুন!'});
+                const [yy, mm] = customMonthVal.split('-').map(Number);
+                const now = new Date();
+                if(yy > now.getFullYear() || (yy === now.getFullYear() && mm > now.getMonth()+1)){
+                    return Swal.fire({icon:'warning', title:'ভবিষ্যতের মাস নির্বাচন করা যাবে না!'});
+                }
             }
 
             orders.forEach(o => {
                 if(isDateInRange(o.date, range, customMonthVal)) {
-                    let bill = getNum(o.totalBill);
-                    let factCost = getNum(o.totalFactoryCost);
-                    let otherCost = getNum(o.otherCost);
-                    let dCharge = getNum(o.dCharge);
-
-                    tSales += bill; 
-                    tFact += factCost; 
-                    
+                    const bill = getNum(o.totalBill);
+                    const factCost = getNum(o.totalFactoryCost);
+                    const otherCost = getNum(o.otherCost);
+                    const dCharge = getNum(o.dCharge);
+                    tSales += bill; tFact += factCost;
                     let p = getNum(o.profit);
-                    if(p === 0 && bill > 0) {
-                        p = bill - (factCost + dCharge + otherCost);
-                    }
+                    if(p === 0 && bill > 0) p = bill - (factCost + dCharge + otherCost);
                     tRawProfit += p;
-                    
                     tOrderExp += otherCost;
-                    
-                    // Sum all jerseys (new format and legacy format)
                     totalJQty += getNum(o.qty) + getNum(o.rQty) + getNum(o.cQty);
                     totalPQty += getNum(o.pQty);
+                    orderCount++;
                 }
             });
-            
             expenses.forEach(e => { if(isDateInRange(e.date, range, customMonthVal)) tExp += getNum(e.amount); });
-            
-            let titles = { 
-                'this_month': 'এই মাসের রিপোর্ট', 
-                'last_month': 'গত মাসের রিপোর্ট', 
+
+            const titles = {
+                'this_month': 'এই মাসের রিপোর্ট',
+                'last_month': 'গত মাসের রিপোর্ট',
                 'this_year': 'এই বছরের রিপোর্ট',
                 'last_12_months': 'শেষ ১২ মাসের রিপোর্ট'
             };
-
             let finalTitle = titles[range];
-
             if (range === 'custom_month') {
                 const [year, month] = customMonthVal.split('-');
                 finalTitle = `${monthNames[parseInt(month) - 1]} ${year} এর রিপোর্ট`;
             }
-
             document.getElementById('report-title').innerText = finalTitle;
-            
-            document.getElementById('rep-sales').innerText = "৳ " + tSales;
-            document.getElementById('rep-factory').innerText = "৳ " + tFact;
-            document.getElementById('rep-expenses').innerText = "৳ " + (tOrderExp + tExp);
-            
-            let finalProfit = tRawProfit - tExp;
-            document.getElementById('rep-profit').innerText = "৳ " + finalProfit; 
 
-            renderCharts(tSales, (tExp + tOrderExp), totalJQty, totalPQty);
+            // tOrderExp already deducted inside profit, so total expense for display = tExp (operating) + tOrderExp shown separately
+            // Net Profit = tRawProfit - tExp (do NOT subtract otherCost again)
+            const totalExpense = roundNum(tOrderExp + tExp);
+            const netProfit = roundNum(tRawProfit - tExp);
+
+            document.getElementById('rep-sales').innerText = fmtBDT(tSales);
+            document.getElementById('rep-factory').innerText = fmtBDT(tFact);
+            document.getElementById('rep-expenses').innerText = fmtBDT(totalExpense);
+            document.getElementById('rep-profit').innerText = fmtBDT(netProfit);
+
+            // Empty state
+            const emptyBox = document.getElementById('report-empty-state');
+            const printArea = document.getElementById('report-print-area');
+            if(orderCount === 0 && tExp === 0){
+                emptyBox.classList.remove('hidden');
+                printArea.classList.add('opacity-40');
+            } else {
+                emptyBox.classList.add('hidden');
+                printArea.classList.remove('opacity-40');
+            }
+
+            // 12-month breakdown only for last_12_months / this_year
+            const showBreakdown = (range === 'last_12_months' || range === 'this_year');
+            document.getElementById('monthly-breakdown-wrap').classList.toggle('hidden', !showBreakdown);
+            if(showBreakdown) renderMonthlyBreakdown(range);
+
+            lastReportData = { title: finalTitle, sales: tSales, factory: tFact, expense: totalExpense, profit: netProfit, orders: orderCount };
+
+            renderCharts(tSales, totalExpense, totalJQty, totalPQty, netProfit);
         }
 
-        function renderCharts(sales, totalExpenses, jQty, pQty) {
+        // Chart.js global defaults
+        if (window.Chart) {
+            Chart.defaults.font.family = "'Hind Siliguri', 'Inter', system-ui, sans-serif";
+            Chart.defaults.color = '#475569';
+            Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(30,41,59,0.95)';
+            Chart.defaults.plugins.tooltip.padding = 10;
+            Chart.defaults.plugins.tooltip.cornerRadius = 8;
+            Chart.defaults.plugins.tooltip.titleFont = {weight: 'bold'};
+        }
+
+        // Plugin: center text for doughnut
+        const doughnutCenterText = {
+            id: 'doughnutCenterText',
+            afterDraw(chart, args, opts){
+                if(chart.config.type !== 'doughnut' || !opts || !opts.text) return;
+                const {ctx, chartArea:{left,right,top,bottom}} = chart;
+                ctx.save();
+                const cx = (left+right)/2, cy = (top+bottom)/2;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillStyle = opts.subColor || '#94a3b8';
+                ctx.font = '600 11px ' + Chart.defaults.font.family;
+                ctx.fillText(opts.subText || '', cx, cy - 14);
+                ctx.fillStyle = opts.color || '#1e293b';
+                ctx.font = '800 20px ' + Chart.defaults.font.family;
+                ctx.fillText(opts.text, cx, cy + 8);
+                ctx.restore();
+            }
+        };
+
+        function makeGradient(ctx, area, c1, c2){
+            const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+            g.addColorStop(0, c1); g.addColorStop(1, c2);
+            return g;
+        }
+
+        function renderCharts(sales, totalExpenses, jQty, pQty, netProfit) {
             setTimeout(() => {
                 if(salesChartInstance) salesChartInstance.destroy();
                 if(itemChartInstance) itemChartInstance.destroy();
 
                 const canvas1 = document.getElementById('salesExpenseChart');
                 const canvas2 = document.getElementById('itemChart');
-
                 if(!canvas1 || !canvas2) return;
 
-                const ctxSales = canvas1.getContext('2d');
-                salesChartInstance = new Chart(ctxSales, {
+                salesChartInstance = new Chart(canvas1.getContext('2d'), {
                     type: 'doughnut',
                     data: {
                         labels: ['Sales / Income', 'Total Expenses'],
                         datasets: [{
-                            data: [Number(sales) || 0, Number(totalExpenses) || 0],
-                            backgroundColor: ['#4f46e5', '#f43f5e'],
-                            borderWidth: 0
+                            data: [roundNum(sales), roundNum(totalExpenses)],
+                            backgroundColor: ['#6366f1', '#f43f5e'],
+                            borderColor: '#fff', borderWidth: 3, hoverOffset: 8
                         }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '70%',
+                        plugins: {
+                            legend: { position: 'bottom', labels:{usePointStyle:true, padding:14, font:{weight:'600'}} },
+                            tooltip: { callbacks:{ label: c => ' ' + c.label + ': ' + fmtBDT(c.parsed) } },
+                            doughnutCenterText: { text: fmtBDT(netProfit), subText: 'Net Profit', color: netProfit>=0?'#059669':'#dc2626' }
+                        }
+                    },
+                    plugins: [doughnutCenterText]
                 });
 
-                const ctxItem = canvas2.getContext('2d');
-                itemChartInstance = new Chart(ctxItem, {
+                const itemCtx = canvas2.getContext('2d');
+                itemChartInstance = new Chart(itemCtx, {
                     type: 'bar',
                     data: {
-                        labels: ['Jersey (All Types)', 'Pant'],
+                        labels: ['Jersey (All)', 'Pant'],
                         datasets: [{
                             label: 'Sold Quantity',
-                            data: [Number(jQty) || 0, Number(pQty) || 0],
-                            backgroundColor: ['#8b5cf6', '#14b8a6'],
-                            borderRadius: 5
+                            data: [getNum(jQty), getNum(pQty)],
+                            backgroundColor: (c) => {
+                                const {ctx, chartArea} = c.chart; if(!chartArea) return '#8b5cf6';
+                                const colors = [['#a78bfa','#6d28d9'], ['#5eead4','#0f766e']];
+                                const pair = colors[c.dataIndex] || colors[0];
+                                return makeGradient(ctx, chartArea, pair[0], pair[1]);
+                            },
+                            borderRadius: 10, borderSkipped: false, maxBarThickness: 80
                         }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip:{ callbacks:{ label: c => ' ' + c.parsed.y.toLocaleString('bn-BD') + ' pcs' } } },
+                        scales: {
+                            y: { beginAtZero: true, grid:{color:'#f1f5f9'}, ticks:{precision:0} },
+                            x: { grid:{display:false} }
+                        }
+                    }
                 });
             }, 50);
         }
 
-        function downloadReportPDF() {
+        function renderMonthlyBreakdown(range){
+            // build last N months list
+            const now = new Date();
+            const months = [];
+            if(range === 'this_year'){
+                for(let m=1; m<=now.getMonth()+1; m++) months.push({y: now.getFullYear(), m});
+            } else {
+                // last 12 months including current
+                let y = now.getFullYear(), m = now.getMonth()+1;
+                const list = [];
+                for(let i=0;i<12;i++){ list.unshift({y, m}); m--; if(m<1){m=12; y--;} }
+                months.push(...list);
+            }
+            const labels = months.map(x => `${String(x.m).padStart(2,'0')}/${String(x.y).slice(-2)}`);
+            const sales=[], fact=[], exp=[], profit=[];
+            const tbody = document.getElementById('monthly-breakdown-tbody');
+            tbody.innerHTML = '';
+            months.forEach(x => {
+                let s=0,f=0,e=0,p=0,oc=0;
+                orders.forEach(o=>{
+                    const pa = isoYMD(o.date); if(!pa) return;
+                    if(pa.y===x.y && pa.mo===x.m){
+                        const bill=getNum(o.totalBill), fc=getNum(o.totalFactoryCost), ot=getNum(o.otherCost), dc=getNum(o.dCharge);
+                        s+=bill; f+=fc; oc+=ot;
+                        let pr=getNum(o.profit); if(pr===0 && bill>0) pr=bill-(fc+dc+ot);
+                        p+=pr;
+                    }
+                });
+                expenses.forEach(en=>{ const pa=isoYMD(en.date); if(pa && pa.y===x.y && pa.mo===x.m) e+=getNum(en.amount); });
+                const netP = p - e;
+                const totalExp = e + oc;
+                sales.push(roundNum(s)); fact.push(roundNum(f)); exp.push(roundNum(totalExp)); profit.push(roundNum(netP));
+                const margin = s>0 ? ((netP/s)*100).toFixed(1) : '0.0';
+                const profitCls = netP>=0 ? 'text-emerald-700' : 'text-red-600';
+                tbody.innerHTML += `<tr class="hover:bg-white/50">
+                    <td class="p-2 font-bold text-gray-700">${String(x.m).padStart(2,'0')}/${x.y}</td>
+                    <td class="p-2 text-right text-indigo-700 font-bold">${fmtBDT(s)}</td>
+                    <td class="p-2 text-right text-orange-700">${fmtBDT(f)}</td>
+                    <td class="p-2 text-right text-pink-700">${fmtBDT(totalExp)}</td>
+                    <td class="p-2 text-right font-black ${profitCls}">${fmtBDT(netP)}</td>
+                    <td class="p-2 text-right text-gray-500">${margin}%</td>
+                </tr>`;
+            });
+
+            if(monthlyBreakdownChartInstance) monthlyBreakdownChartInstance.destroy();
+            const cv = document.getElementById('monthlyBreakdownChart');
+            if(!cv) return;
+            monthlyBreakdownChartInstance = new Chart(cv.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        {label:'বিক্রি', data:sales, backgroundColor:'#6366f1', borderRadius:6, stack:'a'},
+                        {label:'ফ্যাক্টরি', data:fact, backgroundColor:'#f59e0b', borderRadius:6, stack:'b'},
+                        {label:'খরচ', data:exp, backgroundColor:'#f43f5e', borderRadius:6, stack:'b'},
+                        {label:'লাভ', data:profit, backgroundColor:'#10b981', borderRadius:6, stack:'c'}
+                    ]
+                },
+                options: {
+                    responsive:true, maintainAspectRatio:false,
+                    plugins:{
+                        legend:{position:'bottom', labels:{usePointStyle:true, padding:12}},
+                        tooltip:{callbacks:{label: c => ' ' + c.dataset.label + ': ' + fmtBDT(c.parsed.y)}}
+                    },
+                    scales:{
+                        y:{beginAtZero:true, grid:{color:'#f1f5f9'}, ticks:{callback: v => v.toLocaleString('bn-BD')}},
+                        x:{grid:{display:false}, stacked:false}
+                    }
+                }
+            });
+        }
+
+        function printReport(){
+            window.print();
+        }
+
+        function shareReportWhatsApp(){
+            if(!lastReportData){ return Swal.fire({icon:'info', title:'প্রথমে একটি রিপোর্ট তৈরি করুন'}); }
+            const r = lastReportData;
+            const biz = appSettings.businessName || 'My Business';
+            const msg = `📊 *${biz}*\n${r.title}\n\n🛒 অর্ডার: ${r.orders}\n💰 বিক্রি: ${fmtBDT(r.sales)}\n🏭 ফ্যাক্টরি: ${fmtBDT(r.factory)}\n💸 খরচ: ${fmtBDT(r.expense)}\n✅ নেট লাভ: ${fmtBDT(r.profit)}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        async function downloadReportPDF() {
             const { jsPDF } = window.jspdf;
             const area = document.getElementById('report-print-area');
             Swal.fire({ title: 'PDF তৈরি হচ্ছে...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            
-            html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
+            try {
+                const canvas = await html2canvas(area, { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1200 });
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfW = pdf.internal.pageSize.getWidth();
-                const pdfH = (canvas.height * pdfW) / canvas.width;
-                pdf.addImage(imgData, 'PNG', 0, 10, pdfW, pdfH);
-                
-                const bName = appSettings.businessName ? appSettings.businessName.replace(/\s+/g, '') : 'Report';
-                pdf.save(`${bName}_${Date.now()}.pdf`);
-                Swal.close();
-            });
+                const pdfH = pdf.internal.pageSize.getHeight();
+                const imgW = pdfW;
+                const imgH = (canvas.height * pdfW) / canvas.width;
+                let heightLeft = imgH; let position = 0;
+                const imgData = canvas.toDataURL('image/jpeg', 0.92);
+                pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH);
+                heightLeft -= pdfH;
+                while(heightLeft > 0){
+                    position = heightLeft - imgH;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH);
+                    heightLeft -= pdfH;
+                }
+                const stamp = new Date().toISOString().split('T')[0];
+                const safeName = slugify(appSettings.businessName || 'report');
+                pdf.save(`${safeName}-report-${stamp}.pdf`);
+            } catch(e){
+                console.error(e);
+                Swal.fire({icon:'error', title:'PDF তৈরি ব্যর্থ', text: e.message || ''});
+                return;
+            }
+            Swal.close();
         }
 
         function exportData() {
@@ -2176,11 +2389,11 @@
         // ===== Monthly comparison report =====
         function getMonthAggregate(year, month){
             // month: 0-indexed
+            const yy = year, mm = month + 1;
             let sales=0, fact=0, exp=0, profit=0, qty=0, daily={};
             orders.forEach(o=>{
-                const d = new Date(normalizeDate(o.date));
-                if(isNaN(d)) return;
-                if(d.getFullYear()===year && d.getMonth()===month){
+                const pa = isoYMD(o.date); if(!pa) return;
+                if(pa.y===yy && pa.mo===mm){
                     let bill = getNum(o.totalBill);
                     let fc = getNum(o.totalFactoryCost);
                     let oc = getNum(o.otherCost);
@@ -2190,13 +2403,12 @@
                     if(p===0 && bill>0) p = bill - (fc+dc+oc);
                     profit += p;
                     qty += getNum(o.qty)+getNum(o.rQty)+getNum(o.cQty)+getNum(o.pQty);
-                    const day = d.getDate();
-                    daily[day] = (daily[day]||0)+bill;
+                    daily[pa.d] = (daily[pa.d]||0)+bill;
                 }
             });
             expenses.forEach(e=>{
-                const d = new Date(normalizeDate(e.date));
-                if(!isNaN(d) && d.getFullYear()===year && d.getMonth()===month) exp += getNum(e.amount);
+                const pa = isoYMD(e.date); if(!pa) return;
+                if(pa.y===yy && pa.mo===mm) exp += getNum(e.amount);
             });
             return {sales, fact, exp, profit: profit-exp, qty, daily};
         }
@@ -2208,7 +2420,6 @@
             if(pm<0){pm=11; py--;}
             const prev = getMonthAggregate(py, pm);
 
-            function fmt(n){ return '৳ ' + Math.round(n).toLocaleString(); }
             function delta(curV, prevV){
                 if(prevV===0){ return curV>0 ? '<span class="text-emerald-600 font-bold">▲ New</span>' : '<span class="text-gray-400">—</span>'; }
                 const d = ((curV-prevV)/Math.abs(prevV))*100;
@@ -2224,8 +2435,8 @@
                 ${[['Sales','sales'],['Factory','fact'],['Expense','exp'],['Net Profit','profit']].map(([label,key])=>`
                   <div class="bg-gradient-to-br from-white to-indigo-50/30 p-4 rounded-2xl border border-indigo-100">
                     <p class="text-[10px] font-black text-indigo-500 uppercase tracking-wider">${label}</p>
-                    <p class="text-lg font-black text-gray-800 mt-1">${fmt(cur[key])}</p>
-                    <p class="text-[10px] text-gray-400 font-bold">গত মাস: ${fmt(prev[key])}</p>
+                    <p class="text-lg font-black text-gray-800 mt-1">${fmtBDT(cur[key])}</p>
+                    <p class="text-[10px] text-gray-400 font-bold">গত মাস: ${fmtBDT(prev[key])}</p>
                     <p class="text-[11px] mt-1">${delta(cur[key], prev[key])}</p>
                   </div>`).join('')}
               </div>`;
@@ -2241,18 +2452,60 @@
             const cv = document.getElementById('compareChart');
             if(!cv) return;
             if(compareChartInstance) compareChartInstance.destroy();
-            compareChartInstance = new Chart(cv.getContext('2d'), {
+            const ctx = cv.getContext('2d');
+            compareChartInstance = new Chart(ctx, {
                 type:'line',
                 data:{
                     labels: labels,
                     datasets:[
-                        {label:'এই মাস', data:curData, borderColor:'#4f46e5', backgroundColor:'rgba(79,70,229,0.15)', fill:true, tension:0.35, borderWidth:2, pointRadius:2},
-                        {label:'গত মাস', data:prevData, borderColor:'#d946ef', backgroundColor:'rgba(217,70,239,0.10)', fill:true, tension:0.35, borderWidth:2, pointRadius:2, borderDash:[4,4]}
+                        {
+                            label:'এই মাস', data:curData,
+                            borderColor:'#6366f1',
+                            backgroundColor: (c)=>{ const a=c.chart.chartArea; if(!a) return 'rgba(99,102,241,0.2)';
+                                const g=c.chart.ctx.createLinearGradient(0,a.top,0,a.bottom);
+                                g.addColorStop(0,'rgba(99,102,241,0.35)'); g.addColorStop(1,'rgba(99,102,241,0.02)');
+                                return g; },
+                            fill:true, tension:0.4, borderWidth:2.5, pointRadius:3, pointHoverRadius:6, pointBackgroundColor:'#6366f1'
+                        },
+                        {
+                            label:'গত মাস', data:prevData,
+                            borderColor:'#ec4899',
+                            backgroundColor: (c)=>{ const a=c.chart.chartArea; if(!a) return 'rgba(236,72,153,0.15)';
+                                const g=c.chart.ctx.createLinearGradient(0,a.top,0,a.bottom);
+                                g.addColorStop(0,'rgba(236,72,153,0.25)'); g.addColorStop(1,'rgba(236,72,153,0.02)');
+                                return g; },
+                            fill:true, tension:0.4, borderWidth:2, pointRadius:2.5, pointHoverRadius:5, pointBackgroundColor:'#ec4899', borderDash:[5,5]
+                        }
                     ]
                 },
-                options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{y:{beginAtZero:true}}}
+                options:{
+                    responsive:true, maintainAspectRatio:false,
+                    interaction:{mode:'index', intersect:false},
+                    plugins:{
+                        legend:{position:'bottom', labels:{usePointStyle:true, padding:14, font:{weight:'600'}}},
+                        tooltip:{callbacks:{label: c => ' ' + c.dataset.label + ': ' + fmtBDT(c.parsed.y)}}
+                    },
+                    scales:{
+                        y:{beginAtZero:true, grid:{color:'#eef2ff'}, ticks:{callback: v => v.toLocaleString('bn-BD')}},
+                        x:{grid:{display:false}, ticks:{font:{size:10}}}
+                    }
+                }
             });
         }
+
+        // Print-only styles
+        (function(){
+            const style = document.createElement('style');
+            style.textContent = `
+                @media print {
+                    body * { visibility: hidden !important; }
+                    #report-print-area, #report-print-area * { visibility: visible !important; }
+                    #report-print-area { position: absolute; left:0; top:0; width:100%; box-shadow:none !important; }
+                    .no-print { display: none !important; }
+                }
+            `;
+            document.head.appendChild(style);
+        })();
 
     </script>
 </body>
