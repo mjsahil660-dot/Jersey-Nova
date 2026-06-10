@@ -186,6 +186,23 @@
         .dash-hero-title { font-size: 24px; font-weight: 900; margin-top: 4px; }
         .dash-hero-pill { display:inline-flex; align-items:center; gap:6px; background: rgba(255,255,255,.15); padding: 6px 12px; border-radius:99px; font-size:11px; font-weight:800; backdrop-filter: blur(6px); border:1px solid rgba(255,255,255,.2); margin-right:6px; margin-top:8px; }
 
+        /* ===== Dark-mode polish for modals, dropdowns, swal ===== */
+        body.dark-mode .swal2-popup { background:#1e293b !important; color:#e2e8f0 !important; }
+        body.dark-mode .swal2-title, body.dark-mode .swal2-html-container { color:#e2e8f0 !important; }
+        body.dark-mode select option { background:#1e293b; color:#e2e8f0; }
+        body.dark-mode .bg-white\/80, body.dark-mode .bg-white\/70 { background-color: rgba(30,41,59,.85) !important; color:#e2e8f0 !important; }
+        body.dark-mode .text-gray-400, body.dark-mode .text-gray-300 { color:#94a3b8 !important; }
+        body.dark-mode .shadow-2xl, body.dark-mode .shadow-xl, body.dark-mode .shadow-lg { box-shadow: 0 8px 30px rgba(0,0,0,.5) !important; }
+        body.dark-mode label { color:#cbd5e1 !important; }
+
+        /* ===== Loading skeleton ===== */
+        #data-loading { position: fixed; inset: 0; display:none; align-items:center; justify-content:center; flex-direction:column; gap:14px; background: rgba(15,23,42,.55); backdrop-filter: blur(6px); z-index: 9998; color:#fff; }
+        #data-loading.show { display:flex; }
+        #data-loading .sp { width:54px; height:54px; border-radius:50%; border:4px solid rgba(255,255,255,.2); border-top-color:#a855f7; animation: splashSpin 0.9s linear infinite; }
+        @keyframes splashSpin { to { transform: rotate(360deg); } }
+
+        /* Focus visible for keyboard accessibility */
+        button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline:2px solid #a855f7; outline-offset:2px; }
     </style>
 </head>
 <body class="p-2 md:p-6" onload="initApp()">
@@ -199,12 +216,33 @@
         <div class="splash-sub">আপনার ব্যবসা প্রস্তুত হচ্ছে…</div>
         <div class="splash-bar"><span></span></div>
     </div>
+    <div id="data-loading" role="status" aria-live="polite">
+        <div class="sp"></div>
+        <div style="font-weight:700;letter-spacing:.05em;">ডাটা লোড হচ্ছে…</div>
+    </div>
     <script>
         window.addEventListener('load', function(){
             setTimeout(function(){
                 var s = document.getElementById('app-splash');
                 if(s){ s.classList.add('splash-hide'); setTimeout(()=>s.remove(), 450); }
             }, 1100);
+
+            // ===== Offline-capable Service Worker (inline) =====
+            if('serviceWorker' in navigator){
+                try{
+                    var swCode = "var C='jn-erp-v1';" +
+                        "self.addEventListener('install',e=>{self.skipWaiting();});" +
+                        "self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim());});" +
+                        "self.addEventListener('fetch',e=>{" +
+                        "  var r=e.request; if(r.method!=='GET') return;" +
+                        "  var u=new URL(r.url);" +
+                        "  if(u.hostname.indexOf('firebaseio')>-1||u.hostname.indexOf('googleapis')>-1) return;" +
+                        "  e.respondWith(fetch(r).then(res=>{var c=res.clone();caches.open(C).then(ca=>ca.put(r,c));return res;}).catch(()=>caches.match(r)));" +
+                        "});";
+                    var blob = new Blob([swCode], {type:'application/javascript'});
+                    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+                }catch(e){}
+            }
         });
     </script>
 
@@ -222,16 +260,16 @@
         </div>
         
         <div id="login-box">
-            <input type="text" id="login-id" placeholder="আপনার ইউজার আইডি" class="w-full p-4 border border-blue-100 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none font-bold bg-white/80">
-            <input type="password" id="login-pass" placeholder="পাসওয়ার্ড" class="w-full p-4 border border-blue-100 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none font-bold bg-white/80">
-            <button onclick="loginUser()" class="dash-grad-card w-full text-white py-4 rounded-xl font-bold text-lg transition active:scale-95 shadow-lg">লগিন করুন</button>
+            <input type="text" id="login-id" aria-label="ইউজার আইডি" autocomplete="username" placeholder="আপনার ইউজার আইডি" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('login-pass').focus();}" class="w-full p-4 border border-blue-100 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none font-bold bg-white/80">
+            <input type="password" id="login-pass" aria-label="পাসওয়ার্ড" autocomplete="current-password" placeholder="পাসওয়ার্ড" onkeydown="if(event.key==='Enter'){event.preventDefault();loginUser();}" class="w-full p-4 border border-blue-100 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none font-bold bg-white/80">
+            <button onclick="loginUser()" aria-label="লগিন" class="dash-grad-card w-full text-white py-4 rounded-xl font-bold text-lg transition active:scale-95 shadow-lg">লগিন করুন</button>
             <p class="text-center text-sm font-bold text-gray-500 mt-5">অ্যাকাউন্ট নেই? <button onclick="toggleAuthMode()" class="text-purple-600 hover:underline">নতুন অ্যাকাউন্ট খুলুন</button></p>
         </div>
 
         <div id="reg-box" class="hidden">
-            <input type="text" id="reg-id" placeholder="নতুন ইউজার আইডি (ইংরেজিতে)" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-green-500 outline-none font-bold bg-green-50 border-green-100">
-            <input type="password" id="reg-pass" placeholder="নতুন পাসওয়ার্ড" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-green-500 outline-none font-bold bg-green-50 border-green-100">
-            <button onclick="registerUser()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition active:scale-95 shadow-lg shadow-green-500/30">রেজিস্ট্রেশন করুন</button>
+            <input type="text" id="reg-id" aria-label="নতুন ইউজার আইডি" autocomplete="username" placeholder="নতুন ইউজার আইডি (ইংরেজিতে)" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('reg-pass').focus();}" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-green-500 outline-none font-bold bg-green-50 border-green-100">
+            <input type="password" id="reg-pass" aria-label="নতুন পাসওয়ার্ড" autocomplete="new-password" placeholder="নতুন পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" onkeydown="if(event.key==='Enter'){event.preventDefault();registerUser();}" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-green-500 outline-none font-bold bg-green-50 border-green-100">
+            <button onclick="registerUser()" aria-label="রেজিস্ট্রেশন" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition active:scale-95 shadow-lg shadow-green-500/30">রেজিস্ট্রেশন করুন</button>
             <p class="text-center text-sm font-bold text-gray-500 mt-5">আগে থেকে অ্যাকাউন্ট আছে? <button onclick="toggleAuthMode()" class="text-purple-600 hover:underline">লগিন করুন</button></p>
         </div>
     </div>
@@ -869,46 +907,71 @@
             document.getElementById('auth-title').innerText = isReg ? 'নতুন অ্যাকাউন্ট খুলুন' : 'সিস্টেমে প্রবেশ করুন';
         }
 
-        function loginUser() {
+        // ====== Password hashing (SHA-256) + safe Firebase wrappers ======
+        async function hashPwd(pwd){
+            try{
+                const data = new TextEncoder().encode('jn_salt_v1::' + pwd);
+                const buf = await crypto.subtle.digest('SHA-256', data);
+                return 'sha256$' + Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+            }catch(e){ return pwd; }
+        }
+        function safeFbWrite(promise, okMsg){
+            return Promise.resolve(promise).then(r=>{ if(okMsg) Toast.fire({icon:'success', title: okMsg}); return r; })
+                .catch(err=>{
+                    console.error('Firebase error:', err);
+                    Swal.fire({icon:'error', title:'সেভ হয়নি!', text:'ইন্টারনেট কানেকশন চেক করুন। (' + (err && err.message ? err.message : 'unknown') + ')'});
+                    throw err;
+                });
+        }
+        window.addEventListener('online', ()=> Toast.fire({icon:'success', title:'ইন্টারনেট ফিরে এসেছে'}));
+        window.addEventListener('offline', ()=> Swal.fire({icon:'warning', title:'ইন্টারনেট নেই!', text:'ডাটা সেভ হবে না যতক্ষণ না আবার কানেক্ট হয়।', timer:3000, showConfirmButton:false}));
+
+        // sanitize inputs to prevent XSS in user-provided strings used in HTML
+        function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+        async function loginUser() {
             const uid = document.getElementById('login-id').value.trim();
-            const pwd = document.getElementById('login-pass').value.trim();
+            const pwd = document.getElementById('login-pass').value;
             if(!uid || !pwd) return Swal.fire({icon: 'warning', title: 'সব ঘর পূরণ করুন!'});
+            if(!/^[a-zA-Z0-9_.-]{2,32}$/.test(uid)) return Swal.fire({icon:'warning', title:'আইডি শুধু ইংরেজি অক্ষর/সংখ্যা'});
 
-            if(uid === 'admin' && pwd === '123') {
-               startSession(uid, true);
-               return;
-            }
+            if(uid === 'admin' && pwd === '123') { startSession(uid, true); return; }
+            if(isUserAdmin(uid) && ADMIN_USERS[uid] === pwd) { startSession(uid, false); return; }
 
-            // Built-in master admin
-            if(isUserAdmin(uid) && ADMIN_USERS[uid] === pwd) {
-               startSession(uid, false);
-               return;
-            }
-
-            firebase.database().ref('user_accounts/' + uid).once('value', snap => {
-                if(snap.exists() && snap.val() === pwd) {
+            const hashed = await hashPwd(pwd);
+            try{
+                const snap = await firebase.database().ref('user_accounts/' + uid).once('value');
+                if(!snap.exists()) return Swal.fire({icon:'error', title:'ভুল ইউজার আইডি বা পাসওয়ার্ড!'});
+                const stored = snap.val();
+                if(stored === hashed || stored === pwd){
+                    // Auto-migrate old plain-text passwords to hashed on successful login
+                    if(stored === pwd && stored !== hashed){
+                        firebase.database().ref('user_accounts/' + uid).set(hashed).catch(()=>{});
+                    }
                     startSession(uid, false);
                 } else {
-                    Swal.fire({icon: 'error', title: 'ভুল ইউজার আইডি বা পাসওয়ার্ড!'}); 
+                    Swal.fire({icon:'error', title:'ভুল ইউজার আইডি বা পাসওয়ার্ড!'});
                 }
-            });
+            }catch(e){
+                Swal.fire({icon:'error', title:'কানেকশন সমস্যা!', text:'ইন্টারনেট চেক করে আবার চেষ্টা করুন।'});
+            }
         }
 
-        function registerUser() {
+        async function registerUser() {
             const uid = document.getElementById('reg-id').value.trim();
-            const pwd = document.getElementById('reg-pass').value.trim();
+            const pwd = document.getElementById('reg-pass').value;
             if(!uid || !pwd) return Swal.fire({icon: 'warning', title: 'সব ঘর পূরণ করুন!'});
+            if(!/^[a-zA-Z0-9_.-]{2,32}$/.test(uid)) return Swal.fire({icon:'warning', title:'আইডি শুধু ইংরেজি অক্ষর/সংখ্যা (২-৩২ অক্ষর)'});
+            if(pwd.length < 6) return Swal.fire({icon:'warning', title:'পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে'});
             if(uid.toLowerCase() === 'admin' || isUserAdmin(uid)) return Swal.fire({icon: 'error', title: 'এই আইডিটি নেওয়া যাবে না!'});
 
-            firebase.database().ref('user_accounts/' + uid).once('value', snap => {
-                if(snap.exists()) {
-                    Swal.fire({icon: 'error', title: 'এই আইডিটি আগে থেকেই ব্যবহার হচ্ছে!'}); 
-                } else {
-                    firebase.database().ref('user_accounts/' + uid).set(pwd).then(() => {
-                        startSession(uid, false);
-                    });
-                }
-            });
+            try{
+                const snap = await firebase.database().ref('user_accounts/' + uid).once('value');
+                if(snap.exists()) return Swal.fire({icon:'error', title:'এই আইডিটি আগে থেকেই ব্যবহার হচ্ছে!'});
+                const hashed = await hashPwd(pwd);
+                await safeFbWrite(firebase.database().ref('user_accounts/' + uid).set(hashed));
+                startSession(uid, false);
+            }catch(e){ /* already shown */ }
         }
 
         function startSession(uid, isLegacyAdmin) {
@@ -916,6 +979,7 @@
             isAdmin = isUserAdmin(uid) || (isLegacyAdmin === true);
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('app-wrapper').classList.remove('hidden');
+            document.getElementById('data-loading').classList.add('show');
             Toast.fire({ icon: 'success', title: 'স্বাগতম, ' + uid + '!' });
             setupPresence(uid);
             applyAdminUI();
@@ -932,6 +996,9 @@
             dbExpenses = firebase.database().ref(basePath + 'expenses');
             dbFactoryPayments = firebase.database().ref(basePath + 'factory_payments');
 
+            let _loadedOnce = false;
+            const _hideLoader = ()=>{ if(!_loadedOnce){ _loadedOnce = true; setTimeout(()=>document.getElementById('data-loading').classList.remove('show'), 250); } };
+
             dbSettings.on('value', snap => {
                 if(snap.val()) {
                     appSettings = { ...appSettings, ...snap.val() };
@@ -939,15 +1006,15 @@
                     dbSettings.set(appSettings);
                 }
                 applyThemeAndSettings();
-            });
+            }, err => { console.error(err); _hideLoader(); Toast.fire({icon:'error', title:'সেটিংস লোড হয়নি'}); });
 
             db.on('value', snap => { 
                 orders = snap.val() ? Object.values(snap.val()).map(o => ({...o, date: normalizeDate(o.date)})) : []; 
                 renderOrders(); renderCRM(); 
                 refreshDelayedBadge(); alertDelayedOnce(); alertUrgentOnce();
-
+                _hideLoader();
                 if(document.getElementById('compare-box') && !document.getElementById('tab-reports').classList.contains('hidden')) renderMonthlyCompare();
-            });
+            }, err => { console.error(err); _hideLoader(); Toast.fire({icon:'error', title:'অর্ডার লোড হয়নি'}); });
             dbExpenses.on('value', snap => { 
                 expenses = snap.val() ? Object.values(snap.val()).map(e => ({...e, date: normalizeDate(e.date)})) : []; 
                 renderExpenses(); renderOrders(); 
@@ -1107,15 +1174,18 @@
             });
         }
 
-        function saveSetting(key, elementId) {
+        async function saveSetting(key, elementId) {
             const val = document.getElementById(elementId).value;
-            if(key === 'password' && val) {
-                firebase.database().ref('user_accounts/' + currentUserId).set(val);
+            if(key === 'password') {
+                if(!val || val.length < 6) return Swal.fire({icon:'warning', title:'পাসওয়ার্ড কমপক্ষে ৬ অক্ষর'});
+                const hashed = await hashPwd(val);
+                await safeFbWrite(firebase.database().ref('user_accounts/' + currentUserId).set(hashed));
                 document.getElementById(elementId).value = '';
-            } else if (key !== 'password') {
-                dbSettings.child(key).set(val);
+                Toast.fire({ icon: 'success', title: 'পাসওয়ার্ড আপডেট হয়েছে!' });
+            } else {
+                await safeFbWrite(dbSettings.child(key).set(val));
+                Toast.fire({ icon: 'success', title: 'সেটিংস আপডেট হয়েছে!' });
             }
-            Toast.fire({ icon: 'success', title: 'সেটিংস আপডেট হয়েছে!' });
         }
 
         function processFile(file, dbKey) {
@@ -1363,15 +1433,24 @@
             const otherCost = getNum(document.getElementById('other-cost').value);
             const advance = getNum(document.getElementById('advance-paid').value);
 
-            if(!name || !phone || (rQty <= 0 && cQty <= 0 && pQty <= 0)) return Swal.fire({icon: 'warning', title: 'সঠিক তথ্য দিন!'});
+            // ====== Stronger input validation ======
+            const cleanName = (name||'').trim();
+            const cleanPhone = (phone||'').replace(/\D/g,'');
+            if(cleanName.length < 2 || cleanName.length > 60) return Swal.fire({icon:'warning', title:'কাস্টমারের সঠিক নাম দিন (২-৬০ অক্ষর)'});
+            if(!/^01[0-9]{9}$/.test(cleanPhone)) return Swal.fire({icon:'warning', title:'সঠিক ফোন নাম্বার দিন', text:'১১ ডিজিটের নাম্বার, শুরু হবে 01 দিয়ে'});
+            if(rQty < 0 || cQty < 0 || pQty < 0 || rPrice < 0 || cPrice < 0 || pPrice < 0 || rFRate < 0 || cFRate < 0 || pFRate < 0 || dCharge < 0 || otherCost < 0 || advance < 0)
+                return Swal.fire({icon:'warning', title:'নেগেটিভ সংখ্যা দেওয়া যাবে না'});
+            if(rQty + cQty + pQty <= 0) return Swal.fire({icon:'warning', title:'কমপক্ষে একটি প্রোডাক্টের পরিমাণ দিন'});
+            if(rQty > 100000 || cQty > 100000 || pQty > 100000) return Swal.fire({icon:'warning', title:'পরিমাণ অনেক বেশি'});
 
             const totalBill = (rQty * rPrice) + (cQty * cPrice) + (pQty * pPrice) + dCharge;
             const totalFactoryCost = (rQty * rFRate) + (cQty * cFRate) + (pQty * pFRate);
+            if(advance > totalBill) return Swal.fire({icon:'warning', title:'অগ্রিম মোট বিলের চেয়ে বেশি হতে পারে না'});
             const id = editId ? parseInt(editId) : Date.now();
             
             const existing = editId ? orders.find(x=>x.id===id) : null;
             const orderData = {
-                id: id, date: date, name, phone, addr, 
+                id: id, date: date, name: cleanName, phone: cleanPhone, addr: (addr||'').trim().slice(0,200), 
                 rQty, rPrice, rFRate, 
                 cQty, cPrice, cFRate, 
                 pQty, pPrice, pFRate, 
@@ -1384,12 +1463,12 @@
                 createdAt: (existing && existing.createdAt) || id
             };
 
-            db.child(id).set(orderData).then(() => {
+            safeFbWrite(db.child(id).set(orderData)).then(() => {
                 Toast.fire({ icon: 'success', title: editId ? 'আপডেট হয়েছে!' : 'সেভ হয়েছে!' });
                 if(editId) resetFormUI();
                 clearForm();
                 clearDesignImage();
-            });
+            }).catch(()=>{});
         }
 
         function renderOrders() {
