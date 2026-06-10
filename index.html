@@ -109,17 +109,35 @@
         /* Minimal Loading Splash */
         #app-splash {
             position: fixed; inset: 0; z-index: 99999;
-            background: #ffffff;
-            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg,#ffffff 0%,#f5f3ff 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap:14px;
             transition: opacity .3s ease, visibility .3s ease;
         }
         #app-splash.splash-hide { opacity: 0; visibility: hidden; pointer-events: none; }
+        #app-splash .splash-logo { width:64px; height:64px; border-radius:18px; object-fit:cover; box-shadow:0 12px 30px -10px rgba(79,70,229,.45); animation: splashPop .5s ease both; }
+        #app-splash .splash-logo-fallback { width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:22px; background:linear-gradient(135deg,#4f46e5,#d946ef); box-shadow:0 12px 30px -10px rgba(79,70,229,.45); animation: splashPop .5s ease both; }
+        #app-splash .splash-name { font-weight:900; font-size:14px; letter-spacing:.15em; text-transform:uppercase; color:#4f46e5; }
+        @keyframes splashPop { from{transform:scale(.6); opacity:0;} to{transform:scale(1); opacity:1;} }
         .splash-spinner {
-            width: 44px; height: 44px; border-radius: 50%;
+            width: 28px; height: 28px; border-radius: 50%;
             border: 3px solid #e5e7eb; border-top-color: #4f46e5;
             animation: splashSpin .8s linear infinite;
         }
         @keyframes splashSpin { to { transform: rotate(360deg); } } 100%{transform:translateX(350%)} }
+
+        /* Pretty Toast (Sweetalert override) */
+        .swal2-toast.nice-toast {
+            border-radius: 18px !important;
+            padding: 14px 18px !important;
+            background: linear-gradient(120deg,#ffffff,#faf5ff) !important;
+            box-shadow: 0 18px 40px -14px rgba(79,70,229,.35), 0 4px 12px rgba(0,0,0,.06) !important;
+            border: 1px solid rgba(79,70,229,.12) !important;
+            animation: niceToastIn .35s cubic-bezier(.2,.9,.3,1.2) both;
+        }
+        .swal2-toast.nice-toast .swal2-title { font-weight: 800 !important; color:#1f2937 !important; font-size: 14px !important; }
+        .swal2-toast.nice-toast .swal2-icon { border-color: transparent !important; }
+        .swal2-toast.nice-toast .swal2-timer-progress-bar { background: linear-gradient(90deg,#4f46e5,#d946ef) !important; }
+        @keyframes niceToastIn { from{transform:translateY(-12px) scale(.96); opacity:0;} to{transform:none; opacity:1;} }
 
 
         body.non-admin .admin-only { display: none !important; }
@@ -148,13 +166,18 @@
 </head>
 <body class="p-2 md:p-6" onload="initApp()">
 
-    <div id="app-splash"><div class="splash-spinner"></div></div>
+    <div id="app-splash">
+        <div id="splash-logo-fallback" class="splash-logo-fallback">ERP</div>
+        <img id="splash-logo" class="splash-logo hidden" src="" alt="Logo">
+        <div id="splash-name" class="splash-name">Smart ERP</div>
+        <div class="splash-spinner"></div>
+    </div>
     <script>
         window.addEventListener('load', function(){
             setTimeout(function(){
                 var s = document.getElementById('app-splash');
                 if(s){ s.classList.add('splash-hide'); setTimeout(()=>s.remove(), 350); }
-            }, 250);
+            }, 600);
         });
     </script>
 
@@ -658,7 +681,7 @@
                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Premium Sports Apparel</p>
                     </div>
                     <div id="invoice-content" class="text-sm space-y-3"></div>
-                    <div id="invoice-design-wrap" class="hidden mt-3"><p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Design</p><img id="invoice-design-img" class="w-full max-h-56 object-contain rounded-lg border border-gray-200"></div>
+                    <div id="invoice-design-wrap" class="hidden mt-3 text-center"><p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Design</p><img id="invoice-design-img" class="mx-auto max-h-28 w-auto object-contain rounded-lg border border-gray-200"></div>
                     <div class="mt-6 pt-4 border-t border-dashed text-center flex flex-col items-center justify-center gap-2">
                         <p id="invoice-terms-display" class="text-[9px] text-gray-500 font-bold italic leading-tight whitespace-pre-line"></p>
                     </div>
@@ -714,7 +737,19 @@
         let currentDesignImg = ''; // base64 for order being edited / new
 
 
-        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2600,
+            timerProgressBar: true,
+            customClass: { popup: 'nice-toast' },
+            showClass: { popup: 'nice-toast' },
+            didOpen: (t) => {
+                t.addEventListener('mouseenter', Swal.stopTimer);
+                t.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
 
         let orders = [];
         let expenses = [];
@@ -894,6 +929,16 @@
                 document.querySelectorAll('.app-logo').forEach(img => { img.src = appSettings.logo; img.classList.remove('hidden'); });
                 document.querySelectorAll('.app-logo-text').forEach(el => el.classList.add('hidden'));
             }
+            // Splash + Home-screen app icon = user's logo
+            try {
+                const sLogo = document.getElementById('splash-logo');
+                const sFall = document.getElementById('splash-logo-fallback');
+                const sName = document.getElementById('splash-name');
+                if(sName) sName.innerText = bName;
+                if(sFall) sFall.innerText = bName.substring(0,2).toUpperCase();
+                if(appSettings.logo && sLogo){ sLogo.src = appSettings.logo; sLogo.classList.remove('hidden'); if(sFall) sFall.classList.add('hidden'); }
+            } catch(e){}
+            updateAppIconFromLogo(bName, tColor, appSettings.logo);
             if(appSettings.qr) {
                 document.querySelectorAll('.app-qr').forEach(img => { img.src = appSettings.qr; img.classList.remove('hidden'); });
                 document.querySelectorAll('.app-qr-text').forEach(el => el.classList.add('hidden'));
@@ -901,6 +946,80 @@
             
             document.getElementById('setting-terms').value = appSettings.terms || "";
             document.getElementById('setting-password').value = ""; 
+        }
+
+        // Build a PNG icon from the user's logo (or initials) and inject it
+        // as the home-screen / apple-touch icon + manifest icon.
+        function _buildIconCanvas(size, logoSrc, bName, color){
+            return new Promise((resolve)=>{
+                const c = document.createElement('canvas');
+                c.width = size; c.height = size;
+                const ctx = c.getContext('2d');
+                // Rounded gradient background
+                const r = size * 0.22;
+                const g = ctx.createLinearGradient(0,0,size,size);
+                g.addColorStop(0, color || '#4f46e5');
+                g.addColorStop(1, '#d946ef');
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.moveTo(r,0); ctx.lineTo(size-r,0); ctx.quadraticCurveTo(size,0,size,r);
+                ctx.lineTo(size,size-r); ctx.quadraticCurveTo(size,size,size-r,size);
+                ctx.lineTo(r,size); ctx.quadraticCurveTo(0,size,0,size-r);
+                ctx.lineTo(0,r); ctx.quadraticCurveTo(0,0,r,0);
+                ctx.closePath(); ctx.fill();
+                const finish = ()=> resolve(c.toDataURL('image/png'));
+                if(logoSrc){
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = ()=>{
+                        const pad = size*0.14;
+                        const iw = size - pad*2;
+                        // contain
+                        const ratio = Math.min(iw/img.width, iw/img.height);
+                        const w = img.width*ratio, h = img.height*ratio;
+                        ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+                        finish();
+                    };
+                    img.onerror = ()=>{ drawText(); finish(); };
+                    img.src = logoSrc;
+                } else { drawText(); finish(); }
+                function drawText(){
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '900 ' + (size*0.42) + 'px system-ui, sans-serif';
+                    ctx.textAlign='center'; ctx.textBaseline='middle';
+                    ctx.fillText((bName||'ERP').substring(0,2).toUpperCase(), size/2, size/2 + size*0.02);
+                }
+            });
+        }
+
+        async function updateAppIconFromLogo(bName, color, logoSrc){
+            try {
+                const icon192 = await _buildIconCanvas(192, logoSrc, bName, color);
+                const icon512 = await _buildIconCanvas(512, logoSrc, bName, color);
+                // apple-touch-icon links
+                document.querySelectorAll('link[rel="apple-touch-icon"]').forEach(l => l.href = icon192);
+                // favicon
+                document.querySelectorAll('link[rel="icon"]').forEach(l => l.href = icon192);
+                // theme color
+                const tc = document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute('content', color || '#4f46e5');
+                // manifest blob
+                const manifest = {
+                    name: bName || 'Smart ERP',
+                    short_name: (bName || 'ERP').substring(0,12),
+                    description: 'Business Management',
+                    start_url: './', scope: './',
+                    display: 'standalone', orientation: 'portrait',
+                    background_color: '#ffffff', theme_color: color || '#4f46e5',
+                    icons: [
+                        { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+                        { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+                    ]
+                };
+                const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+                if(window.__manifestURL) URL.revokeObjectURL(window.__manifestURL);
+                window.__manifestURL = URL.createObjectURL(blob);
+                const ml = document.querySelector('link[rel="manifest"]'); if(ml) ml.href = window.__manifestURL;
+            } catch(e){ console.warn('icon update failed', e); }
         }
         
         function toggleDarkModePreview(cb) {
