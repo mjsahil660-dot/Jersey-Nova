@@ -106,38 +106,62 @@
 
         .chart-container { position: relative; height: 240px; width: 100%; }
 
-        /* Minimal Loading Splash */
+        /* Premium Loading Splash (purple gradient) */
         #app-splash {
             position: fixed; inset: 0; z-index: 99999;
-            background: linear-gradient(135deg,#ffffff 0%,#f5f3ff 100%);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap:14px;
-            transition: opacity .3s ease, visibility .3s ease;
+            background: linear-gradient(135deg,#4f46e5 0%,#7c3aed 50%,#a855f7 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap:22px;
+            transition: opacity .45s ease, visibility .45s ease;
+            overflow: hidden;
         }
+        #app-splash::before, #app-splash::after {
+            content:''; position:absolute; border-radius:50%; filter: blur(60px); opacity:.35;
+        }
+        #app-splash::before { width:320px; height:320px; background:#a78bfa; top:-80px; right:-60px; animation: splashFloat 6s ease-in-out infinite; }
+        #app-splash::after  { width:280px; height:280px; background:#6366f1; bottom:-60px; left:-80px; animation: splashFloat 7s ease-in-out infinite reverse; }
+        @keyframes splashFloat { 50%{transform:translateY(20px) translateX(10px);} }
         #app-splash.splash-hide { opacity: 0; visibility: hidden; pointer-events: none; }
-        #app-splash .splash-logo { width:64px; height:64px; border-radius:18px; object-fit:cover; box-shadow:0 12px 30px -10px rgba(79,70,229,.45); animation: splashPop .5s ease both; }
-        #app-splash .splash-logo-fallback { width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:22px; background:linear-gradient(135deg,#4f46e5,#d946ef); box-shadow:0 12px 30px -10px rgba(79,70,229,.45); animation: splashPop .5s ease both; }
-        #app-splash .splash-name { font-weight:900; font-size:14px; letter-spacing:.15em; text-transform:uppercase; color:#4f46e5; }
-        @keyframes splashPop { from{transform:scale(.6); opacity:0;} to{transform:scale(1); opacity:1;} }
-        .splash-spinner {
-            width: 28px; height: 28px; border-radius: 50%;
-            border: 3px solid #e5e7eb; border-top-color: #4f46e5;
-            animation: splashSpin .8s linear infinite;
+        #app-splash .splash-logo-wrap {
+            width:108px; height:108px; border-radius:28px;
+            background: rgba(255,255,255,.18); backdrop-filter: blur(14px);
+            display:flex; align-items:center; justify-content:center;
+            box-shadow: 0 25px 60px -15px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.3);
+            border: 1px solid rgba(255,255,255,.25);
+            animation: splashPop .7s cubic-bezier(.2,.9,.3,1.3) both;
+            position: relative; z-index: 2;
+            overflow: hidden;
         }
-        @keyframes splashSpin { to { transform: rotate(360deg); } } 100%{transform:translateX(350%)} }
+        #app-splash .splash-logo { width:100%; height:100%; border-radius:28px; object-fit:cover; }
+        #app-splash .splash-logo-fallback { color:#fff; font-weight:900; font-size:38px; letter-spacing:.04em; text-shadow:0 2px 8px rgba(0,0,0,.2); }
+        #app-splash .splash-name { font-weight:900; font-size:24px; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.25); position:relative; z-index:2; margin-top:4px; animation: splashRise .8s ease both .15s; opacity:0; }
+        #app-splash .splash-sub { font-size:12px; color:rgba(255,255,255,.85); font-weight:600; position:relative; z-index:2; animation: splashRise .8s ease both .3s; opacity:0; }
+        #app-splash .splash-bar { width: 200px; height:4px; background: rgba(255,255,255,.18); border-radius:99px; overflow:hidden; position:relative; z-index:2; margin-top:8px; animation: splashRise .8s ease both .45s; opacity:0; }
+        #app-splash .splash-bar > span { display:block; height:100%; width:40%; background: linear-gradient(90deg, rgba(255,255,255,.4), #fff); border-radius:99px; animation: splashBar 1.4s ease-in-out infinite; }
+        @keyframes splashPop { from{transform:scale(.5) rotate(-8deg); opacity:0;} to{transform:scale(1) rotate(0); opacity:1;} }
+        @keyframes splashRise { from{transform:translateY(10px); opacity:0;} to{transform:none; opacity:1;} }
+        @keyframes splashBar { 0%{transform:translateX(-120%);} 100%{transform:translateX(350%);} }
 
-        /* Pretty Toast (Sweetalert override) */
+        /* Premium Toast — matches splash aesthetic */
         .swal2-toast.nice-toast {
-            border-radius: 18px !important;
-            padding: 14px 18px !important;
-            background: linear-gradient(120deg,#ffffff,#faf5ff) !important;
-            box-shadow: 0 18px 40px -14px rgba(79,70,229,.35), 0 4px 12px rgba(0,0,0,.06) !important;
-            border: 1px solid rgba(79,70,229,.12) !important;
-            animation: niceToastIn .35s cubic-bezier(.2,.9,.3,1.2) both;
+            border-radius: 20px !important;
+            padding: 14px 20px 14px 16px !important;
+            background: linear-gradient(120deg,#ffffff,#f5f3ff) !important;
+            box-shadow: 0 24px 50px -18px rgba(124,58,237,.45), 0 6px 20px rgba(79,70,229,.18), 0 1px 0 rgba(255,255,255,.9) inset !important;
+            border: 1px solid rgba(167,139,250,.25) !important;
+            animation: niceToastIn .5s cubic-bezier(.2,.9,.3,1.3) both;
+            position: relative; overflow: hidden;
         }
-        .swal2-toast.nice-toast .swal2-title { font-weight: 800 !important; color:#1f2937 !important; font-size: 14px !important; }
-        .swal2-toast.nice-toast .swal2-icon { border-color: transparent !important; }
-        .swal2-toast.nice-toast .swal2-timer-progress-bar { background: linear-gradient(90deg,#4f46e5,#d946ef) !important; }
-        @keyframes niceToastIn { from{transform:translateY(-12px) scale(.96); opacity:0;} to{transform:none; opacity:1;} }
+        .swal2-toast.nice-toast::before {
+            content:''; position:absolute; inset:0 auto 0 0; width:4px;
+            background: linear-gradient(180deg,#4f46e5,#a855f7,#d946ef);
+        }
+        .swal2-toast.nice-toast .swal2-title { font-weight: 800 !important; color:#1f2937 !important; font-size: 14px !important; padding-left:6px !important; }
+        .swal2-toast.nice-toast .swal2-icon { border-color: transparent !important; margin: 0 8px 0 4px !important; }
+        .swal2-toast.nice-toast .swal2-success-ring { border-color: rgba(79,70,229,.25) !important; }
+        .swal2-toast.nice-toast .swal2-success-line-tip, .swal2-toast.nice-toast .swal2-success-line-long { background: linear-gradient(90deg,#4f46e5,#a855f7) !important; }
+        .swal2-toast.nice-toast .swal2-timer-progress-bar { background: linear-gradient(90deg,#4f46e5,#a855f7,#d946ef) !important; height:3px !important; }
+        @keyframes niceToastIn { from{transform:translateY(-14px) scale(.94); opacity:0;} to{transform:none; opacity:1;} }
+
 
 
         body.non-admin .admin-only { display: none !important; }
@@ -167,26 +191,32 @@
 <body class="p-2 md:p-6" onload="initApp()">
 
     <div id="app-splash">
-        <div id="splash-logo-fallback" class="splash-logo-fallback">ERP</div>
-        <img id="splash-logo" class="splash-logo hidden" src="" alt="Logo">
-        <div id="splash-name" class="splash-name">Smart ERP</div>
-        <div class="splash-spinner"></div>
+        <div class="splash-logo-wrap">
+            <span id="splash-logo-fallback" class="splash-logo-fallback">JN</span>
+            <img id="splash-logo" class="splash-logo hidden" src="" alt="Logo">
+        </div>
+        <div id="splash-name" class="splash-name">Smart ERP Manager</div>
+        <div class="splash-sub">আপনার ব্যবসা প্রস্তুত হচ্ছে…</div>
+        <div class="splash-bar"><span></span></div>
     </div>
     <script>
         window.addEventListener('load', function(){
             setTimeout(function(){
                 var s = document.getElementById('app-splash');
-                if(s){ s.classList.add('splash-hide'); setTimeout(()=>s.remove(), 350); }
-            }, 600);
+                if(s){ s.classList.add('splash-hide'); setTimeout(()=>s.remove(), 450); }
+            }, 1100);
         });
     </script>
+
 
 
     <div id="auth-section" class="max-w-md mx-auto bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-2xl mt-16 border border-white/50">
         <div class="text-center mb-6">
             <div class="logo-container">
+                <img class="app-logo hidden" src="" alt="Logo">
                 <span class="app-logo-text">ERP</span>
             </div>
+
             <h2 id="auth-title" class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-purple-600 uppercase tracking-tighter">সিস্টেমে প্রবেশ করুন</h2>
             <p class="text-purple-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Cloud Manager v7.3</p>
         </div>
@@ -329,6 +359,34 @@
                         <div class="relative z-10 w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-3xl backdrop-blur-sm border border-white/30 group-hover:scale-110 transition-transform"><i class="fas fa-wallet"></i></div>
                     </div>
                 </div>
+
+                <div class="grid grid-cols-3 gap-3 mb-6 no-print">
+                    <div class="bg-white border border-blue-100 p-3 rounded-2xl shadow-sm flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500 text-lg"><i class="fas fa-box"></i></div>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Pending</p>
+                            <p id="stat-pending" class="text-xl font-black text-gray-800 leading-none mt-0.5">0</p>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-emerald-100 p-3 rounded-2xl shadow-sm flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 text-lg"><i class="fas fa-truck"></i></div>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Shipped</p>
+                            <p id="stat-shipped" class="text-xl font-black text-gray-800 leading-none mt-0.5">0</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="showUrgentAlert()" class="text-left bg-white border border-red-100 p-3 rounded-2xl shadow-sm flex items-center gap-3 hover:border-red-300 transition relative">
+                        <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-500 text-lg"><i class="fas fa-exclamation-circle"></i></div>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Urgent</p>
+                            <p id="stat-urgent" class="text-xl font-black text-gray-800 leading-none mt-0.5">0</p>
+                        </div>
+                        <span id="stat-urgent-dot" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full ring-2 ring-white animate-ping"></span>
+                    </button>
+                </div>
+
+
+
 
                 <div class="bg-white/90 backdrop-blur-sm p-6 rounded-3xl shadow-sm mb-8 no-print border border-white/60">
                     <h2 id="form-title" class="text-xl font-bold mb-5 text-indigo-700 flex items-center border-b border-indigo-100 pb-3">🆕 নতুন অর্ডার এন্ট্রি</h2>
@@ -681,7 +739,8 @@
                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Premium Sports Apparel</p>
                     </div>
                     <div id="invoice-content" class="text-sm space-y-3"></div>
-                    <div id="invoice-design-wrap" class="hidden mt-3 text-center"><p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Design</p><img id="invoice-design-img" class="mx-auto max-h-28 w-auto object-contain rounded-lg border border-gray-200"></div>
+                    <div id="invoice-design-wrap" class="hidden"></div>
+
                     <div class="mt-6 pt-4 border-t border-dashed text-center flex flex-col items-center justify-center gap-2">
                         <p id="invoice-terms-display" class="text-[9px] text-gray-500 font-bold italic leading-tight whitespace-pre-line"></p>
                     </div>
@@ -885,7 +944,8 @@
             db.on('value', snap => { 
                 orders = snap.val() ? Object.values(snap.val()).map(o => ({...o, date: normalizeDate(o.date)})) : []; 
                 renderOrders(); renderCRM(); 
-                refreshDelayedBadge(); alertDelayedOnce();
+                refreshDelayedBadge(); alertDelayedOnce(); alertUrgentOnce();
+
                 if(document.getElementById('compare-box') && !document.getElementById('tab-reports').classList.contains('hidden')) renderMonthlyCompare();
             });
             dbExpenses.on('value', snap => { 
@@ -1475,8 +1535,20 @@
             let actualCashProfit = tCashIn - tFactPaid - tOrderExp - tExp;
             
             document.getElementById('total-projected-profit').innerText = "৳ " + projectedProfit;
-            document.getElementById('total-actual-profit').innerText = "৳ " + actualCashProfit; 
+            document.getElementById('total-actual-profit').innerText = "৳ " + actualCashProfit;
+
+            // Pending / Shipped / Urgent quick stats
+            try {
+                const pendingCount = orders.filter(o => o.status === 'Pending').length;
+                const shippedCount = orders.filter(o => o.status === 'Shipped').length;
+                const urgentList   = getUrgentOrders();
+                const sp = document.getElementById('stat-pending');   if(sp) sp.innerText = pendingCount;
+                const ss = document.getElementById('stat-shipped');   if(ss) ss.innerText = shippedCount;
+                const su = document.getElementById('stat-urgent');    if(su) { su.innerText = urgentList.length; su.classList.toggle('text-red-600', urgentList.length>0); }
+                const sd = document.getElementById('stat-urgent-dot');if(sd) sd.classList.toggle('hidden', urgentList.length===0);
+            } catch(e){}
         }
+
 
         function renderPagination(totalPages) {
             const container = document.getElementById('pagination-controls');
@@ -1586,8 +1658,16 @@
 
             document.getElementById('invoice-terms-display').innerText = appSettings.terms || "Thank you for choosing our service!";
 
+            const designThumb = o.designImg
+                ? `<img src="${o.designImg}" class="h-14 w-14 object-cover rounded-lg border border-gray-200 shadow-sm" alt="Design">`
+                : `<span class="inline-block h-14 w-14"></span>`;
+
             document.getElementById('invoice-content').innerHTML = `
-                <div class="flex justify-between text-[9px] text-gray-400 font-bold uppercase"><span>Date: ${o.date}</span> <span>Order ID: #${o.id.toString().slice(-4)}</span></div>
+                <div class="grid grid-cols-3 items-center gap-2 text-[9px] text-gray-400 font-bold uppercase">
+                    <span class="text-left">Date: ${o.date}</span>
+                    <span class="flex justify-center">${designThumb}</span>
+                    <span class="text-right">Order ID: #${o.id.toString().slice(-4)}</span>
+                </div>
                 <div class="mt-4"><p class="font-black text-xl text-indigo-900 leading-tight">${o.name}</p><p class="text-sm font-bold text-gray-600">${o.phone}</p><p class="text-[11px] text-gray-500 mt-1">${o.addr}</p></div>
                 <div class="p-4 rounded-xl mt-4 space-y-2" style="background-color: ${tColor}10;">
                     ${itemsHtml}
@@ -1599,11 +1679,11 @@
                     <span class="text-[9px] font-black uppercase tracking-wider">Cash on Delivery</span><span class="text-2xl font-black">৳ ${getNum(o.due)}</span>
                 </div>
             `;
-            const dwrap = document.getElementById('invoice-design-wrap');
-            const dimg  = document.getElementById('invoice-design-img');
-            if(o.designImg){ dimg.src = o.designImg; dwrap.classList.remove('hidden'); } else { dwrap.classList.add('hidden'); dimg.src=''; }
+            // legacy element hidden — design now shown inline
+            const dwrap = document.getElementById('invoice-design-wrap'); if(dwrap) dwrap.classList.add('hidden');
             document.getElementById('invoice-modal').classList.remove('hidden');
         }
+
 
         async function downloadInvoiceImage() {
             const area = document.getElementById('inv-main-box');
@@ -1940,6 +2020,45 @@
                 });
             }
         }
+
+        // ===== Urgent Orders (combined: shipped delayed + pending older than 5 days) =====
+        function getUrgentOrders(){
+            const now = Date.now();
+            const SHIP_MS = 4 * 24 * 60 * 60 * 1000;
+            const PEND_MS = 5 * 24 * 60 * 60 * 1000;
+            return orders.filter(o => {
+                const t = o.shippedAt || o.createdAt || o.id;
+                if(o.status === 'Shipped' && (now - (o.shippedAt || o.id)) > SHIP_MS) return true;
+                if(o.status === 'Pending' && (now - (o.createdAt || o.id)) > PEND_MS) return true;
+                return false;
+            });
+        }
+        function showUrgentAlert(){
+            const list = getUrgentOrders();
+            if(!list.length){
+                Toast.fire({ icon:'success', title:'কোনো জরুরি অর্ডার নেই ✅' });
+                return;
+            }
+            const rows = list.slice(0,10).map(o => {
+                const days = Math.floor((Date.now() - (o.shippedAt || o.createdAt || o.id)) / 86400000);
+                const tag = o.status === 'Shipped' ? '🚚 Shipped' : '⏳ Pending';
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:10px;background:#fef2f2;margin-bottom:6px;font-size:12px;"><span><b>${o.name}</b> <small style="color:#6b7280">${tag}</small></span><span style="color:#dc2626;font-weight:800">${days}d</span></div>`;
+            }).join('');
+            Swal.fire({
+                icon: 'warning',
+                title: `⚠️ ${list.length} টি জরুরি অর্ডার!`,
+                html: `<div style="text-align:left;max-height:260px;overflow:auto">${rows}</div>`,
+                confirmButtonText: 'ঠিক আছে',
+                confirmButtonColor: '#dc2626'
+            });
+        }
+        let urgentAlertShown = false;
+        function alertUrgentOnce(){
+            if(urgentAlertShown) return;
+            const list = getUrgentOrders();
+            if(list.length){ urgentAlertShown = true; setTimeout(showUrgentAlert, 1200); }
+        }
+
 
         // ===== Status-change WhatsApp popup =====
         function statusMessage(status, o){
