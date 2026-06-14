@@ -2523,8 +2523,13 @@
         function pathaoSaveCfg(c){ localStorage.setItem('pathao_cfg', JSON.stringify(c)); }
         function pathaoApiUrl(path){
             const c = pathaoCfg();
-            const base = (c.proxy && c.proxy.trim()) ? c.proxy.replace(/\/$/,'') : PATHAO_BASE_DEFAULT;
-            return base + path;
+            // Default to a public CORS proxy so it works without setup.
+            const proxy = ((c.proxy||'').trim()) || 'https://corsproxy.io/?';
+            const full = PATHAO_BASE_DEFAULT + path;
+            // Query-style proxy (ends with ? or =): pass full URL encoded
+            if (/[?=]$/.test(proxy)) return proxy + encodeURIComponent(full);
+            // Path-style proxy: prepend to base path
+            return proxy.replace(/\/$/,'') + path;
         }
 
         async function pathaoFetch(path, opts={}){
@@ -2736,16 +2741,32 @@
             });
         }
 
-        // Floating Pathao Settings button
+        // Floating Pathao Settings button — only visible AFTER login
         (function(){
             const btn = document.createElement('button');
+            btn.id = 'pathao-fab';
             btn.innerHTML = '📦 Pathao';
             btn.title = 'Pathao Courier Settings';
             btn.className = 'no-print';
-            btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:12px 18px;border-radius:99px;font-weight:800;box-shadow:0 8px 20px rgba(16,185,129,.4);cursor:pointer;font-size:13px';
+            btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:12px 18px;border-radius:99px;font-weight:800;box-shadow:0 8px 20px rgba(16,185,129,.4);cursor:pointer;font-size:13px;display:none';
             btn.onclick = pathaoOpenSettings;
-            document.addEventListener('DOMContentLoaded', ()=>document.body.appendChild(btn));
-            if (document.readyState!=='loading') document.body.appendChild(btn);
+            const mount = ()=>{
+                document.body.appendChild(btn);
+                // Show only if user is already logged in (app-wrapper visible)
+                const sync = ()=>{
+                    const app = document.getElementById('app-wrapper');
+                    const loggedIn = app && !app.classList.contains('hidden');
+                    btn.style.display = loggedIn ? 'inline-block' : 'none';
+                };
+                sync();
+                // Re-check whenever auth state could change
+                const app = document.getElementById('app-wrapper');
+                if (app && window.MutationObserver){
+                    new MutationObserver(sync).observe(app, {attributes:true, attributeFilter:['class']});
+                }
+            };
+            if (document.readyState!=='loading') mount();
+            else document.addEventListener('DOMContentLoaded', mount);
         })();
         // ==================== END PATHAO INTEGRATION ====================
 
