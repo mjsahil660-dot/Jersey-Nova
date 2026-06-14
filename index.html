@@ -2544,6 +2544,10 @@
         const PATHAO_CLIENT_ID = "KQe1Yg0eJY";
         const PATHAO_CLIENT_SECRET = "9ddnCSz48Cza3Ao2fkfwI4EFfnXDg24dqiAqZr0g";
         const PATHAO_BASE = "https://api-hermes.pathao.com";
+        // Pathao API has no CORS headers — browser blocks direct calls ("Failed to fetch").
+        // Route every request through a CORS proxy. corsproxy.io supports POST + JSON + custom headers.
+        const PATHAO_CORS_PROXY = "https://corsproxy.io/?url=";
+        function pathaoUrl(path){ return PATHAO_CORS_PROXY + encodeURIComponent(PATHAO_BASE + path); }
 
         function pathaoCfg(){ return (appSettings && appSettings.pathao) || {}; }
         function pathaoTokenKey(){ return 'pathao_tok_' + (currentUserId||'_'); }
@@ -2582,7 +2586,7 @@
                 const tok = await pathaoEnsureToken();
                 headers['Authorization'] = 'Bearer ' + tok;
             }
-            const res = await fetch(PATHAO_BASE + path, { ...opts, headers });
+            const res = await fetch(pathaoUrl(path), { ...opts, headers });
             const text = await res.text();
             let data; try { data = JSON.parse(text); } catch { data = { raw:text }; }
             if(!res.ok){
@@ -2599,7 +2603,7 @@
                 client_id: PATHAO_CLIENT_ID, client_secret: PATHAO_CLIENT_SECRET,
                 username: c.email, password: c.password, grant_type: 'password'
             };
-            const res = await fetch(PATHAO_BASE + '/aladdin/api/v1/issue-token', {
+            const res = await fetch(pathaoUrl('/aladdin/api/v1/issue-token'), {
                 method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
                 body: JSON.stringify(body)
             });
