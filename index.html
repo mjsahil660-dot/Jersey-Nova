@@ -759,39 +759,6 @@
                     </div>
                 </div>
 
-
-                <div class="bg-gradient-to-r from-pink-50 to-orange-50 p-4 rounded-xl border border-pink-200">
-                    <label class="block text-sm font-bold text-pink-700 mb-3 flex items-center gap-2">
-                        <i class="fas fa-truck-fast"></i> Pathao Courier সেটিংস (এক-ক্লিক বুকিং)
-                    </label>
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <input type="text" id="pathao-username" placeholder="Merchant Email" class="p-2 border border-pink-200 rounded-lg text-sm bg-white">
-                        <input type="password" id="pathao-password" placeholder="Merchant Password" class="p-2 border border-pink-200 rounded-lg text-sm bg-white">
-                        <select id="pathao-env" class="p-2 border border-pink-200 rounded-lg text-sm bg-white font-bold">
-                            <option value="live">Live (Production)</option>
-                            <option value="sandbox">Sandbox (Test)</option>
-                        </select>
-                        <button onclick="connectPathao()" class="bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-orange-600 transition"><i class="fas fa-plug"></i> সহজে কানেক্ট করুন</button>
-                        <select id="pathao-store-id" class="p-2 border border-pink-200 rounded-lg text-sm bg-white col-span-2">
-                            <option value="">আগে কানেক্ট করুন—তারপর Store বাছুন</option>
-                        </select>
-                        <div id="pathao-store-location" class="hidden col-span-2 p-3 rounded-xl border border-pink-100 bg-white text-xs text-gray-700"></div>
-                        <select id="pathao-default-city" class="p-2 border border-pink-200 rounded-lg text-sm bg-white">
-                            <option value="">ডিফল্ট City (লোড করুন)</option>
-                        </select>
-                        <select id="pathao-default-zone" class="p-2 border border-pink-200 rounded-lg text-sm bg-white">
-                            <option value="">ডিফল্ট Zone</option>
-                        </select>
-                        <select id="pathao-default-area" class="p-2 border border-pink-200 rounded-lg text-sm bg-white col-span-2">
-                            <option value="">ডিফল্ট Area (optional)</option>
-                        </select>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2">
-                        <button onclick="savePathaoSettings()" class="bg-pink-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-pink-700 transition"><i class="fas fa-save"></i> Store ও Location সেভ করুন</button>
-                    </div>
-                    <p class="text-[10px] text-gray-600 mt-2 leading-relaxed">⚡ শুধু Pathao Merchant Email ও Password দিয়ে কানেক্ট করুন। Pathao-তে Store তৈরির সময় যে pickup location দিয়েছিলেন সেটি নামসহ এখানে দেখা যাবে—কোনো ID বা Proxy URL লাগবে না।</p>
-                </div>
-
                 <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
                     <label class="block text-sm font-bold text-indigo-700 mb-2">ইনভয়েস টার্মস / মেসেজ</label>
                     <textarea id="setting-terms" rows="3" placeholder="যেমন: Exchange within 3 days..." class="w-full p-3 border border-blue-200 rounded-xl outline-none focus:border-blue-500 text-sm mb-2 bg-white"></textarea>
@@ -1286,8 +1253,7 @@
             document.getElementById('sidebar-overlay').classList.toggle('hidden');
         }
 
-        function openSettings() {
-            try{ loadPathaoSettingsToUI(); }catch(e){} toggleSidebar(); document.getElementById('settings-modal').classList.remove('hidden'); }
+        function openSettings() { toggleSidebar(); document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); applyThemeAndSettings(); /* revert if not saved */ }
 
         function switchTab(tabId) {
@@ -1482,278 +1448,6 @@
             document.getElementById('display-profit').innerText = profit;
         }
 
-
-        // ========================= PATHAO COURIER INTEGRATION =========================
-        // অর্ডার তৈরি করলে অটো বুকিং হয় না — শুধু "📦 পাঠাও" বাটনে ক্লিক করলে এক-ক্লিকে বুকিং হয়।
-        const PATHAO_API = '/api/pathao';
-
-        function pathaoCfg(){
-            return (appSettings && appSettings.pathao) || {};
-        }
-        function loadPathaoSettingsToUI(){
-            const cfg = pathaoCfg();
-            const map = {
-                'pathao-username': cfg.username || '',
-                'pathao-password': cfg.password || '',
-                'pathao-env': cfg.env || 'live'
-            };
-            Object.keys(map).forEach(k => { const el = document.getElementById(k); if(el) el.value = map[k]; });
-            // Seed selects with saved values so they appear before list load
-            const seed = (id, val, label) => {
-                const el = document.getElementById(id);
-                if(!el || val===''||val==null) return;
-                if(!Array.from(el.options).some(o => String(o.value) === String(val))){
-                    const opt = document.createElement('option');
-                    opt.value = val; opt.textContent = label || ('ID: '+val);
-                    el.appendChild(opt);
-                }
-                el.value = val;
-            };
-            seed('pathao-store-id', cfg.storeId, cfg.storeName || null);
-            seed('pathao-default-city', cfg.defaultCity, cfg.defaultCityName);
-            seed('pathao-default-zone', cfg.defaultZone, cfg.defaultZoneName);
-            seed('pathao-default-area', cfg.defaultArea, cfg.defaultAreaName);
-            // Wire change cascades
-            const cityEl = document.getElementById('pathao-default-city');
-            if(cityEl && !cityEl._wired){ cityEl._wired = true; cityEl.addEventListener('change', () => loadPathaoZones(cityEl.value, 'pathao-default-zone')); }
-            const zoneEl = document.getElementById('pathao-default-zone');
-            if(zoneEl && !zoneEl._wired){ zoneEl._wired = true; zoneEl.addEventListener('change', () => loadPathaoAreas(zoneEl.value, 'pathao-default-area')); }
-            const storeEl = document.getElementById('pathao-store-id');
-            if(storeEl && !storeEl._wired){ storeEl._wired = true; storeEl.addEventListener('change', showSelectedStoreLocation); }
-            if(cfg.storeAddress) showStoreLocation(cfg.storeName, cfg.storeAddress);
-        }
-
-        function savePathaoSettings(){
-            const selText = id => { const el=document.getElementById(id); return el && el.selectedIndex>=0 ? (el.options[el.selectedIndex]||{}).textContent || '' : ''; };
-            const cfg = {
-                username: document.getElementById('pathao-username').value.trim(),
-                password: document.getElementById('pathao-password').value,
-                storeId: document.getElementById('pathao-store-id').value.trim(),
-                storeName: selText('pathao-store-id'),
-                storeAddress: (document.getElementById('pathao-store-id').selectedOptions[0] || {}).dataset?.address || '',
-                env: document.getElementById('pathao-env').value,
-                defaultCity: getNum(document.getElementById('pathao-default-city').value),
-                defaultCityName: selText('pathao-default-city'),
-                defaultZone: getNum(document.getElementById('pathao-default-zone').value),
-                defaultZoneName: selText('pathao-default-zone'),
-                defaultArea: getNum(document.getElementById('pathao-default-area').value),
-                defaultAreaName: selText('pathao-default-area')
-            };
-            appSettings.pathao = cfg;
-            if(dbSettings){
-                safeFbWrite(dbSettings.set(appSettings)).then(()=>{
-                    Toast.fire({icon:'success', title:'Pathao সেটিংস সেভ হয়েছে'});
-                }).catch(()=>{ Toast.fire({icon:'error', title:'সেভ ব্যর্থ'}); });
-            } else {
-                Toast.fire({icon:'success', title:'সেভ হয়েছে'});
-            }
-        }
-
-        async function pathaoCall(action, extra){
-            const cfg = pathaoCfg();
-            const username = document.getElementById('pathao-username')?.value.trim() || cfg.username;
-            const password = document.getElementById('pathao-password')?.value || cfg.password;
-            const env = document.getElementById('pathao-env')?.value || cfg.env || 'live';
-            if(!username || !password){
-                throw new Error('Pathao Merchant Email ও Password লিখুন।');
-            }
-            const res = await fetch(PATHAO_API, {
-                method:'POST',
-                headers:{'Content-Type':'application/json','Accept':'application/json'},
-                body: JSON.stringify(Object.assign({ action, email:username, password, env }, extra || {}))
-            });
-            const data = await res.json().catch(()=>({}));
-            if(!res.ok) throw new Error(data.error || 'Pathao-এর সাথে কানেক্ট করা যায়নি।');
-            return data;
-        }
-
-        async function connectPathao(){
-            try{
-                Swal.fire({title:'Pathao কানেক্ট হচ্ছে...', didOpen:()=>Swal.showLoading(), allowOutsideClick:false});
-                const data = await pathaoCall('connect');
-                fillPathaoStores(data.stores);
-                fillPathaoCities(data.cities, 'pathao-default-city');
-                savePathaoSettings();
-                Swal.fire({icon:'success', title:'কানেকশন সফল!', text:'এখন নাম দেখে Store ও Location বাছুন।'});
-            } catch(e){
-                Swal.fire({icon:'error', title:'কানেকশন ব্যর্থ', text: e.message});
-            }
-        }
-
-        // ===== Pathao list loaders (auto-populate Store/City/Zone/Area) =====
-        function fillSelect(selectId, items, valKey, labelKey, placeholder, keepVal){
-            const el = document.getElementById(selectId);
-            if(!el) return;
-            const prev = keepVal != null ? keepVal : el.value;
-            el.innerHTML = '';
-            const ph = document.createElement('option'); ph.value = ''; ph.textContent = placeholder; el.appendChild(ph);
-            (items||[]).forEach(it => {
-                const opt = document.createElement('option');
-                opt.value = it[valKey];
-                opt.textContent = it[labelKey];
-                if(it.address) opt.dataset.address = it.address;
-                el.appendChild(opt);
-            });
-            if(prev && Array.from(el.options).some(o=>String(o.value)===String(prev))) el.value = prev;
-        }
-        function fillPathaoStores(d){
-            const data = (d && d.data && (d.data.data || d.data)) || [];
-            const items = Array.isArray(data) ? data : [];
-            fillSelect('pathao-store-id', items.map(s => ({id:s.store_id||s.id, name:s.store_name||s.name||'Store', address:s.store_address||s.address||'Pathao-তে ঠিকানা দেওয়া নেই'})), 'id', 'name', 'Store সিলেক্ট করুন');
-        }
-        function fillPathaoCities(d, targetId){
-            targetId = targetId || 'pathao-default-city';
-            const items = ((d && d.data && (d.data.data || d.data)) || []).map(c => ({id:c.city_id||c.id, name:c.city_name||c.name}));
-            fillSelect(targetId, items, 'id', 'name', 'City সিলেক্ট করুন');
-        }
-        async function loadPathaoCities(targetId){
-            const d = await pathaoCall('connect');
-            fillPathaoCities(d.cities, targetId);
-        }
-        async function loadPathaoZones(cityId, targetId){
-            targetId = targetId || 'pathao-default-zone';
-            if(!cityId){ fillSelect(targetId, [], 'id','name','Zone সিলেক্ট করুন'); return; }
-            const d = await pathaoCall('zones', {cityId:Number(cityId)});
-            const items = ((d && d.data && (d.data.data || d.data)) || []).map(z => ({id:z.zone_id||z.id, name:z.zone_name||z.name}));
-            fillSelect(targetId, items, 'id', 'name', 'Zone সিলেক্ট করুন');
-        }
-        async function loadPathaoAreas(zoneId, targetId){
-            targetId = targetId || 'pathao-default-area';
-            if(!zoneId){ fillSelect(targetId, [], 'id','name','Area সিলেক্ট করুন (optional)'); return; }
-            const d = await pathaoCall('areas', {zoneId:Number(zoneId)});
-            const items = ((d && d.data && (d.data.data || d.data)) || []).map(a => ({id:a.area_id||a.id, name:a.area_name||a.name}));
-            fillSelect(targetId, items, 'id', 'name', 'Area সিলেক্ট করুন (optional)');
-        }
-        async function loadPathaoLists(){
-            return connectPathao();
-        }
-        function showStoreLocation(name, address){
-            const box = document.getElementById('pathao-store-location');
-            if(!box) return;
-            box.classList.remove('hidden');
-            box.innerHTML = '<b>📍 '+(name||'Pickup Location')+'</b><br>'+(address||'Pathao-তে ঠিকানা দেওয়া নেই')+'<br><span class="text-gray-500">এটি Pathao-তে Store তৈরির সময় দেওয়া location।</span>';
-        }
-        function showSelectedStoreLocation(){
-            const el = document.getElementById('pathao-store-id');
-            const opt = el && el.selectedOptions ? el.selectedOptions[0] : null;
-            if(opt && opt.value) showStoreLocation(opt.textContent, opt.dataset.address);
-        }
-
-        async function bookPathaoOrder(orderId){
-            const o = orders.find(x => x.id === orderId);
-            if(!o){ Swal.fire({icon:'error', title:'অর্ডার পাওয়া যায়নি'}); return; }
-            if(o.pathaoConsignmentId){
-                const r = await Swal.fire({
-                    icon:'info', title:'ইতিমধ্যে বুক করা হয়েছে',
-                    html:`Consignment ID: <b>${o.pathaoConsignmentId}</b><br>Tracking: <b>${o.pathaoTrackingCode||'-'}</b>`,
-                    showCancelButton:true, confirmButtonText:'আবার বুক করুন', cancelButtonText:'বন্ধ করুন'
-                });
-                if(!r.isConfirmed) return;
-            }
-            const cfg = pathaoCfg();
-            if(!cfg.storeId){ Swal.fire({icon:'warning', title:'Settings থেকে একটি Store বেছে নিন'}); return; }
-
-            // Confirm city/zone with prefill from defaults
-            const totalItems = getNum(o.rQty) + getNum(o.cQty) + getNum(o.pQty) + getNum(o.qty);
-            const amountToCollect = getNum(o.due);
-            const itemDesc = `${getNum(o.rQty)?o.rQty+'x Round ':''}${getNum(o.cQty)?o.cQty+'x Collar ':''}${getNum(o.pQty)?o.pQty+'x Pant':''}`.trim() || 'Jersey';
-
-            const { value: formValues } = await Swal.fire({
-                title: '📦 Pathao বুকিং কনফার্ম',
-                html: `
-                    <div style="text-align:left;font-size:13px">
-                        <p><b>${o.name}</b> — ${o.phone}</p>
-                        <p style="color:#64748b">${o.addr||''}</p>
-                        <hr style="margin:8px 0">
-                        <label>City</label>
-                        <select id="sw-city" class="swal2-input"><option value="${cfg.defaultCity||''}">${cfg.defaultCityName||'লোড হচ্ছে...'}</option></select>
-                        <label>Zone</label>
-                        <select id="sw-zone" class="swal2-input"><option value="${cfg.defaultZone||''}">${cfg.defaultZoneName||'-'}</option></select>
-                        <label>Area (optional)</label>
-                        <select id="sw-area" class="swal2-input"><option value="${cfg.defaultArea||''}">${cfg.defaultAreaName||'-'}</option></select>
-                        <label>Collect Amount (COD)</label>
-                        <input id="sw-amount" class="swal2-input" value="${amountToCollect}">
-                        <label>Item Description</label>
-                        <input id="sw-desc" class="swal2-input" value="${itemDesc}">
-                        <label>Delivery Type</label>
-                        <select id="sw-dtype" class="swal2-input">
-                            <option value="48">Normal (48h)</option>
-                            <option value="12">Express (12h)</option>
-                        </select>
-                    </div>
-                `,
-                focusConfirm:false, showCancelButton:true,
-                confirmButtonText:'✅ বুকিং দিন', cancelButtonText:'বাতিল',
-                confirmButtonColor:'#ec4899',
-                didOpen: async () => {
-                    try{
-                        await loadPathaoCities('sw-city');
-                        if(cfg.defaultCity){ document.getElementById('sw-city').value = cfg.defaultCity; await loadPathaoZones(cfg.defaultCity, 'sw-zone'); }
-                        if(cfg.defaultZone){ document.getElementById('sw-zone').value = cfg.defaultZone; await loadPathaoAreas(cfg.defaultZone, 'sw-area'); }
-                        if(cfg.defaultArea){ document.getElementById('sw-area').value = cfg.defaultArea; }
-                        document.getElementById('sw-city').addEventListener('change', e => loadPathaoZones(e.target.value, 'sw-zone'));
-                        document.getElementById('sw-zone').addEventListener('change', e => loadPathaoAreas(e.target.value, 'sw-area'));
-                    }catch(err){ console.warn('Pathao list load failed', err); }
-                },
-                preConfirm: () => ({
-                    city: getNum(document.getElementById('sw-city').value),
-                    zone: getNum(document.getElementById('sw-zone').value),
-                    area: getNum(document.getElementById('sw-area').value),
-                    amount: getNum(document.getElementById('sw-amount').value),
-                    desc: document.getElementById('sw-desc').value,
-                    dtype: getNum(document.getElementById('sw-dtype').value)
-                })
-            });
-            if(!formValues) return;
-            if(!formValues.city || !formValues.zone){
-                Swal.fire({icon:'warning', title:'City ও Zone বেছে নিন'});
-                return;
-            }
-
-            try{
-                Swal.fire({title:'বুকিং হচ্ছে...', didOpen:()=>Swal.showLoading(), allowOutsideClick:false});
-                const payload = {
-                    store_id: Number(cfg.storeId),
-                    merchant_order_id: String(o.id),
-                    recipient_name: o.name,
-                    recipient_phone: o.phone,
-                    recipient_address: o.addr || 'N/A',
-                    recipient_city: formValues.city,
-                    recipient_zone: formValues.zone,
-                    delivery_type: formValues.dtype || 48,
-                    item_type: 2, // Parcel
-                    item_quantity: totalItems || 1,
-                    item_weight: Math.max(0.5, totalItems * 0.3),
-                    amount_to_collect: formValues.amount,
-                    item_description: formValues.desc || 'Jersey'
-                };
-                if(formValues.area) payload.recipient_area = formValues.area;
-
-                const data = await pathaoCall('book', {order:payload});
-                const d = data.data || data;
-                const consignmentId = d.consignment_id || d.consignmentId || '';
-                const trackingCode = d.merchant_order_id || d.tracking_code || consignmentId;
-                // Save back to order
-                o.pathaoConsignmentId = consignmentId;
-                o.pathaoTrackingCode = trackingCode;
-                o.pathaoBookedAt = Date.now();
-                if(o.status === 'Ready' || o.status === 'Pending') o.status = 'Shipped';
-                o.shippedAt = o.shippedAt || Date.now();
-                await safeFbWrite(db.child(o.id).update({
-                    pathaoConsignmentId: consignmentId,
-                    pathaoTrackingCode: trackingCode,
-                    pathaoBookedAt: o.pathaoBookedAt,
-                    status: o.status,
-                    shippedAt: o.shippedAt
-                }));
-                Swal.fire({icon:'success', title:'বুকিং সফল! 🎉',
-                    html:`Consignment ID: <b>${consignmentId}</b><br>Tracking: <b>${trackingCode}</b>`});
-            } catch(e){
-                Swal.fire({icon:'error', title:'বুকিং ব্যর্থ', text: e.message});
-            }
-        }
-        // ====================== END PATHAO INTEGRATION =========================
-
         function saveOrder() {
             const editId = document.getElementById('edit-id').value;
             const date = document.getElementById('order-date').value || new Date().toISOString().split('T')[0];
@@ -1943,7 +1637,7 @@
                             <div class="flex items-center justify-center space-x-3">
                                 <button onclick="sendWhatsAppMsg(${o.id})" class="text-xl" title="WhatsApp">💬</button>
                                 <button onclick="openInvoice(${o.id})" class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase hover:bg-indigo-200">ইনভয়েস</button>
-                                <button onclick="bookPathaoOrder(${o.id})" class="${o.pathaoConsignmentId ? 'bg-emerald-500' : 'bg-pink-500 hover:bg-pink-600'} text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase shadow-sm" title="${o.pathaoConsignmentId ? 'Pathao এ বুকড: ' + o.pathaoConsignmentId : 'Pathao তে বুকিং দিন'}">${o.pathaoConsignmentId ? '✓ পাঠাও' : '📦 পাঠাও'}</button>
+                                 <button onclick="pathaoBookOrder(${o.id})" class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase hover:bg-emerald-200" title="Pathao Courier Booking">📦 Pathao</button>
                                 <button onclick="editOrder(${o.id})" class="text-gray-400 hover:text-indigo-600">✏️</button>
                                 <button onclick="deleteOrder(${o.id})" class="text-gray-200 hover:text-red-500">✕</button>
                             </div>
@@ -2813,6 +2507,247 @@
             `;
             document.head.appendChild(style);
         })();
+
+
+
+        // ==================== PATHAO COURIER INTEGRATION ====================
+        // Direct browser -> Pathao Merchant API. Credentials saved in localStorage.
+        // NOTE: If Pathao API blocks browser CORS, set a proxy URL in settings.
+        const PATHAO_DEFAULT_CLIENT_ID = "KQe1Yg0eJY";
+        const PATHAO_DEFAULT_CLIENT_SECRET = "9ddnCSz48Cza3Ao2fkfwI4EFfnXDg24dqiAqZr0g";
+        const PATHAO_BASE_DEFAULT = "https://api-hermes.pathao.com";
+
+        function pathaoCfg(){
+            try { return JSON.parse(localStorage.getItem('pathao_cfg')||'{}'); } catch(e){ return {}; }
+        }
+        function pathaoSaveCfg(c){ localStorage.setItem('pathao_cfg', JSON.stringify(c)); }
+        function pathaoApiUrl(path){
+            const c = pathaoCfg();
+            const base = (c.proxy && c.proxy.trim()) ? c.proxy.replace(/\/$/,'') : PATHAO_BASE_DEFAULT;
+            return base + path;
+        }
+
+        async function pathaoFetch(path, opts={}){
+            const url = pathaoApiUrl(path);
+            opts.headers = Object.assign({ 'Content-Type':'application/json','Accept':'application/json' }, opts.headers||{});
+            const r = await fetch(url, opts);
+            const txt = await r.text();
+            let data; try { data = JSON.parse(txt); } catch(e){ data = { raw: txt }; }
+            if (!r.ok) {
+                const msg = (data && (data.message || data.errors && JSON.stringify(data.errors))) || ('HTTP '+r.status);
+                throw new Error(msg);
+            }
+            return data;
+        }
+
+        async function pathaoGetToken(force=false){
+            const c = pathaoCfg();
+            if (!c.email || !c.password) throw new Error('Pathao ইমেইল/পাসওয়ার্ড সেট করা নেই। সেটিংসে যান।');
+            const now = Date.now();
+            if (!force && c.access_token && c.expires_at && now < c.expires_at - 60000) return c.access_token;
+            // try refresh
+            if (!force && c.refresh_token){
+                try {
+                    const d = await pathaoFetch('/aladdin/api/v1/issue-token', { method:'POST', body: JSON.stringify({
+                        client_id: c.client_id || PATHAO_DEFAULT_CLIENT_ID,
+                        client_secret: c.client_secret || PATHAO_DEFAULT_CLIENT_SECRET,
+                        refresh_token: c.refresh_token,
+                        grant_type: 'refresh_token'
+                    })});
+                    c.access_token = d.access_token; c.refresh_token = d.refresh_token || c.refresh_token;
+                    c.expires_at = now + (d.expires_in ? d.expires_in*1000 : 3600*1000);
+                    pathaoSaveCfg(c);
+                    return c.access_token;
+                } catch(e){ /* fall through to password grant */ }
+            }
+            const d = await pathaoFetch('/aladdin/api/v1/issue-token', { method:'POST', body: JSON.stringify({
+                client_id: c.client_id || PATHAO_DEFAULT_CLIENT_ID,
+                client_secret: c.client_secret || PATHAO_DEFAULT_CLIENT_SECRET,
+                username: c.email, password: c.password, grant_type: 'password'
+            })});
+            c.access_token = d.access_token; c.refresh_token = d.refresh_token;
+            c.expires_at = now + (d.expires_in ? d.expires_in*1000 : 3600*1000);
+            pathaoSaveCfg(c);
+            return c.access_token;
+        }
+
+        async function pathaoAuthFetch(path, opts={}){
+            const tok = await pathaoGetToken();
+            opts.headers = Object.assign({ 'Authorization': 'Bearer '+tok }, opts.headers||{});
+            try { return await pathaoFetch(path, opts); }
+            catch(e){
+                if (/401|unauth/i.test(e.message)){
+                    const tok2 = await pathaoGetToken(true);
+                    opts.headers['Authorization'] = 'Bearer '+tok2;
+                    return await pathaoFetch(path, opts);
+                }
+                throw e;
+            }
+        }
+
+        async function pathaoLoadStores(){ const d = await pathaoAuthFetch('/aladdin/api/v1/stores'); return (d && d.data && (d.data.data||d.data)) || []; }
+        async function pathaoLoadCities(){ const d = await pathaoAuthFetch('/aladdin/api/v1/city-list'); return (d && d.data && (d.data.data||d.data)) || []; }
+        async function pathaoLoadZones(cityId){ const d = await pathaoAuthFetch('/aladdin/api/v1/cities/'+cityId+'/zone-list'); return (d && d.data && (d.data.data||d.data)) || []; }
+        async function pathaoLoadAreas(zoneId){ const d = await pathaoAuthFetch('/aladdin/api/v1/zones/'+zoneId+'/area-list'); return (d && d.data && (d.data.data||d.data)) || []; }
+
+        function pathaoOpenSettings(){
+            const c = pathaoCfg();
+            const html = `
+                <div style="text-align:left;font-size:13px">
+                  <label class="font-bold">Pathao Email</label>
+                  <input id="pt-email" class="swal2-input" placeholder="merchant email" value="${c.email||''}">
+                  <label class="font-bold">Pathao Password</label>
+                  <input id="pt-pass" type="password" class="swal2-input" placeholder="password" value="${c.password||''}">
+                  <label class="font-bold mt-2">Client ID</label>
+                  <input id="pt-cid" class="swal2-input" value="${c.client_id||PATHAO_DEFAULT_CLIENT_ID}">
+                  <label class="font-bold">Client Secret</label>
+                  <input id="pt-cs" class="swal2-input" value="${c.client_secret||PATHAO_DEFAULT_CLIENT_SECRET}">
+                  <label class="font-bold">CORS Proxy (optional, খালি রাখুন)</label>
+                  <input id="pt-proxy" class="swal2-input" placeholder="https://your-proxy/" value="${c.proxy||''}">
+                  <div style="font-size:11px;color:#64748b;margin-top:6px">ব্রাউজার থেকে সরাসরি Pathao API কল করতে CORS বাধা দিতে পারে। সমস্যা হলে নিজের সার্ভার/প্রক্সি URL দিন।</div>
+                </div>`;
+            Swal.fire({
+                title:'📦 Pathao Connect',
+                html, width:520, showCancelButton:true,
+                confirmButtonText:'কানেক্ট ও সেভ', cancelButtonText:'বাতিল',
+                focusConfirm:false,
+                preConfirm: async () => {
+                    const cfg = {
+                        email: document.getElementById('pt-email').value.trim(),
+                        password: document.getElementById('pt-pass').value,
+                        client_id: document.getElementById('pt-cid').value.trim() || PATHAO_DEFAULT_CLIENT_ID,
+                        client_secret: document.getElementById('pt-cs').value.trim() || PATHAO_DEFAULT_CLIENT_SECRET,
+                        proxy: document.getElementById('pt-proxy').value.trim()
+                    };
+                    if (!cfg.email || !cfg.password){ Swal.showValidationMessage('ইমেইল ও পাসওয়ার্ড দিন'); return false; }
+                    pathaoSaveCfg(cfg);
+                    try { await pathaoGetToken(true); }
+                    catch(e){ Swal.showValidationMessage('কানেক্ট ব্যর্থ: '+e.message); return false; }
+                    return true;
+                }
+            }).then(r=>{ if(r.isConfirmed) Swal.fire({icon:'success',title:'Pathao কানেক্টেড!',timer:1500,showConfirmButton:false}); });
+        }
+
+        async function pathaoBookOrder(orderId){
+            const o = orders.find(x=>x.id===orderId);
+            if (!o) return;
+            const c = pathaoCfg();
+            if (!c.email || !c.password){
+                Swal.fire({icon:'info',title:'Pathao সেট করুন',text:'আগে Pathao ইমেইল ও পাসওয়ার্ড দিয়ে কানেক্ট করুন।',confirmButtonText:'Pathao Settings'})
+                    .then(()=>pathaoOpenSettings());
+                return;
+            }
+            Swal.fire({title:'Pathao লোড হচ্ছে...',didOpen:()=>Swal.showLoading(),allowOutsideClick:false});
+            let stores=[], cities=[];
+            try { [stores, cities] = await Promise.all([pathaoLoadStores(), pathaoLoadCities()]); }
+            catch(e){ Swal.fire({icon:'error',title:'লোড ব্যর্থ',text:e.message}); return; }
+            Swal.close();
+            const storeOpts = stores.map(s=>`<option value="${s.store_id||s.id}">${s.store_name||s.name}</option>`).join('');
+            const cityOpts = ['<option value="">— City —</option>'].concat(cities.map(c=>`<option value="${c.city_id||c.id}">${c.city_name||c.name}</option>`)).join('');
+            const totalQty = (parseInt(o.roundQty)||0)+(parseInt(o.collarQty)||0)+(parseInt(o.poloQty)||0);
+            const due = parseInt(o.due)||0;
+            const html = `
+              <div style="text-align:left;font-size:13px">
+                <div><b>কাস্টমার:</b> ${o.name} — ${o.phone}</div>
+                <div style="margin-bottom:6px"><b>ঠিকানা:</b> ${o.address||''}</div>
+                <label class="font-bold">Store</label>
+                <select id="pb-store" class="swal2-input">${storeOpts}</select>
+                <label class="font-bold">City</label>
+                <select id="pb-city" class="swal2-input">${cityOpts}</select>
+                <label class="font-bold">Zone</label>
+                <select id="pb-zone" class="swal2-input"><option value="">— Zone —</option></select>
+                <label class="font-bold">Area</label>
+                <select id="pb-area" class="swal2-input"><option value="">— Area —</option></select>
+                <label class="font-bold">Recipient Address</label>
+                <input id="pb-addr" class="swal2-input" value="${(o.address||'').replace(/"/g,'&quot;')}">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+                  <div><label class="font-bold">Qty</label><input id="pb-qty" class="swal2-input" type="number" value="${totalQty||1}"></div>
+                  <div><label class="font-bold">Weight(kg)</label><input id="pb-wt" class="swal2-input" type="number" step="0.1" value="0.5"></div>
+                  <div><label class="font-bold">COD ৳</label><input id="pb-cod" class="swal2-input" type="number" value="${due}"></div>
+                </div>
+                <label class="font-bold">Description</label>
+                <input id="pb-desc" class="swal2-input" value="T-shirt order #${o.id}">
+                <label class="font-bold">Special Instruction</label>
+                <input id="pb-ins" class="swal2-input" value="">
+                <label class="font-bold">Delivery Type</label>
+                <select id="pb-dt" class="swal2-input"><option value="48">Normal (48h)</option><option value="12">Express (12h)</option></select>
+              </div>`;
+            Swal.fire({
+                title:'📦 Pathao Booking — Order #'+o.id, html, width:560,
+                showCancelButton:true, confirmButtonText:'এক ক্লিকে বুক করুন', cancelButtonText:'বাতিল',
+                didOpen: () => {
+                    const cityEl=document.getElementById('pb-city'),zoneEl=document.getElementById('pb-zone'),areaEl=document.getElementById('pb-area');
+                    cityEl.addEventListener('change', async ()=>{
+                        zoneEl.innerHTML='<option>লোড হচ্ছে...</option>'; areaEl.innerHTML='<option value="">— Area —</option>';
+                        if(!cityEl.value){ zoneEl.innerHTML='<option value="">— Zone —</option>'; return; }
+                        try { const zs = await pathaoLoadZones(cityEl.value);
+                            zoneEl.innerHTML = '<option value="">— Zone —</option>'+zs.map(z=>`<option value="${z.zone_id||z.id}">${z.zone_name||z.name}</option>`).join('');
+                        } catch(e){ zoneEl.innerHTML='<option value="">লোড ব্যর্থ</option>'; }
+                    });
+                    zoneEl.addEventListener('change', async ()=>{
+                        areaEl.innerHTML='<option>লোড হচ্ছে...</option>';
+                        if(!zoneEl.value){ areaEl.innerHTML='<option value="">— Area —</option>'; return; }
+                        try { const as = await pathaoLoadAreas(zoneEl.value);
+                            areaEl.innerHTML='<option value="">— Area —</option>'+as.map(a=>`<option value="${a.area_id||a.id}">${a.area_name||a.name}</option>`).join('');
+                        } catch(e){ areaEl.innerHTML='<option value="">লোড ব্যর্থ</option>'; }
+                    });
+                },
+                preConfirm: async () => {
+                    const payload = {
+                        store_id: parseInt(document.getElementById('pb-store').value),
+                        merchant_order_id: String(o.id),
+                        recipient_name: o.name,
+                        recipient_phone: (o.phone||'').replace(/\D/g,'').slice(-11),
+                        recipient_address: document.getElementById('pb-addr').value,
+                        recipient_city: parseInt(document.getElementById('pb-city').value),
+                        recipient_zone: parseInt(document.getElementById('pb-zone').value),
+                        recipient_area: parseInt(document.getElementById('pb-area').value) || undefined,
+                        delivery_type: parseInt(document.getElementById('pb-dt').value),
+                        item_type: 2,
+                        special_instruction: document.getElementById('pb-ins').value,
+                        item_quantity: parseInt(document.getElementById('pb-qty').value)||1,
+                        item_weight: parseFloat(document.getElementById('pb-wt').value)||0.5,
+                        amount_to_collect: parseInt(document.getElementById('pb-cod').value)||0,
+                        item_description: document.getElementById('pb-desc').value
+                    };
+                    if (!payload.store_id || !payload.recipient_city || !payload.recipient_zone){
+                        Swal.showValidationMessage('Store/City/Zone নির্বাচন করুন'); return false;
+                    }
+                    if (!payload.recipient_phone || payload.recipient_phone.length<11){
+                        Swal.showValidationMessage('সঠিক ১১ ডিজিটের ফোন দিন'); return false;
+                    }
+                    try { const d = await pathaoAuthFetch('/aladdin/api/v1/orders', { method:'POST', body: JSON.stringify(payload) });
+                        return d;
+                    } catch(e){ Swal.showValidationMessage('Pathao বুকিং ব্যর্থ: '+e.message); return false; }
+                }
+            }).then(r=>{
+                if (r.isConfirmed && r.value){
+                    const cons = (r.value && r.value.data && (r.value.data.consignment_id||r.value.data.tracking_code)) || '';
+                    // mark order shipped + save consignment
+                    try {
+                        o.status = 'Shipped';
+                        o.pathao_consignment = cons || o.pathao_consignment || '';
+                        o.pathao_booked_at = new Date().toISOString();
+                        if (typeof saveData==='function') saveData();
+                        if (typeof renderOrders==='function') renderOrders();
+                    } catch(e){}
+                    Swal.fire({icon:'success',title:'Pathao বুকিং সফল!',html:cons?`<b>Consignment:</b> ${cons}`:'অর্ডার বুক হয়েছে।'});
+                }
+            });
+        }
+
+        // Floating Pathao Settings button
+        (function(){
+            const btn = document.createElement('button');
+            btn.innerHTML = '📦 Pathao';
+            btn.title = 'Pathao Courier Settings';
+            btn.className = 'no-print';
+            btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:12px 18px;border-radius:99px;font-weight:800;box-shadow:0 8px 20px rgba(16,185,129,.4);cursor:pointer;font-size:13px';
+            btn.onclick = pathaoOpenSettings;
+            document.addEventListener('DOMContentLoaded', ()=>document.body.appendChild(btn));
+            if (document.readyState!=='loading') document.body.appendChild(btn);
+        })();
+        // ==================== END PATHAO INTEGRATION ====================
 
     </script>
 </body>
