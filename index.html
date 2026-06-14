@@ -2775,7 +2775,24 @@
                     status: 'Shipped',
                     shippedAt: o.shippedAt || Date.now()
                 }));
-                Swal.fire({icon:'success', title:'বুকিং সফল ✓', html:`Consignment: <b>${cons||'—'}</b>${trackingUrl?`<br><a href="${trackingUrl}" target="_blank" style="color:#4f46e5;font-weight:bold">Track →</a>`:''}`});
+                // 📲 Auto WhatsApp message to customer with tracking link
+                try {
+                    const storeName = (appSettings && appSettings.storeName) || 'Jersey Nova';
+                    const trackLine = trackingUrl ? `\n🔗 Track: ${trackingUrl}` : (cons ? `\n📦 Consignment: ${cons}` : '');
+                    const waMsg = `আসসালামু আলাইকুম ${o.name},\n\nআপনার অর্ডার (#${o.id}) কুরিয়ার (Pathao) এ বুক করা হয়েছে ✅${trackLine}\n💰 COD: ৳${amountToCollect}\n\nধন্যবাদ\n— ${storeName}`;
+                    const cleanPhone = (o.phone||'').replace(/\D/g,'').replace(/^88/,'');
+                    if(cleanPhone){
+                        const waUrl = `https://wa.me/88${cleanPhone}?text=${encodeURIComponent(waMsg)}`;
+                        window.open(waUrl, '_blank');
+                        await safeFbWrite(db.child(o.id).update({ pathaoWhatsappSentAt: Date.now() }));
+                    }
+                } catch(waErr){ console.warn('WA auto-send failed', waErr); }
+
+                Swal.fire({
+                    icon:'success',
+                    title:'বুকিং সফল ✓ — WhatsApp পাঠানো হলো',
+                    html:`Consignment: <b>${cons||'—'}</b>${trackingUrl?`<br><a href="${trackingUrl}" target="_blank" style="color:#4f46e5;font-weight:bold">🔗 Track Parcel</a>`:''}<br><span style="font-size:12px;color:#16a34a">📲 কাস্টমারের WhatsApp টাব খুলে দেওয়া হয়েছে — Send চাপুন</span>`
+                });
             } catch(e){
                 Swal.fire({icon:'error', title:'বুকিং ব্যর্থ', text:e.message||String(e)});
             }
