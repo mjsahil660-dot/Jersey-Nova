@@ -2516,33 +2516,69 @@
         const PATHAO_DEFAULT_CLIENT_ID = "KQe1Yg0eJY";
         const PATHAO_DEFAULT_CLIENT_SECRET = "9ddnCSz48Cza3Ao2fkfwI4EFfnXDg24dqiAqZr0g";
         const PATHAO_BASE_DEFAULT = "https://api-hermes.pathao.com";
-
-        function pathaoCfg(){
-            try { return JSON.parse(localStorage.getItem('pathao_cfg')||'{}'); } catch(e){ return {}; }
+        // Per-user storage: each logged-in account keeps its own Pathao credentials.
+        function pathaoStorageKey(){
+            const uid = (typeof currentUserId !== 'undefined' && currentUserId) ? currentUserId : 'guest';
+            return 'pathao_cfg::' + uid;
         }
-        function pathaoSaveCfg(c){ localStorage.setItem('pathao_cfg', JSON.stringify(c)); }
-        function pathaoApiUrl(path){
+        function pathaoCfg(){
+            try {
+                const k = pathaoStorageKey();
+                let raw = localStorage.getItem(k);
+                // one-time migration from the old shared key
+                if (!raw) {
+                    const old = localStorage.getItem('pathao_cfg');
+                    if (old && k !== 'pathao_cfg::guest') { localStorage.setItem(k, old); raw = old; }
+                }
+                return JSON.parse(raw||'{}');
+            } catch(e){ return {}; }
+        }
+        function pathaoSaveCfg(c){ localStorage.setItem(pathaoStorageKey(), JSON.stringify(c)); }
+
+        // Built-in CORS proxy fallbacks. User can override with a custom one in settings.
+        const PATHAO_PROXIES = [
+            'https://corsproxy.io/?',
+            'https://api.codetabs.com/v1/proxy/?quest=',
+            'https://api.allorigins.win/raw?url=',
+            'https://thingproxy.freeboard.io/fetch/'
+        ];
+        function pathaoProxyList(){
             const c = pathaoCfg();
-            // Default to a public CORS proxy so it works without setup.
-            const proxy = ((c.proxy||'').trim()) || 'https://corsproxy.io/?';
+            const custom = (c.proxy||'').trim();
+            return custom ? [custom, ...PATHAO_PROXIES] : PATHAO_PROXIES.slice();
+        }
+        function pathaoBuildUrl(proxy, path){
             const full = PATHAO_BASE_DEFAULT + path;
-            // Query-style proxy (ends with ? or =): pass full URL encoded
             if (/[?=]$/.test(proxy)) return proxy + encodeURIComponent(full);
-            // Path-style proxy: prepend to base path
+            // thingproxy-style: prepend full URL
+            if (/thingproxy|cors-anywhere/i.test(proxy)) return proxy.replace(/\/$/,'') + '/' + full;
             return proxy.replace(/\/$/,'') + path;
         }
 
         async function pathaoFetch(path, opts={}){
-            const url = pathaoApiUrl(path);
             opts.headers = Object.assign({ 'Content-Type':'application/json','Accept':'application/json' }, opts.headers||{});
-            const r = await fetch(url, opts);
-            const txt = await r.text();
-            let data; try { data = JSON.parse(txt); } catch(e){ data = { raw: txt }; }
-            if (!r.ok) {
-                const msg = (data && (data.message || data.errors && JSON.stringify(data.errors))) || ('HTTP '+r.status);
-                throw new Error(msg);
+            const proxies = pathaoProxyList();
+            let lastErr = null;
+            for (const proxy of proxies){
+                const url = pathaoBuildUrl(proxy, path);
+                try {
+                    const r = await fetch(url, opts);
+                    const txt = await r.text();
+                    let data; try { data = JSON.parse(txt); } catch(e){ data = { raw: txt }; }
+                    if (!r.ok) {
+                        const msg = (data && (data.message || (data.errors && JSON.stringify(data.errors)))) || ('HTTP '+r.status);
+                        // auth/validation errors: don't retry on another proxy
+                        if (r.status === 401 || r.status === 422 || r.status === 400) throw new Error(msg);
+                        lastErr = new Error(msg); continue;
+                    }
+                    return data;
+                } catch(e){
+                    lastErr = e;
+                    // network/CORS errors → try next proxy; auth errors bubble up
+                    if (/401|422|400|unauth|invalid/i.test(e.message)) throw e;
+                }
             }
-            return data;
+            throw lastErr || new Error('Pathao কানেকশন ব্যর্থ — সব প্রক্সি ফেইল করেছে।');
         }
 
         async function pathaoGetToken(force=false){
