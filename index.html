@@ -492,7 +492,10 @@
                         <div class="md:col-span-5 bg-amber-50/40 border border-dashed border-amber-200 rounded-2xl p-4 mt-1">
                             <div class="flex items-center justify-between mb-3">
                                 <h3 class="text-sm font-black text-amber-700 uppercase tracking-wider flex items-center gap-2"><i class="fas fa-tshirt"></i> পণ্যের নাম ও আইটেম বিবরণ</h3>
-                                <button type="button" onclick="addItemRow()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm">+ নতুন আইটেম</button>
+                                <div class="flex gap-1.5">
+                                    <button type="button" onclick="openBulkPlayersModal()" class="bg-gradient-to-r from-orange-500 to-rose-500 hover:shadow-lg text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm transition" title="পুরো টিমের প্লেয়ার লিস্ট পেস্ট করুন">⚽ Bulk Paste</button>
+                                    <button type="button" onclick="addItemRow()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm">+ নতুন আইটেম</button>
+                                </div>
                             </div>
                             <input type="text" id="product-name" placeholder="পণ্যের নাম (যেমনঃ ARGENTINA HOME)" class="w-full p-3 border border-amber-200 rounded-xl outline-none focus:border-amber-500 font-bold text-amber-800 bg-white mb-3 uppercase">
                             <div id="items-rows" class="space-y-2"></div>
@@ -2973,6 +2976,50 @@
             return out;
         }
 
+        // ---------- Bulk Player Paste (team jersey rosters) ----------
+        function openBulkPlayersModal(){
+            injectStickerExportModals();
+            const m = document.getElementById('bulk-players-modal');
+            if(m){ document.getElementById('bulk-players-text').value=''; m.classList.remove('hidden'); }
+        }
+        function parseBulkPlayersLine(line){
+            // Try comma/tab first; fall back to whitespace
+            let parts;
+            if(line.includes(',')) parts = line.split(',');
+            else if(line.includes('\t')) parts = line.split('\t');
+            else parts = line.split(/\s+/);
+            parts = parts.map(p => (p||'').trim()).filter(p => p.length);
+            if(!parts.length) return null;
+            const SIZES = new Set(['S','M','L','XL','XXL','XXXL','KIDS-S','KIDS-M','KIDS-L']);
+            const SLEEVES = new Set(['HALF','FULL','H','F']);
+            const out = { name:'', number:'', size:'', sleeve:'' };
+            const rest = [];
+            parts.forEach(p => {
+                const u = p.toUpperCase();
+                if(!out.sleeve && SLEEVES.has(u)) out.sleeve = (u==='H')?'HALF':(u==='F')?'FULL':u;
+                else if(!out.size && SIZES.has(u)) out.size = u.startsWith('KIDS')?('Kids-'+u.slice(5)):u;
+                else if(!out.number && /^\d{1,3}$/.test(p)) out.number = p;
+                else rest.push(p);
+            });
+            out.name = rest.join(' ').toUpperCase();
+            return (out.name||out.number||out.size||out.sleeve) ? out : null;
+        }
+        function applyBulkPlayers(){
+            const txt = (document.getElementById('bulk-players-text').value||'').trim();
+            if(!txt) return Swal.fire({icon:'info', title:'কিছু পেস্ট করুন'});
+            const defSleeve = document.getElementById('bulk-players-sleeve').value;
+            const append = document.getElementById('bulk-players-append').checked;
+            const lines = txt.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            const parsed = lines.map(parseBulkPlayersLine).filter(Boolean);
+            if(!parsed.length) return Swal.fire({icon:'warning', title:'কোনো লাইন বোঝা গেল না'});
+            if(defSleeve) parsed.forEach(p => { if(!p.sleeve) p.sleeve = defSleeve; });
+            const wrap = document.getElementById('items-rows'); if(!wrap) return;
+            if(!append) wrap.innerHTML = '';
+            parsed.forEach(it => addItemRow(it));
+            document.getElementById('bulk-players-modal').classList.add('hidden');
+            Toast.fire({ icon:'success', title:`${parsed.length} জন প্লেয়ার যোগ হয়েছে!` });
+        }
+
         // ---------- Modal HTML injection ----------
         function injectStickerExportModals(){
             if(document.getElementById('sticker-modal')) return;
@@ -3043,21 +3090,98 @@
             </div>
 
             <!-- Export Modal -->
-            <div id="export-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 overflow-y-auto">
-              <div class="bg-white rounded-3xl w-full max-w-lg p-4 my-8 relative">
-                <button onclick="document.getElementById('export-modal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-400 hover:text-pink-500 text-lg z-10"><i class="fas fa-times"></i></button>
-                <h2 class="text-lg font-black text-emerald-700 mb-3 flex items-center gap-2"><i class="fas fa-file-export"></i> অর্ডার লিস্ট Export</h2>
-                <p id="export-count-info" class="text-xs font-black text-emerald-700 mb-2">0 টি অর্ডার এক্সপোর্ট হবে (বর্তমান ফিল্টার অনুযায়ী)</p>
-                <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 mb-3">
-                  <p class="text-[11px] font-black text-gray-700 mb-2">যে কলামগুলো শীটে থাকবে:</p>
-                  <div id="export-cols" class="grid grid-cols-2 gap-1 text-[11px] font-bold text-gray-700"></div>
+            <div id="export-modal" class="hidden fixed inset-0 bg-gradient-to-br from-emerald-900/70 via-slate-900/70 to-indigo-900/70 backdrop-blur-md flex items-center justify-center z-[70] p-3 overflow-y-auto">
+              <div class="bg-white rounded-3xl w-full max-w-2xl my-6 relative shadow-2xl overflow-hidden border border-white/40">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 px-5 py-4 flex items-center justify-between text-white">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-lg shadow-inner">📤</div>
+                    <div>
+                      <h2 class="text-base font-black tracking-tight">অর্ডার লিস্ট Export</h2>
+                      <p id="export-count-info" class="text-[11px] font-bold text-emerald-50/90">0 অর্ডার সিলেক্টেড</p>
+                    </div>
+                  </div>
+                  <button onclick="document.getElementById('export-modal').classList.add('hidden')" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/30 transition flex items-center justify-center"><i class="fas fa-times"></i></button>
                 </div>
-                <div class="grid grid-cols-3 gap-2">
-                  <button onclick="doExport('xlsx')" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-black text-sm">📊 Excel</button>
-                  <button onclick="doExport('pdf')" class="bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl font-black text-sm">📄 PDF</button>
-                  <button onclick="doExport('product')" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-black text-sm" title="পণ্যের নাম অনুযায়ী গ্রুপ্‌ড শীট">🏷️ Product-wise</button>
+
+                <div class="p-4 space-y-3 max-h-[78vh] overflow-y-auto">
+                  <!-- Status filter pills -->
+                  <div class="bg-gradient-to-br from-slate-50 to-emerald-50/40 border border-emerald-100 rounded-2xl p-3">
+                    <div class="flex items-center justify-between mb-2">
+                      <p class="text-[11px] font-black text-slate-700 uppercase tracking-wider">⚡ স্ট্যাটাস ফিল্টার</p>
+                      <div class="flex gap-1">
+                        <button type="button" onclick="exportStatusPreset('pending')" class="text-[10px] font-black px-2 py-1 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200">শুধু পেন্ডিং</button>
+                        <button type="button" onclick="exportStatusPreset('notshipped')" class="text-[10px] font-black px-2 py-1 rounded-lg bg-rose-100 text-rose-700 hover:bg-rose-200">কুরিয়ার বাকি</button>
+                        <button type="button" onclick="exportStatusPreset('all')" class="text-[10px] font-black px-2 py-1 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300">সব</button>
+                      </div>
+                    </div>
+                    <div id="export-status-pills" class="flex flex-wrap gap-1.5"></div>
+                  </div>
+
+                  <!-- Orders list (manual select) -->
+                  <div class="bg-white border-2 border-dashed border-emerald-200 rounded-2xl p-3">
+                    <div class="flex items-center justify-between mb-2">
+                      <p class="text-[11px] font-black text-slate-700 uppercase tracking-wider">📋 অর্ডার সিলেক্ট করুন</p>
+                      <div class="flex gap-1 items-center">
+                        <input id="export-order-search" oninput="renderExportOrderList()" type="text" placeholder="🔍 নাম/ফোন/ID" class="text-[11px] font-bold px-2 py-1 rounded-lg border border-slate-200 outline-none focus:border-emerald-400 w-32">
+                        <button type="button" onclick="exportToggleAll(true)" class="text-[10px] font-black px-2 py-1 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">✓ সব</button>
+                        <button type="button" onclick="exportToggleAll(false)" class="text-[10px] font-black px-2 py-1 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300">✕ ক্লিয়ার</button>
+                      </div>
+                    </div>
+                    <div id="export-orders-list" class="max-h-56 overflow-y-auto space-y-1 pr-1"></div>
+                  </div>
+
+                  <!-- Columns -->
+                  <div class="bg-gradient-to-br from-emerald-50/70 to-teal-50/40 border border-emerald-100 rounded-2xl p-3">
+                    <p class="text-[11px] font-black text-slate-700 uppercase tracking-wider mb-2">🧾 যে কলামগুলো শীটে থাকবে</p>
+                    <div id="export-cols" class="grid grid-cols-2 gap-1 text-[11px] font-bold text-gray-700"></div>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="grid grid-cols-3 gap-2 pt-1">
+                    <button onclick="doExport('xlsx')" class="bg-gradient-to-br from-emerald-500 to-emerald-700 hover:shadow-lg text-white py-3 rounded-xl font-black text-sm transition shadow">📊 Excel</button>
+                    <button onclick="doExport('pdf')" class="bg-gradient-to-br from-rose-500 to-rose-700 hover:shadow-lg text-white py-3 rounded-xl font-black text-sm transition shadow">📄 PDF</button>
+                    <button onclick="doExport('product')" class="bg-gradient-to-br from-indigo-500 to-violet-700 hover:shadow-lg text-white py-3 rounded-xl font-black text-sm transition shadow" title="পণ্যের নাম অনুযায়ী গ্রুপ্‌ড শীট">🏷️ Product-wise</button>
+                  </div>
+                  <p class="text-[10px] text-slate-500 italic text-center">Product-wise: প্রতিটি পণ্যের নাম আলাদা শীট হিসেবে আসবে (Excel)। PDF-এ সেকশন আকারে।</p>
                 </div>
-                <p class="text-[10px] text-gray-500 mt-3 italic">Product-wise: প্রতিটি পণ্যের নাম আলাদা শীট হিসেবে আসবে (Excel)। PDF-এ সেকশন আকারে।</p>
+              </div>
+            </div>
+
+            <!-- Bulk Player Paste Modal -->
+            <div id="bulk-players-modal" class="hidden fixed inset-0 bg-gradient-to-br from-amber-900/60 via-slate-900/70 to-orange-900/60 backdrop-blur-md flex items-center justify-center z-[80] p-3 overflow-y-auto">
+              <div class="bg-white rounded-3xl w-full max-w-xl my-6 relative shadow-2xl overflow-hidden border border-amber-100">
+                <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-5 py-4 flex items-center justify-between text-white">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-lg">⚽</div>
+                    <div>
+                      <h2 class="text-base font-black tracking-tight">টিম জার্সি — Bulk Paste</h2>
+                      <p class="text-[11px] font-bold text-amber-50/90">পুরো টিমের প্লেয়ার লিস্ট একসাথে পেস্ট করুন</p>
+                    </div>
+                  </div>
+                  <button onclick="document.getElementById('bulk-players-modal').classList.add('hidden')" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/30 transition flex items-center justify-center"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="p-4 space-y-3">
+                  <div class="bg-amber-50/60 border border-amber-200 rounded-2xl p-3 text-[11px] font-bold text-amber-800 leading-relaxed">
+                    প্রতি লাইনে একজন প্লেয়ার। ফরম্যাট: <span class="bg-white px-1.5 py-0.5 rounded">নাম, নাম্বার, সাইজ, হাতা</span><br>
+                    সেপারেটর: কমা <code>,</code> / ট্যাব / স্পেস — যেকোনোটা চলবে।<br>
+                    উদাহরণ:<br>
+                    <code class="block bg-white/80 rounded p-2 mt-1 text-[10px] text-slate-700 font-mono leading-snug">MESSI, 10, L, FULL<br>RONALDO 7 M HALF<br>NEYMAR&#9;11&#9;XL&#9;FULL<br>SHAKIB 75 L</code>
+                  </div>
+                  <textarea id="bulk-players-text" rows="9" placeholder="এখানে পেস্ট করুন..." class="w-full p-3 border-2 border-amber-200 rounded-xl outline-none focus:border-amber-500 text-sm font-mono uppercase bg-amber-50/30"></textarea>
+                  <div class="flex items-center gap-2">
+                    <label class="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-200">
+                      <input id="bulk-players-append" type="checkbox" checked> বিদ্যমান আইটেমের সাথে যোগ করুন (Append)
+                    </label>
+                    <label class="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-200">
+                      হাতা ডিফল্ট:
+                      <select id="bulk-players-sleeve" class="bg-white border border-slate-200 rounded px-1 py-0.5 text-[11px] font-bold">
+                        <option value="">—</option><option value="HALF">HALF</option><option value="FULL">FULL</option>
+                      </select>
+                    </label>
+                  </div>
+                  <button onclick="applyBulkPlayers()" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:shadow-lg text-white py-3 rounded-xl font-black text-sm transition shadow">✨ আইটেম তৈরি করুন</button>
+                </div>
               </div>
             </div>`;
             document.body.insertAdjacentHTML('beforeend', html);
@@ -3267,11 +3391,109 @@
         }
 
         // ---------- Export (Excel / PDF / Product-wise) ----------
+        // ---------- Export status + manual selection ----------
+        const EXPORT_STATUSES = ['Pending','Design','Printing','Sewing','Ready','Shipped','Paid','Hold'];
+        const EXPORT_STATUS_COLORS = {
+            Pending:'bg-amber-100 text-amber-800 border-amber-300',
+            Design:'bg-purple-100 text-purple-800 border-purple-300',
+            Printing:'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300',
+            Sewing:'bg-violet-100 text-violet-800 border-violet-300',
+            Ready:'bg-sky-100 text-sky-800 border-sky-300',
+            Shipped:'bg-blue-100 text-blue-800 border-blue-300',
+            Paid:'bg-emerald-100 text-emerald-800 border-emerald-300',
+            Hold:'bg-rose-100 text-rose-800 border-rose-300'
+        };
+        const exportSelectedIds = new Set();
+        const exportStatusFilter = new Set();
+
         function openExportModal(){
             injectStickerExportModals();
-            const list = getFilteredOrders();
-            document.getElementById('export-count-info').innerText = `${list.length} টি অর্ডার এক্সপোর্ট হবে (বর্তমান ফিল্টার)`;
+            // default status filter = all
+            exportStatusFilter.clear();
+            EXPORT_STATUSES.forEach(s => exportStatusFilter.add(s));
+            // default selected = current filtered orders
+            exportSelectedIds.clear();
+            getFilteredOrders().forEach(o => exportSelectedIds.add(o.id));
+            renderExportStatusPills();
+            renderExportOrderList();
             document.getElementById('export-modal').classList.remove('hidden');
+        }
+        function renderExportStatusPills(){
+            const wrap = document.getElementById('export-status-pills'); if(!wrap) return;
+            wrap.innerHTML = EXPORT_STATUSES.map(s => {
+                const on = exportStatusFilter.has(s);
+                const cnt = orders.filter(o => o.status === s).length;
+                const cls = on ? EXPORT_STATUS_COLORS[s] : 'bg-white text-slate-400 border-slate-200 opacity-60';
+                return `<button type="button" onclick="toggleExportStatus('${s}')" class="text-[10px] font-black px-2.5 py-1 rounded-full border-2 transition ${cls}">${s} <span class="opacity-70">(${cnt})</span></button>`;
+            }).join('');
+        }
+        function toggleExportStatus(s){
+            if(exportStatusFilter.has(s)) exportStatusFilter.delete(s); else exportStatusFilter.add(s);
+            renderExportStatusPills();
+            renderExportOrderList();
+        }
+        function exportStatusPreset(kind){
+            exportStatusFilter.clear();
+            if(kind === 'all') EXPORT_STATUSES.forEach(s => exportStatusFilter.add(s));
+            else if(kind === 'pending') exportStatusFilter.add('Pending');
+            else if(kind === 'notshipped') ['Pending','Design','Printing','Sewing','Ready','Hold'].forEach(s => exportStatusFilter.add(s));
+            // reset selection to match new filter
+            exportSelectedIds.clear();
+            getExportFilteredOrders().forEach(o => exportSelectedIds.add(o.id));
+            renderExportStatusPills();
+            renderExportOrderList();
+        }
+        function getExportFilteredOrders(){
+            const sText = ((document.getElementById('export-order-search')||{}).value||'').toLowerCase().trim();
+            return [...orders].sort((a,b)=>b.id-a.id).filter(o => {
+                if(!exportStatusFilter.has(o.status||'Pending')) return false;
+                if(sText){
+                    const hay = `${o.name||''} ${o.phone||''} ${String(o.id).slice(-6)} ${o.productName||''}`.toLowerCase();
+                    if(!hay.includes(sText)) return false;
+                }
+                return true;
+            });
+        }
+        function renderExportOrderList(){
+            const wrap = document.getElementById('export-orders-list'); if(!wrap) return;
+            const list = getExportFilteredOrders();
+            if(!list.length){ wrap.innerHTML = `<div class="text-center text-[11px] font-bold text-slate-400 py-6">এই ফিল্টারে কোনো অর্ডার নেই</div>`; }
+            else {
+                wrap.innerHTML = list.map(o => {
+                    const checked = exportSelectedIds.has(o.id) ? 'checked' : '';
+                    const sCol = EXPORT_STATUS_COLORS[o.status||'Pending'] || 'bg-slate-100 text-slate-700 border-slate-200';
+                    const due = getNum(o.due);
+                    return `<label class="flex items-center gap-2 p-2 rounded-xl border border-slate-100 hover:border-emerald-300 hover:bg-emerald-50/40 cursor-pointer transition">
+                        <input type="checkbox" class="export-order-cb w-4 h-4 accent-emerald-600" data-oid="${o.id}" ${checked} onchange="toggleExportOrder(${o.id}, this.checked)">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[10px] font-black text-slate-400">#${String(o.id).slice(-6)}</span>
+                                <span class="text-[12px] font-black text-slate-800 truncate">${(o.name||'—')}</span>
+                                <span class="text-[10px] font-bold text-slate-500">${o.phone||''}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 mt-0.5">
+                                <span class="text-[9px] font-black px-1.5 py-0.5 rounded border ${sCol}">${o.status||'Pending'}</span>
+                                <span class="text-[10px] font-bold text-slate-500 truncate">${o.productName||''}</span>
+                                ${due>0?`<span class="text-[10px] font-black text-rose-600 ml-auto">৳${due}</span>`:''}
+                            </div>
+                        </div>
+                    </label>`;
+                }).join('');
+            }
+            updateExportCount();
+        }
+        function toggleExportOrder(id, on){
+            if(on) exportSelectedIds.add(id); else exportSelectedIds.delete(id);
+            updateExportCount();
+        }
+        function exportToggleAll(on){
+            const list = getExportFilteredOrders();
+            list.forEach(o => { if(on) exportSelectedIds.add(o.id); else exportSelectedIds.delete(o.id); });
+            renderExportOrderList();
+        }
+        function updateExportCount(){
+            const el = document.getElementById('export-count-info');
+            if(el) el.innerText = `${exportSelectedIds.size} টি অর্ডার সিলেক্টেড (এক্সপোর্ট হবে)`;
         }
         function getSelectedExportCols(){
             const checked = new Set();
@@ -3286,7 +3508,8 @@
             });
         }
         function doExport(kind){
-            const list = getFilteredOrders();
+            const list = orders.filter(o => exportSelectedIds.has(o.id)).sort((a,b)=>b.id-a.id);
+
             if(!list.length) return Swal.fire({icon:'info', title:'কোনো অর্ডার নেই'});
             const cols = getSelectedExportCols();
             if(!cols.length) return Swal.fire({icon:'warning', title:'কমপক্ষে একটি কলাম সিলেক্ট করুন'});
