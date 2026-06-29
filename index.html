@@ -25,6 +25,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -486,6 +488,20 @@
                             <input type="number" id="pant-factory-rate" oninput="calculateStats()" placeholder="প্যান্ট ফ্যাক্টরি রেট (৳)" class="p-3 border border-orange-100 rounded-xl bg-orange-50/50 font-bold text-orange-800">
                         </div>
 
+                        <!-- 🆕 POS Update: Product Name + Per-item details + Notes -->
+                        <div class="md:col-span-5 bg-amber-50/40 border border-dashed border-amber-200 rounded-2xl p-4 mt-1">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-black text-amber-700 uppercase tracking-wider flex items-center gap-2"><i class="fas fa-tshirt"></i> পণ্যের নাম ও আইটেম বিবরণ</h3>
+                                <button type="button" onclick="addItemRow()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm">+ নতুন আইটেম</button>
+                            </div>
+                            <input type="text" id="product-name" placeholder="পণ্যের নাম (যেমনঃ ARGENTINA HOME)" class="w-full p-3 border border-amber-200 rounded-xl outline-none focus:border-amber-500 font-bold text-amber-800 bg-white mb-3 uppercase">
+                            <div id="items-rows" class="space-y-2"></div>
+                            <p class="text-[10px] text-amber-600 font-bold mt-2 italic">প্রতি আইটেমে — কাস্টমার/প্লেয়ার নাম, জার্সি নাম্বার, সাইজ, হাফ/ফুল হাতা।</p>
+                            <textarea id="order-notes" placeholder="নোটস / বিশেষ নির্দেশনা (অপশনাল)" rows="2" class="w-full p-3 border border-amber-200 rounded-xl outline-none focus:border-amber-500 text-sm bg-white mt-3"></textarea>
+                        </div>
+
+
+
                         <div class="md:col-span-5 grid grid-cols-1 md:grid-cols-3 gap-3">
                             <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-purple-500">
                             <input type="number" id="other-cost" oninput="calculateStats()" placeholder="প্যাকেজিং/অর্ডার খরচ (৳)" class="p-3 border border-red-100 rounded-xl bg-red-50/50 font-bold text-red-600">
@@ -524,6 +540,8 @@
                         <input type="text" id="search-input" onkeyup="searchOrders()" placeholder="নাম বা ফোন দিয়ে খুঁজুন..." class="flex-1 p-3 border border-white rounded-xl outline-none focus:ring-2 focus:ring-purple-400 shadow-sm text-sm bg-white/90 backdrop-blur-sm">
                         <input type="date" id="filter-date" onchange="searchOrders()" class="w-full md:w-48 p-3 border border-white rounded-xl outline-none focus:ring-2 focus:ring-purple-400 shadow-sm text-sm text-gray-600 cursor-pointer bg-white/90 backdrop-blur-sm">
                         <button onclick="clearDateFilter()" class="bg-white/80 border border-gray-200 text-gray-600 px-4 py-3 rounded-xl text-xs font-bold hover:bg-gray-100 transition shadow-sm">Clear</button>
+                        <button onclick="openExportModal()" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-3 rounded-xl text-xs font-black hover:shadow-lg transition shadow-sm flex items-center gap-1"><i class="fas fa-file-export"></i> Export</button>
+                        <button onclick="openBulkStickerModal()" class="bg-gradient-to-r from-fuchsia-500 to-pink-600 text-white px-4 py-3 rounded-xl text-xs font-black hover:shadow-lg transition shadow-sm flex items-center gap-1"><i class="fas fa-tags"></i> Bulk Stickers</button>
                     </div>
                 </div>
 
@@ -1538,6 +1556,9 @@
             const id = editId ? parseInt(editId) : Date.now();
             
             const existing = editId ? orders.find(x=>x.id===id) : null;
+            const productName = (document.getElementById('product-name').value || '').trim().toUpperCase();
+            const notes = (document.getElementById('order-notes').value || '').trim().slice(0, 500);
+            const items = collectItemsFromUI();
             const orderData = {
                 id: id, date: date, name: cleanName, phone: cleanPhone, addr: (addr||'').trim().slice(0,200), 
                 rQty, rPrice, rFRate, 
@@ -1547,6 +1568,9 @@
                 due: totalBill - advance, totalFactoryCost: totalFactoryCost,
                 profit: totalBill - (totalFactoryCost + dCharge + otherCost), status: status,
                 custType: custType,
+                productName: productName,
+                items: items,
+                notes: notes,
                 designImg: currentDesignImg || (existing && existing.designImg) || '',
                 shippedAt: (status==='Shipped' ? ((existing && existing.shippedAt) || Date.now()) : (existing && existing.shippedAt) || null),
                 createdAt: (existing && existing.createdAt) || id
@@ -1706,6 +1730,7 @@
                             <div class="flex items-center justify-center space-x-3">
                                 <button onclick="sendWhatsAppMsg(${o.id})" class="text-xl" title="WhatsApp">💬</button>
                                 <button onclick="openInvoice(${o.id})" class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase hover:bg-indigo-200">ইনভয়েস</button>
+                                <button onclick="openCourierSticker(${o.id})" class="bg-fuchsia-100 text-fuchsia-700 px-2 py-1 rounded-lg text-[10px] font-black uppercase hover:bg-fuchsia-200" title="কুরিয়ার স্টিকার">🏷️ স্টিকার</button>
                                 <button onclick="editOrder(${o.id})" class="text-gray-400 hover:text-indigo-600">✏️</button>
                                 <button onclick="openPathaoBooking(${o.id})" class="bg-pink-100 text-pink-700 px-2 py-1 rounded-lg text-[10px] font-black uppercase hover:bg-pink-200" title="Pathao কুরিয়ার বুকিং">📦 কুরিয়ার</button>
                                 <button onclick="deleteOrder(${o.id})" class="text-gray-200 hover:text-red-500">✕</button>
@@ -1823,6 +1848,9 @@
             
             currentDesignImg = o.designImg || "";
             if(currentDesignImg){ document.getElementById('design-img-preview').src = currentDesignImg; document.getElementById('design-img-preview-wrap').classList.remove('hidden'); } else { clearDesignImage(); }
+            document.getElementById('product-name').value = o.productName || '';
+            document.getElementById('order-notes').value = o.notes || '';
+            renderItemsUI(o.items || []);
             document.getElementById('form-title').innerText = "✏️ অর্ডার সংশোধন";
             document.getElementById('save-btn').innerText = "আপডেট করুন";
             calculateStats(); window.scrollTo({top: 0, behavior: 'smooth'});
@@ -1840,6 +1868,8 @@
             document.querySelectorAll('input[type="text"]:not(#search-input):not(#fact-pay-desc):not(#exp-desc):not(#setting-password):not(#login-id):not(#reg-id), input[type="number"]:not(#fact-pay-amount):not(#exp-amount)').forEach(i => i.value = ''); 
             document.querySelectorAll('#display-total, #display-due, #display-profit').forEach(s => s.innerText = '0');
             document.getElementById('cust-type').value = 'Regular';
+            const notes = document.getElementById('order-notes'); if(notes) notes.value = '';
+            renderItemsUI([]);
             resetFormUI();
         }
 
@@ -2905,6 +2935,424 @@
             }
         })();
         /* =================== End Pathao Integration =================== */
+
+        /* =================== 🆕 POS Items + Stickers + Export =================== */
+        // ---------- POS dynamic items ----------
+        const SIZE_OPTIONS = ['S','M','L','XL','XXL','XXXL','Kids-S','Kids-M','Kids-L'];
+        const SLEEVE_OPTIONS = ['HALF','FULL'];
+
+        function itemRowHTML(it, idx){
+            it = it || {};
+            const sizeOpts = SIZE_OPTIONS.map(s => `<option value="${s}" ${it.size===s?'selected':''}>${s}</option>`).join('');
+            const sleeveOpts = SLEEVE_OPTIONS.map(s => `<option value="${s}" ${it.sleeve===s?'selected':''}>${s}</option>`).join('');
+            return `<div class="grid grid-cols-12 gap-2 items-center bg-white border border-amber-100 rounded-lg p-2" data-item-row>
+                <input type="text" class="col-span-4 p-2 border border-gray-200 rounded text-sm" placeholder="প্লেয়ার/কাস্টমার নাম" data-f="name" value="${(it.name||'').replace(/"/g,'&quot;')}">
+                <input type="text" class="col-span-2 p-2 border border-gray-200 rounded text-sm text-center" placeholder="নাম্বার" data-f="number" value="${(it.number||'').toString().replace(/"/g,'&quot;')}">
+                <select class="col-span-2 p-2 border border-gray-200 rounded text-sm" data-f="size"><option value="">সাইজ</option>${sizeOpts}</select>
+                <select class="col-span-3 p-2 border border-gray-200 rounded text-sm" data-f="sleeve"><option value="">হাতা</option>${sleeveOpts}</select>
+                <button type="button" onclick="this.closest('[data-item-row]').remove()" class="col-span-1 text-red-500 hover:text-red-700 text-sm font-bold" title="মুছুন">✕</button>
+            </div>`;
+        }
+        function addItemRow(it){
+            const wrap = document.getElementById('items-rows'); if(!wrap) return;
+            wrap.insertAdjacentHTML('beforeend', itemRowHTML(it||{}, wrap.children.length));
+        }
+        function renderItemsUI(items){
+            const wrap = document.getElementById('items-rows'); if(!wrap) return;
+            wrap.innerHTML = '';
+            (items||[]).forEach(it => addItemRow(it));
+        }
+        function collectItemsFromUI(){
+            const rows = document.querySelectorAll('#items-rows [data-item-row]');
+            const out = [];
+            rows.forEach(r => {
+                const obj = {};
+                r.querySelectorAll('[data-f]').forEach(el => { obj[el.dataset.f] = (el.value||'').trim(); });
+                if(obj.name || obj.number || obj.size || obj.sleeve) out.push(obj);
+            });
+            return out;
+        }
+
+        // ---------- Modal HTML injection ----------
+        function injectStickerExportModals(){
+            if(document.getElementById('sticker-modal')) return;
+            const html = `
+            <!-- Courier Sticker Modal -->
+            <div id="sticker-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 overflow-y-auto">
+              <div class="bg-white rounded-3xl w-full max-w-md p-4 my-8 relative">
+                <button onclick="document.getElementById('sticker-modal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-400 hover:text-pink-500 text-lg z-10"><i class="fas fa-times"></i></button>
+                <h2 class="text-lg font-black text-fuchsia-700 mb-3 flex items-center gap-2"><i class="fas fa-tags"></i> কুরিয়ার স্টিকার</h2>
+                <div class="bg-fuchsia-50/60 border border-fuchsia-100 rounded-xl p-3 mb-3">
+                  <div class="grid grid-cols-2 gap-2 mb-2">
+                    <label class="text-[11px] font-bold text-gray-600">সাইজ
+                      <select id="sticker-size" class="w-full mt-1 p-2 border border-gray-200 rounded text-sm" onchange="onStickerSizeChange()">
+                        <option value="4x6">4 × 6 inch (Thermal)</option>
+                        <option value="3x4" selected>3 × 4 inch</option>
+                        <option value="2x3">2 × 3 inch (Mini)</option>
+                        <option value="custom">কাস্টম</option>
+                      </select>
+                    </label>
+                    <label class="text-[11px] font-bold text-gray-600">কাস্টম (W × H inch)
+                      <div class="flex gap-1 mt-1">
+                        <input id="sticker-w" type="number" step="0.1" value="3" class="w-full p-2 border border-gray-200 rounded text-sm" disabled>
+                        <input id="sticker-h" type="number" step="0.1" value="4" class="w-full p-2 border border-gray-200 rounded text-sm" disabled>
+                      </div>
+                    </label>
+                  </div>
+                  <p class="text-[10px] font-black text-gray-600 mb-1">যে ফিল্ডগুলো স্টিকারে থাকবে:</p>
+                  <div id="sticker-fields" class="grid grid-cols-2 gap-1 text-[11px] font-bold text-gray-700"></div>
+                </div>
+                <div id="sticker-preview-wrap" class="flex justify-center bg-gray-100 p-3 rounded-xl overflow-auto"></div>
+                <div class="grid grid-cols-2 gap-2 mt-3">
+                  <button onclick="downloadStickerImage()" class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white py-2.5 rounded-xl font-black text-sm">📸 ইমেজ ডাউনলোড</button>
+                  <button onclick="printSticker()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-black text-sm">🖨️ প্রিন্ট</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bulk Sticker Modal -->
+            <div id="bulk-sticker-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 overflow-y-auto">
+              <div class="bg-white rounded-3xl w-full max-w-2xl p-4 my-8 relative">
+                <button onclick="document.getElementById('bulk-sticker-modal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-400 hover:text-pink-500 text-lg z-10"><i class="fas fa-times"></i></button>
+                <h2 class="text-lg font-black text-pink-700 mb-3 flex items-center gap-2"><i class="fas fa-tags"></i> Bulk কুরিয়ার স্টিকার (ফিল্টার্ড অর্ডার)</h2>
+                <div class="bg-pink-50/60 border border-pink-100 rounded-xl p-3 mb-3">
+                  <p id="bulk-count-info" class="text-xs font-black text-pink-700 mb-2">0 টি অর্ডার সিলেক্টেড</p>
+                  <div class="grid grid-cols-2 gap-2 mb-2">
+                    <label class="text-[11px] font-bold text-gray-600">সাইজ
+                      <select id="bulk-sticker-size" class="w-full mt-1 p-2 border border-gray-200 rounded text-sm">
+                        <option value="4x6">4 × 6 inch</option>
+                        <option value="3x4" selected>3 × 4 inch</option>
+                        <option value="2x3">2 × 3 inch</option>
+                      </select>
+                    </label>
+                    <label class="text-[11px] font-bold text-gray-600">প্রতি পেজে স্টিকার
+                      <select id="bulk-per-page" class="w-full mt-1 p-2 border border-gray-200 rounded text-sm">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="4" selected>4</option>
+                        <option value="6">6</option>
+                        <option value="8">8</option>
+                      </select>
+                    </label>
+                  </div>
+                  <p class="text-[10px] font-black text-gray-600 mb-1">ফিল্ডস:</p>
+                  <div id="bulk-sticker-fields" class="grid grid-cols-3 gap-1 text-[11px] font-bold text-gray-700"></div>
+                </div>
+                <button onclick="printBulkStickers()" class="w-full bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white py-3 rounded-xl font-black shadow-lg">🖨️ Bulk Print/Download (PDF)</button>
+              </div>
+            </div>
+
+            <!-- Export Modal -->
+            <div id="export-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 overflow-y-auto">
+              <div class="bg-white rounded-3xl w-full max-w-lg p-4 my-8 relative">
+                <button onclick="document.getElementById('export-modal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-400 hover:text-pink-500 text-lg z-10"><i class="fas fa-times"></i></button>
+                <h2 class="text-lg font-black text-emerald-700 mb-3 flex items-center gap-2"><i class="fas fa-file-export"></i> অর্ডার লিস্ট Export</h2>
+                <p id="export-count-info" class="text-xs font-black text-emerald-700 mb-2">0 টি অর্ডার এক্সপোর্ট হবে (বর্তমান ফিল্টার অনুযায়ী)</p>
+                <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 mb-3">
+                  <p class="text-[11px] font-black text-gray-700 mb-2">যে কলামগুলো শীটে থাকবে:</p>
+                  <div id="export-cols" class="grid grid-cols-2 gap-1 text-[11px] font-bold text-gray-700"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="doExport('xlsx')" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-black text-sm">📊 Excel</button>
+                  <button onclick="doExport('pdf')" class="bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl font-black text-sm">📄 PDF</button>
+                  <button onclick="doExport('product')" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-black text-sm" title="পণ্যের নাম অনুযায়ী গ্রুপ্‌ড শীট">🏷️ Product-wise</button>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-3 italic">Product-wise: প্রতিটি পণ্যের নাম আলাদা শীট হিসেবে আসবে (Excel)। PDF-এ সেকশন আকারে।</p>
+              </div>
+            </div>`;
+            document.body.insertAdjacentHTML('beforeend', html);
+
+            // Populate field checkboxes
+            const FIELDS = STICKER_FIELDS;
+            const sf = document.getElementById('sticker-fields');
+            sf.innerHTML = FIELDS.map(f => `<label class="flex items-center gap-1"><input type="checkbox" data-fk="${f.k}" ${f.def?'checked':''} onchange="renderStickerPreview()"> ${f.label}</label>`).join('');
+            const bsf = document.getElementById('bulk-sticker-fields');
+            bsf.innerHTML = FIELDS.map(f => `<label class="flex items-center gap-1"><input type="checkbox" data-fk="${f.k}" ${f.def?'checked':''}> ${f.label}</label>`).join('');
+
+            const ec = document.getElementById('export-cols');
+            ec.innerHTML = EXPORT_COLUMNS.map(c => `<label class="flex items-center gap-1"><input type="checkbox" data-ck="${c.k}" ${c.def?'checked':''}> ${c.label}</label>`).join('');
+        }
+
+        const STICKER_FIELDS = [
+            { k:'logo', label:'লোগো', def:true },
+            { k:'pageName', label:'পেইজের নাম', def:true },
+            { k:'phone', label:'কাস্টমার ফোন', def:true },
+            { k:'barcode', label:'বার কোড', def:true },
+            { k:'orderId', label:'Order ID', def:true },
+            { k:'name', label:'কাস্টমার নাম', def:true },
+            { k:'address', label:'ঠিকানা', def:false },
+            { k:'cod', label:'COD অ্যামাউন্ট', def:true },
+            { k:'product', label:'পণ্যের নাম', def:false },
+            { k:'items', label:'আইটেম বিবরণ', def:false },
+            { k:'date', label:'তারিখ', def:false },
+            { k:'notes', label:'নোটস', def:false },
+        ];
+
+        const EXPORT_COLUMNS = [
+            { k:'orderId', label:'Order ID', def:true, get:o=>'#'+String(o.id).slice(-6) },
+            { k:'date', label:'তারিখ', def:true, get:o=>o.date||'' },
+            { k:'name', label:'কাস্টমার নাম', def:true, get:o=>o.name||'' },
+            { k:'phone', label:'ফোন নাম্বার', def:true, get:o=>o.phone||'' },
+            { k:'address', label:'ঠিকানা', def:false, get:o=>o.addr||'' },
+            { k:'product', label:'পণ্যের নাম', def:true, get:o=>o.productName||'' },
+            { k:'items', label:'আইটেম (নাম-নাম্বার-সাইজ-হাতা)', def:true, get:o=>itemsToText(o.items) },
+            { k:'jerseyName', label:'জার্সির নাম (প্লেয়ার)', def:false, get:o=>(o.items||[]).map(i=>i.name).filter(Boolean).join(', ') },
+            { k:'jerseyNumber', label:'জার্সির নাম্বার', def:false, get:o=>(o.items||[]).map(i=>i.number).filter(Boolean).join(', ') },
+            { k:'jerseySize', label:'সাইজ', def:false, get:o=>(o.items||[]).map(i=>i.size).filter(Boolean).join(', ') },
+            { k:'sleeve', label:'হাতার ধরণ', def:false, get:o=>(o.items||[]).map(i=>i.sleeve).filter(Boolean).join(', ') },
+            { k:'qty', label:'মোট পিস', def:true, get:o=>(getNum(o.rQty)+getNum(o.cQty)+getNum(o.pQty)) },
+            { k:'total', label:'মোট বিল', def:true, get:o=>getNum(o.totalBill) },
+            { k:'advance', label:'অগ্রিম', def:false, get:o=>getNum(o.advance) },
+            { k:'due', label:'COD (বাকি)', def:true, get:o=>getNum(o.due) },
+            { k:'status', label:'স্ট্যাটাস', def:true, get:o=>o.status||'' },
+            { k:'notes', label:'নোটস', def:false, get:o=>o.notes||'' },
+        ];
+
+        function itemsToText(items){
+            if(!items || !items.length) return '';
+            return items.map(i => [i.name, i.number, i.size, i.sleeve].filter(Boolean).join(' - ')).join(' | ');
+        }
+
+        // ---------- Filtered orders helper ----------
+        function getFilteredOrders(){
+            const sText = (document.getElementById('search-input').value||'').toLowerCase();
+            const sDate = document.getElementById('filter-date').value;
+            return [...orders].sort((a,b)=>b.id-a.id).filter(o => {
+                if(sText && !((o.name||'').toLowerCase().includes(sText) || (o.phone||'').includes(sText))) return false;
+                if(sDate && o.date !== sDate) return false;
+                return true;
+            });
+        }
+
+        // ---------- Courier Sticker ----------
+        let _stickerCurrentId = null;
+        function openCourierSticker(id){
+            injectStickerExportModals();
+            _stickerCurrentId = id;
+            document.getElementById('sticker-modal').classList.remove('hidden');
+            renderStickerPreview();
+        }
+        function onStickerSizeChange(){
+            const v = document.getElementById('sticker-size').value;
+            const w = document.getElementById('sticker-w'), h = document.getElementById('sticker-h');
+            const map = { '4x6':[4,6], '3x4':[3,4], '2x3':[2,3] };
+            if(map[v]){ w.value = map[v][0]; h.value = map[v][1]; w.disabled = true; h.disabled = true; }
+            else { w.disabled = false; h.disabled = false; }
+            renderStickerPreview();
+        }
+        function getStickerSize(prefix){
+            prefix = prefix || 'sticker';
+            const v = document.getElementById(prefix+'-size').value;
+            const map = { '4x6':[4,6], '3x4':[3,4], '2x3':[2,3] };
+            if(map[v]) return map[v];
+            return [parseFloat(document.getElementById('sticker-w').value)||3, parseFloat(document.getElementById('sticker-h').value)||4];
+        }
+        function getSelectedFields(containerId){
+            const out = {};
+            document.querySelectorAll(`#${containerId} input[type=checkbox]`).forEach(c => out[c.dataset.fk] = c.checked);
+            return out;
+        }
+        function getLogoSrc(){
+            const img = document.querySelector('.app-logo');
+            if(img && img.src && !img.classList.contains('hidden')) return img.src;
+            return '';
+        }
+        function buildStickerHTML(o, sizeInch, fields){
+            const [wIn, hIn] = sizeInch;
+            // 96 DPI base for screen; we use larger px for sharper canvas
+            const PX = 100; const wPx = Math.round(wIn*PX), hPx = Math.round(hIn*PX);
+            const bName = (appSettings && appSettings.businessName) || 'Jersey Nova';
+            const logoSrc = getLogoSrc();
+            const itemsText = itemsToText(o.items);
+            const barcodeId = 'bc-'+o.id+'-'+Date.now();
+            const showLogo = fields.logo && logoSrc;
+            const fontBase = wIn < 2.5 ? 9 : wIn < 3.5 ? 11 : 13;
+            return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:#fff;border:2px dashed #c026d3;border-radius:8px;padding:8px;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,sans-serif;color:#111;overflow:hidden;font-size:${fontBase}px;line-height:1.25">
+              <div style="display:flex;align-items:center;gap:6px;border-bottom:1.5px solid #111;padding-bottom:4px;margin-bottom:4px">
+                ${showLogo ? `<img src="${logoSrc}" style="width:${Math.min(36,wPx*0.18)}px;height:${Math.min(36,wPx*0.18)}px;object-fit:contain;border-radius:4px">` : ''}
+                ${fields.pageName ? `<div style="font-weight:900;font-size:${fontBase+2}px;text-transform:uppercase;letter-spacing:.5px">${bName}</div>` : ''}
+                ${fields.orderId ? `<div style="margin-left:auto;font-weight:800;font-size:${fontBase-1}px;color:#6b7280">#${String(o.id).slice(-6)}</div>` : ''}
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+                ${fields.name ? `<div style="font-weight:900">${o.name||''}</div>` : ''}
+                ${fields.phone ? `<div style="font-weight:800">📞 ${o.phone||''}</div>` : ''}
+                ${fields.address ? `<div style="font-size:${fontBase-1}px;color:#374151">${o.addr||''}</div>` : ''}
+                ${fields.product && o.productName ? `<div style="font-weight:800;text-transform:uppercase;color:#7c3aed">${o.productName}</div>` : ''}
+                ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;color:#111;white-space:normal">${itemsText}</div>` : ''}
+                ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;color:#7f1d1d;font-style:italic">${o.notes}</div>` : ''}
+                ${fields.date ? `<div style="font-size:${fontBase-2}px;color:#6b7280">📅 ${o.date||''}</div>` : ''}
+                ${fields.cod ? `<div style="margin-top:auto;background:#111;color:#fff;padding:3px 6px;border-radius:4px;font-weight:900;text-align:center;font-size:${fontBase+1}px">COD ৳ ${getNum(o.due)}</div>` : ''}
+              </div>
+              ${fields.barcode ? `<svg id="${barcodeId}" style="margin-top:4px;width:100%;height:${Math.max(28,hPx*0.18)}px"></svg>` : ''}
+            </div>`;
+        }
+        function renderStickerPreview(){
+            const o = orders.find(x => x.id === _stickerCurrentId); if(!o) return;
+            const fields = getSelectedFields('sticker-fields');
+            const size = getStickerSize('sticker');
+            const wrap = document.getElementById('sticker-preview-wrap');
+            wrap.innerHTML = buildStickerHTML(o, size, fields);
+            // render barcode
+            if(fields.barcode){
+                const svg = wrap.querySelector('svg');
+                if(svg) try { JsBarcode(svg, (o.phone||String(o.id)), { format:'CODE128', displayValue:true, fontSize:10, height:30, margin:0 }); } catch(e){}
+            }
+        }
+        async function downloadStickerImage(){
+            const el = document.getElementById('sticker-card'); if(!el) return;
+            const canvas = await html2canvas(el, { scale:3, backgroundColor:'#ffffff' });
+            const link = document.createElement('a');
+            link.download = `Sticker_${_stickerCurrentId}.png`;
+            link.href = canvas.toDataURL('image/png'); link.click();
+        }
+        function printSticker(){
+            const el = document.getElementById('sticker-card'); if(!el) return;
+            const w = window.open('', '_blank');
+            w.document.write(`<html><head><title>Sticker</title><style>body{margin:0;padding:10px;font-family:Arial}</style></head><body>${el.outerHTML}<script>window.onload=()=>{setTimeout(()=>window.print(),300)}<\/script></body></html>`);
+            w.document.close();
+        }
+
+        // ---------- Bulk Sticker (PDF) ----------
+        function openBulkStickerModal(){
+            injectStickerExportModals();
+            const list = getFilteredOrders();
+            document.getElementById('bulk-count-info').innerText = `${list.length} টি অর্ডার সিলেক্টেড (বর্তমান ফিল্টার)`;
+            document.getElementById('bulk-sticker-modal').classList.remove('hidden');
+        }
+        async function printBulkStickers(){
+            const list = getFilteredOrders();
+            if(!list.length) return Swal.fire({icon:'info', title:'কোনো অর্ডার নেই'});
+            const sizeVal = document.getElementById('bulk-sticker-size').value;
+            const map = { '4x6':[4,6], '3x4':[3,4], '2x3':[2,3] };
+            const size = map[sizeVal];
+            const perPage = parseInt(document.getElementById('bulk-per-page').value)||4;
+            const fields = getSelectedFields('bulk-sticker-fields');
+            const loadingSwal = Swal.fire({ title:'PDF তৈরি হচ্ছে...', allowOutsideClick:false, didOpen:()=>Swal.showLoading() });
+
+            // Build offscreen container
+            const offscreen = document.createElement('div');
+            offscreen.style.cssText = 'position:fixed;left:-99999px;top:0;background:#fff';
+            document.body.appendChild(offscreen);
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation: size[0]>size[1]?'l':'p', unit:'in', format:'a4' });
+            const pageW = 8.27, pageH = 11.69; // A4 inches
+            const cols = Math.max(1, Math.floor(pageW / (size[0]+0.2)));
+            const rows = Math.max(1, Math.ceil(perPage/cols));
+            const marginX = (pageW - cols*(size[0]+0.2))/2 + 0.1;
+            const marginY = 0.3;
+            let idx = 0;
+            for(let i=0;i<list.length;i++){
+                const o = list[i];
+                offscreen.innerHTML = buildStickerHTML(o, size, fields);
+                if(fields.barcode){
+                    const svg = offscreen.querySelector('svg');
+                    if(svg) try { JsBarcode(svg, (o.phone||String(o.id)), { format:'CODE128', displayValue:true, fontSize:10, height:30, margin:0 }); } catch(e){}
+                }
+                const card = offscreen.querySelector('#sticker-card');
+                const canvas = await html2canvas(card, { scale:3, backgroundColor:'#ffffff' });
+                const imgData = canvas.toDataURL('image/png');
+                const slot = idx % perPage;
+                if(idx>0 && slot===0) pdf.addPage();
+                const col = slot % cols, row = Math.floor(slot/cols);
+                const x = marginX + col*(size[0]+0.2);
+                const y = marginY + row*(size[1]+0.2);
+                pdf.addImage(imgData, 'PNG', x, y, size[0], size[1]);
+                idx++;
+            }
+            offscreen.remove();
+            pdf.save(`BulkStickers_${Date.now()}.pdf`);
+            Swal.close();
+            Toast.fire({ icon:'success', title:`${list.length} টি স্টিকার PDF তৈরি হয়েছে!` });
+        }
+
+        // ---------- Export (Excel / PDF / Product-wise) ----------
+        function openExportModal(){
+            injectStickerExportModals();
+            const list = getFilteredOrders();
+            document.getElementById('export-count-info').innerText = `${list.length} টি অর্ডার এক্সপোর্ট হবে (বর্তমান ফিল্টার)`;
+            document.getElementById('export-modal').classList.remove('hidden');
+        }
+        function getSelectedExportCols(){
+            const checked = new Set();
+            document.querySelectorAll('#export-cols input[type=checkbox]:checked').forEach(c => checked.add(c.dataset.ck));
+            return EXPORT_COLUMNS.filter(c => checked.has(c.k));
+        }
+        function ordersToRows(list, cols){
+            return list.map(o => {
+                const row = {};
+                cols.forEach(c => row[c.label] = c.get(o));
+                return row;
+            });
+        }
+        function doExport(kind){
+            const list = getFilteredOrders();
+            if(!list.length) return Swal.fire({icon:'info', title:'কোনো অর্ডার নেই'});
+            const cols = getSelectedExportCols();
+            if(!cols.length) return Swal.fire({icon:'warning', title:'কমপক্ষে একটি কলাম সিলেক্ট করুন'});
+            const bName = ((appSettings && appSettings.businessName) || 'Orders').replace(/\s+/g,'');
+            const stamp = new Date().toISOString().slice(0,10);
+            if(kind === 'xlsx'){
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(ordersToRows(list, cols));
+                XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+                XLSX.writeFile(wb, `${bName}_Orders_${stamp}.xlsx`);
+            } else if(kind === 'product'){
+                // Group by productName
+                const groups = {};
+                list.forEach(o => { const k = (o.productName||'UNCATEGORIZED').toUpperCase(); (groups[k] = groups[k] || []).push(o); });
+                const wb = XLSX.utils.book_new();
+                Object.keys(groups).sort().forEach(g => {
+                    // Expand into per-item rows so each player line appears separately
+                    const rows = [];
+                    groups[g].forEach(o => {
+                        const items = (o.items && o.items.length) ? o.items : [{}];
+                        items.forEach(it => {
+                            const row = {};
+                            cols.forEach(c => {
+                                if(c.k === 'product') row[c.label] = g;
+                                else if(c.k === 'jerseyName') row[c.label] = it.name || '';
+                                else if(c.k === 'jerseyNumber') row[c.label] = it.number || '';
+                                else if(c.k === 'jerseySize') row[c.label] = it.size || '';
+                                else if(c.k === 'sleeve') row[c.label] = it.sleeve || '';
+                                else if(c.k === 'items') row[c.label] = [it.name,it.number,it.size,it.sleeve].filter(Boolean).join(' - ');
+                                else row[c.label] = c.get(o);
+                            });
+                            rows.push(row);
+                        });
+                    });
+                    const ws = XLSX.utils.json_to_sheet(rows);
+                    const safe = g.replace(/[\\\/\?\*\[\]:]/g,'_').slice(0,28);
+                    XLSX.utils.book_append_sheet(wb, ws, safe || 'Sheet');
+                });
+                XLSX.writeFile(wb, `${bName}_ProductWise_${stamp}.xlsx`);
+            } else if(kind === 'pdf'){
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('l','pt','a4');
+                const W = pdf.internal.pageSize.getWidth();
+                let y = 30;
+                pdf.setFont('helvetica','bold'); pdf.setFontSize(14);
+                pdf.text(`${bName} - Orders (${list.length}) - ${stamp}`, 30, y); y += 16;
+                pdf.setFontSize(8); pdf.setFont('helvetica','normal');
+                const headers = cols.map(c => c.label);
+                const colW = (W-60)/headers.length;
+                const drawRow = (vals, bold) => {
+                    pdf.setFont('helvetica', bold?'bold':'normal');
+                    vals.forEach((v,i) => pdf.text(String(v||'').slice(0,40), 30+i*colW, y));
+                    y += 14;
+                    if(y > 560){ pdf.addPage(); y = 30; }
+                };
+                drawRow(headers, true);
+                list.forEach(o => drawRow(cols.map(c => c.get(o))));
+                pdf.save(`${bName}_Orders_${stamp}.pdf`);
+            }
+            document.getElementById('export-modal').classList.add('hidden');
+        }
+
+        // Inject on load
+        document.addEventListener('DOMContentLoaded', () => { try { injectStickerExportModals(); } catch(e){} });
+        if(document.readyState !== 'loading') { try { injectStickerExportModals(); } catch(e){} }
+        /* =================== End 🆕 POS Items + Stickers + Export =================== */
 
     </script>
 </body>
