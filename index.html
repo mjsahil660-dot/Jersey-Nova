@@ -22,6 +22,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -497,7 +498,36 @@
                                     <button type="button" onclick="addItemRow()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm">+ নতুন আইটেম</button>
                                 </div>
                             </div>
-                            <input type="text" id="product-name" placeholder="পণ্যের নাম (যেমনঃ ARGENTINA HOME)" class="w-full p-3 border border-amber-200 rounded-xl outline-none focus:border-amber-500 font-bold text-amber-800 bg-white mb-3 uppercase">
+                            <input type="text" id="product-name" list="league-list" placeholder="পণ্যের নাম / লীগ সিলেক্ট করুন (Bangla + English)" class="w-full p-3 border border-amber-200 rounded-xl outline-none focus:border-amber-500 font-bold text-amber-800 bg-white mb-3 uppercase">
+                            <datalist id="league-list">
+                                <option value="ARGENTINA HOME / আর্জেন্টিনা হোম">
+                                <option value="ARGENTINA AWAY / আর্জেন্টিনা অ্যাওয়ে">
+                                <option value="BRAZIL HOME / ব্রাজিল হোম">
+                                <option value="BRAZIL AWAY / ব্রাজিল অ্যাওয়ে">
+                                <option value="PORTUGAL HOME / পর্তুগাল হোম">
+                                <option value="PORTUGAL AWAY / পর্তুগাল অ্যাওয়ে">
+                                <option value="GERMANY HOME / জার্মানি হোম">
+                                <option value="FRANCE HOME / ফ্রান্স হোম">
+                                <option value="SPAIN HOME / স্পেন হোম">
+                                <option value="ENGLAND HOME / ইংল্যান্ড হোম">
+                                <option value="IRAN BLACK / ইরান ব্ল্যাক">
+                                <option value="IRAN WHITE / ইরান হোয়াইট">
+                                <option value="REAL MADRID HOME / রিয়াল মাদ্রিদ হোম">
+                                <option value="BARCELONA HOME / বার্সেলোনা হোম">
+                                <option value="MAN CITY HOME / ম্যান সিটি হোম">
+                                <option value="MAN UNITED HOME / ম্যান ইউনাইটেড হোম">
+                                <option value="LIVERPOOL HOME / লিভারপুল হোম">
+                                <option value="CHELSEA HOME / চেলসি হোম">
+                                <option value="ARSENAL HOME / আর্সেনাল হোম">
+                                <option value="JUVENTUS HOME / জুভেন্টাস হোম">
+                                <option value="PSG HOME / পিএসজি হোম">
+                                <option value="AL NASSR HOME / আল নাসর হোম">
+                                <option value="INTER MIAMI HOME / ইন্টার মায়ামি হোম">
+                                <option value="BANGLADESH CRICKET / বাংলাদেশ ক্রিকেট">
+                                <option value="INDIA CRICKET / ইন্ডিয়া ক্রিকেট">
+                                <option value="PAKISTAN CRICKET / পাকিস্তান ক্রিকেট">
+                                <option value="CUSTOM TEAM / কাস্টম টিম">
+                            </datalist>
                             <div id="items-rows" class="space-y-2"></div>
                             <p class="text-[10px] text-amber-600 font-bold mt-2 italic">প্রতি আইটেমে — কাস্টমার/প্লেয়ার নাম, জার্সি নাম্বার, সাইজ, হাফ/ফুল হাতা।</p>
                             <textarea id="order-notes" placeholder="নোটস / বিশেষ নির্দেশনা (অপশনাল)" rows="2" class="w-full p-3 border border-amber-200 rounded-xl outline-none focus:border-amber-500 text-sm bg-white mt-3"></textarea>
@@ -3025,34 +3055,47 @@
             if(document.getElementById('sticker-modal')) return;
             const html = `
             <!-- Courier Sticker Modal -->
-            <div id="sticker-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 overflow-y-auto">
-              <div class="bg-white rounded-3xl w-full max-w-md p-4 my-8 relative">
-                <button onclick="document.getElementById('sticker-modal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-400 hover:text-pink-500 text-lg z-10"><i class="fas fa-times"></i></button>
-                <h2 class="text-lg font-black text-fuchsia-700 mb-3 flex items-center gap-2"><i class="fas fa-tags"></i> কুরিয়ার স্টিকার</h2>
-                <div class="bg-fuchsia-50/60 border border-fuchsia-100 rounded-xl p-3 mb-3">
+            <div id="sticker-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[70] p-4 overflow-y-auto">
+              <div class="bg-white rounded-3xl w-full max-w-md p-4 my-8 relative shadow-2xl border border-gray-200">
+                <button onclick="document.getElementById('sticker-modal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-400 hover:text-black text-lg z-10"><i class="fas fa-times"></i></button>
+                <h2 class="text-lg font-black text-black mb-3 flex items-center gap-2"><i class="fas fa-tags"></i> কুরিয়ার স্টিকার <span class="text-[10px] font-bold bg-black text-white px-2 py-0.5 rounded-full">B&W</span></h2>
+
+                <!-- Style picker -->
+                <div class="mb-3">
+                  <p class="text-[10px] font-black text-gray-600 mb-1.5">স্টাইল সিলেক্ট করুন:</p>
+                  <div id="sticker-style-picker" class="grid grid-cols-3 gap-2">
+                    <button type="button" data-style="bold" onclick="setStickerStyle('bold')" class="sticker-style-btn border-2 border-black bg-black text-white rounded-lg py-2 text-[11px] font-black">⬛ BOLD</button>
+                    <button type="button" data-style="minimal" onclick="setStickerStyle('minimal')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[11px] font-black">▢ MINIMAL</button>
+                    <button type="button" data-style="ticket" onclick="setStickerStyle('ticket')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[11px] font-black">🎫 TICKET</button>
+                  </div>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 mb-3">
                   <div class="grid grid-cols-2 gap-2 mb-2">
-                    <label class="text-[11px] font-bold text-gray-600">সাইজ
-                      <select id="sticker-size" class="w-full mt-1 p-2 border border-gray-200 rounded text-sm" onchange="onStickerSizeChange()">
+                    <label class="text-[11px] font-bold text-gray-700">সাইজ (Square)
+                      <select id="sticker-size" class="w-full mt-1 p-2 border border-gray-300 rounded text-sm bg-white" onchange="onStickerSizeChange()">
+                        <option value="3x3">3 × 3 inch (Square)</option>
+                        <option value="4x4" selected>4 × 4 inch (Square)</option>
+                        <option value="5x5">5 × 5 inch (Square)</option>
                         <option value="4x6">4 × 6 inch (Thermal)</option>
-                        <option value="3x4" selected>3 × 4 inch</option>
-                        <option value="2x3">2 × 3 inch (Mini)</option>
+                        <option value="3x4">3 × 4 inch</option>
                         <option value="custom">কাস্টম</option>
                       </select>
                     </label>
-                    <label class="text-[11px] font-bold text-gray-600">কাস্টম (W × H inch)
+                    <label class="text-[11px] font-bold text-gray-700">কাস্টম (W × H inch)
                       <div class="flex gap-1 mt-1">
-                        <input id="sticker-w" type="number" step="0.1" value="3" class="w-full p-2 border border-gray-200 rounded text-sm" disabled>
-                        <input id="sticker-h" type="number" step="0.1" value="4" class="w-full p-2 border border-gray-200 rounded text-sm" disabled>
+                        <input id="sticker-w" type="number" step="0.1" value="4" class="w-full p-2 border border-gray-300 rounded text-sm" disabled>
+                        <input id="sticker-h" type="number" step="0.1" value="4" class="w-full p-2 border border-gray-300 rounded text-sm" disabled>
                       </div>
                     </label>
                   </div>
-                  <p class="text-[10px] font-black text-gray-600 mb-1">যে ফিল্ডগুলো স্টিকারে থাকবে:</p>
+                  <p class="text-[10px] font-black text-gray-700 mb-1">যে ফিল্ডগুলো স্টিকারে থাকবে:</p>
                   <div id="sticker-fields" class="grid grid-cols-2 gap-1 text-[11px] font-bold text-gray-700"></div>
                 </div>
                 <div id="sticker-preview-wrap" class="flex justify-center bg-gray-100 p-3 rounded-xl overflow-auto"></div>
                 <div class="grid grid-cols-2 gap-2 mt-3">
-                  <button onclick="downloadStickerImage()" class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white py-2.5 rounded-xl font-black text-sm">📸 ইমেজ ডাউনলোড</button>
-                  <button onclick="printSticker()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-black text-sm">🖨️ প্রিন্ট</button>
+                  <button onclick="downloadStickerImage()" class="bg-black hover:bg-gray-800 text-white py-2.5 rounded-xl font-black text-sm">📸 ইমেজ ডাউনলোড</button>
+                  <button onclick="printSticker()" class="bg-gray-800 hover:bg-black text-white py-2.5 rounded-xl font-black text-sm">🖨️ প্রিন্ট</button>
                 </div>
               </div>
             </div>
@@ -3067,11 +3110,22 @@
                   <div class="grid grid-cols-2 gap-2 mb-2">
                     <label class="text-[11px] font-bold text-gray-600">সাইজ
                       <select id="bulk-sticker-size" class="w-full mt-1 p-2 border border-gray-200 rounded text-sm">
+                        <option value="3x3">3 × 3 inch (Square)</option>
+                        <option value="4x4" selected>4 × 4 inch (Square)</option>
+                        <option value="5x5">5 × 5 inch (Square)</option>
                         <option value="4x6">4 × 6 inch</option>
-                        <option value="3x4" selected>3 × 4 inch</option>
-                        <option value="2x3">2 × 3 inch</option>
+                        <option value="3x4">3 × 4 inch</option>
                       </select>
                     </label>
+                    <label class="text-[11px] font-bold text-gray-600">স্টাইল
+                      <select id="bulk-sticker-style" class="w-full mt-1 p-2 border border-gray-200 rounded text-sm">
+                        <option value="bold" selected>⬛ BOLD (Black)</option>
+                        <option value="minimal">▢ MINIMAL</option>
+                        <option value="ticket">🎫 TICKET</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 mb-2">
                     <label class="text-[11px] font-bold text-gray-600">প্রতি পেজে স্টিকার
                       <select id="bulk-per-page" class="w-full mt-1 p-2 border border-gray-200 rounded text-sm">
                         <option value="1">1</option>
@@ -3085,7 +3139,7 @@
                   <p class="text-[10px] font-black text-gray-600 mb-1">ফিল্ডস:</p>
                   <div id="bulk-sticker-fields" class="grid grid-cols-3 gap-1 text-[11px] font-bold text-gray-700"></div>
                 </div>
-                <button onclick="printBulkStickers()" class="w-full bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white py-3 rounded-xl font-black shadow-lg">🖨️ Bulk Print/Download (PDF)</button>
+                <button onclick="printBulkStickers()" class="w-full bg-black hover:bg-gray-800 text-white py-3 rounded-xl font-black shadow-lg">🖨️ Bulk Print/Download (PDF)</button>
               </div>
             </div>
 
@@ -3256,20 +3310,28 @@
             document.getElementById('sticker-modal').classList.remove('hidden');
             renderStickerPreview();
         }
+        const STICKER_SIZE_MAP = { '3x3':[3,3], '4x4':[4,4], '5x5':[5,5], '4x6':[4,6], '3x4':[3,4], '2x3':[2,3] };
+        let _stickerStyle = 'bold';
+        function setStickerStyle(s){
+            _stickerStyle = s;
+            document.querySelectorAll('.sticker-style-btn').forEach(b => {
+                const active = b.dataset.style === s;
+                b.className = `sticker-style-btn border-2 rounded-lg py-2 text-[11px] font-black ${active?'border-black bg-black text-white':'border-gray-300 bg-white text-black'}`;
+            });
+            renderStickerPreview();
+        }
         function onStickerSizeChange(){
             const v = document.getElementById('sticker-size').value;
             const w = document.getElementById('sticker-w'), h = document.getElementById('sticker-h');
-            const map = { '4x6':[4,6], '3x4':[3,4], '2x3':[2,3] };
-            if(map[v]){ w.value = map[v][0]; h.value = map[v][1]; w.disabled = true; h.disabled = true; }
+            if(STICKER_SIZE_MAP[v]){ w.value = STICKER_SIZE_MAP[v][0]; h.value = STICKER_SIZE_MAP[v][1]; w.disabled = true; h.disabled = true; }
             else { w.disabled = false; h.disabled = false; }
             renderStickerPreview();
         }
         function getStickerSize(prefix){
             prefix = prefix || 'sticker';
             const v = document.getElementById(prefix+'-size').value;
-            const map = { '4x6':[4,6], '3x4':[3,4], '2x3':[2,3] };
-            if(map[v]) return map[v];
-            return [parseFloat(document.getElementById('sticker-w').value)||3, parseFloat(document.getElementById('sticker-h').value)||4];
+            if(STICKER_SIZE_MAP[v]) return STICKER_SIZE_MAP[v];
+            return [parseFloat(document.getElementById('sticker-w').value)||4, parseFloat(document.getElementById('sticker-h').value)||4];
         }
         function getSelectedFields(containerId){
             const out = {};
@@ -3281,33 +3343,86 @@
             if(img && img.src && !img.classList.contains('hidden')) return img.src;
             return '';
         }
-        function buildStickerHTML(o, sizeInch, fields){
+        function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+        function buildStickerHTML(o, sizeInch, fields, style){
+            style = style || 'bold';
             const [wIn, hIn] = sizeInch;
-            // 96 DPI base for screen; we use larger px for sharper canvas
             const PX = 100; const wPx = Math.round(wIn*PX), hPx = Math.round(hIn*PX);
             const bName = (appSettings && appSettings.businessName) || 'Jersey Nova';
             const logoSrc = getLogoSrc();
             const itemsText = itemsToText(o.items);
             const barcodeId = 'bc-'+o.id+'-'+Date.now();
             const showLogo = fields.logo && logoSrc;
-            const fontBase = wIn < 2.5 ? 9 : wIn < 3.5 ? 11 : 13;
-            return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:#fff;border:2px dashed #c026d3;border-radius:8px;padding:8px;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,sans-serif;color:#111;overflow:hidden;font-size:${fontBase}px;line-height:1.25">
-              <div style="display:flex;align-items:center;gap:6px;border-bottom:1.5px solid #111;padding-bottom:4px;margin-bottom:4px">
-                ${showLogo ? `<img src="${logoSrc}" style="width:${Math.min(36,wPx*0.18)}px;height:${Math.min(36,wPx*0.18)}px;object-fit:contain;border-radius:4px">` : ''}
-                ${fields.pageName ? `<div style="font-weight:900;font-size:${fontBase+2}px;text-transform:uppercase;letter-spacing:.5px">${bName}</div>` : ''}
-                ${fields.orderId ? `<div style="margin-left:auto;font-weight:800;font-size:${fontBase-1}px;color:#6b7280">#${String(o.id).slice(-6)}</div>` : ''}
+            const fontBase = wIn < 2.5 ? 9 : wIn < 3.5 ? 11 : wIn < 4.5 ? 12 : 13;
+
+            // Common content blocks (B/W only)
+            const headerLogo = showLogo ? `<img src="${logoSrc}" style="width:${Math.min(40,wPx*0.16)}px;height:${Math.min(40,wPx*0.16)}px;object-fit:contain;background:#fff;padding:2px;border-radius:4px">` : '';
+            const orderTag = fields.orderId ? `#${String(o.id).slice(-6)}` : '';
+            const codBlock = fields.cod ? `COD ৳ ${getNum(o.due)}` : '';
+
+            if(style === 'bold'){
+                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:#fff;border:2px solid #000;border-radius:6px;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,'Noto Sans Bengali',sans-serif;color:#000;overflow:hidden;font-size:${fontBase}px;line-height:1.3">
+                  <div style="background:#000;color:#fff;padding:6px 8px;display:flex;align-items:center;gap:6px">
+                    ${headerLogo}
+                    ${fields.pageName ? `<div style="font-weight:900;font-size:${fontBase+3}px;letter-spacing:.5px;text-transform:uppercase">${escapeHtml(bName)}</div>` : ''}
+                    ${orderTag ? `<div style="margin-left:auto;font-weight:900;font-size:${fontBase}px;background:#fff;color:#000;padding:1px 6px;border-radius:3px">${orderTag}</div>` : ''}
+                  </div>
+                  <div style="flex:1;padding:6px 8px;display:flex;flex-direction:column;gap:3px;min-height:0;overflow:hidden">
+                    ${fields.name ? `<div style="font-weight:900;font-size:${fontBase+1}px;word-break:break-word">${escapeHtml(o.name)}</div>` : ''}
+                    ${fields.phone ? `<div style="font-weight:900;font-size:${fontBase+2}px">📞 ${escapeHtml(o.phone)}</div>` : ''}
+                    ${fields.address ? `<div style="font-size:${fontBase-1}px;word-break:break-word">${escapeHtml(o.addr)}</div>` : ''}
+                    ${fields.product && o.productName ? `<div style="font-weight:900;text-transform:uppercase;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:2px 0;word-break:break-word">${escapeHtml(o.productName)}</div>` : ''}
+                    ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
+                    ${fields.date ? `<div style="font-size:${fontBase-2}px">📅 ${escapeHtml(o.date)}</div>` : ''}
+                    ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;word-break:break-word">📝 ${escapeHtml(o.notes)}</div>` : ''}
+                  </div>
+                  ${codBlock ? `<div style="background:#000;color:#fff;padding:5px 8px;font-weight:900;text-align:center;font-size:${fontBase+3}px;letter-spacing:1px">${codBlock}</div>` : ''}
+                  ${fields.barcode ? `<div style="background:#fff;padding:2px 8px 4px"><svg id="${barcodeId}" style="width:100%;height:${Math.max(28,hPx*0.16)}px"></svg></div>` : ''}
+                </div>`;
+            }
+
+            if(style === 'minimal'){
+                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:#fff;border:1px solid #000;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,'Noto Sans Bengali',sans-serif;color:#000;overflow:hidden;font-size:${fontBase}px;line-height:1.35;padding:10px;gap:5px">
+                  <div style="display:flex;align-items:center;gap:6px;padding-bottom:6px;border-bottom:1px solid #000">
+                    ${headerLogo}
+                    <div style="flex:1">
+                      ${fields.pageName ? `<div style="font-weight:900;font-size:${fontBase+2}px;letter-spacing:.3px;text-transform:uppercase">${escapeHtml(bName)}</div>` : ''}
+                      ${fields.date ? `<div style="font-size:${fontBase-2}px;color:#444">${escapeHtml(o.date)}</div>` : ''}
+                    </div>
+                    ${orderTag ? `<div style="font-weight:900;font-size:${fontBase-1}px;color:#000">${orderTag}</div>` : ''}
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-height:0;overflow:hidden">
+                    ${fields.name ? `<div style="font-weight:900;font-size:${fontBase+2}px;word-break:break-word">${escapeHtml(o.name)}</div>` : ''}
+                    ${fields.phone ? `<div style="font-weight:800;font-size:${fontBase+1}px;letter-spacing:.5px">${escapeHtml(o.phone)}</div>` : ''}
+                    ${fields.address ? `<div style="font-size:${fontBase-1}px;color:#222;word-break:break-word">${escapeHtml(o.addr)}</div>` : ''}
+                    ${fields.product && o.productName ? `<div style="font-weight:800;text-transform:uppercase;font-size:${fontBase}px;word-break:break-word">${escapeHtml(o.productName)}</div>` : ''}
+                    ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;color:#333;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
+                    ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;word-break:break-word">${escapeHtml(o.notes)}</div>` : ''}
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #000;padding-top:5px;gap:6px">
+                    ${codBlock ? `<div style="font-weight:900;font-size:${fontBase+3}px">${codBlock}</div>` : '<div></div>'}
+                    ${fields.barcode ? `<svg id="${barcodeId}" style="height:${Math.max(28,hPx*0.16)}px;flex:1;max-width:60%"></svg>` : ''}
+                  </div>
+                </div>`;
+            }
+
+            // ticket style — receipt-like dashed dividers
+            return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:#fff;border:2px dashed #000;box-sizing:border-box;display:flex;flex-direction:column;font-family:'Courier New',Arial,'Noto Sans Bengali',monospace;color:#000;overflow:hidden;font-size:${fontBase}px;line-height:1.3;padding:8px;gap:4px">
+              <div style="text-align:center;border-bottom:1px dashed #000;padding-bottom:4px">
+                ${fields.pageName ? `<div style="font-weight:900;font-size:${fontBase+3}px;letter-spacing:2px;text-transform:uppercase">${escapeHtml(bName)}</div>` : ''}
+                ${orderTag ? `<div style="font-weight:900;font-size:${fontBase}px">ORDER ${orderTag}</div>` : ''}
               </div>
-              <div style="flex:1;display:flex;flex-direction:column;gap:2px">
-                ${fields.name ? `<div style="font-weight:900">${o.name||''}</div>` : ''}
-                ${fields.phone ? `<div style="font-weight:800">📞 ${o.phone||''}</div>` : ''}
-                ${fields.address ? `<div style="font-size:${fontBase-1}px;color:#374151">${o.addr||''}</div>` : ''}
-                ${fields.product && o.productName ? `<div style="font-weight:800;text-transform:uppercase;color:#7c3aed">${o.productName}</div>` : ''}
-                ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;color:#111;white-space:normal">${itemsText}</div>` : ''}
-                ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;color:#7f1d1d;font-style:italic">${o.notes}</div>` : ''}
-                ${fields.date ? `<div style="font-size:${fontBase-2}px;color:#6b7280">📅 ${o.date||''}</div>` : ''}
-                ${fields.cod ? `<div style="margin-top:auto;background:#111;color:#fff;padding:3px 6px;border-radius:4px;font-weight:900;text-align:center;font-size:${fontBase+1}px">COD ৳ ${getNum(o.due)}</div>` : ''}
+              <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;overflow:hidden">
+                ${fields.name ? `<div><span style="color:#555">TO:</span> <b>${escapeHtml(o.name)}</b></div>` : ''}
+                ${fields.phone ? `<div style="font-weight:900;font-size:${fontBase+2}px">☎ ${escapeHtml(o.phone)}</div>` : ''}
+                ${fields.address ? `<div style="font-size:${fontBase-1}px;word-break:break-word">${escapeHtml(o.addr)}</div>` : ''}
+                ${fields.product && o.productName ? `<div style="border-top:1px dashed #000;padding-top:3px;font-weight:900;text-transform:uppercase;word-break:break-word">${escapeHtml(o.productName)}</div>` : ''}
+                ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
+                ${fields.date ? `<div style="font-size:${fontBase-2}px">📅 ${escapeHtml(o.date)}</div>` : ''}
+                ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;word-break:break-word">${escapeHtml(o.notes)}</div>` : ''}
               </div>
-              ${fields.barcode ? `<svg id="${barcodeId}" style="margin-top:4px;width:100%;height:${Math.max(28,hPx*0.18)}px"></svg>` : ''}
+              ${codBlock ? `<div style="border-top:1px dashed #000;border-bottom:1px dashed #000;padding:3px 0;text-align:center;font-weight:900;font-size:${fontBase+3}px;letter-spacing:1px">${codBlock}</div>` : ''}
+              ${fields.barcode ? `<svg id="${barcodeId}" style="width:100%;height:${Math.max(28,hPx*0.15)}px"></svg>` : ''}
             </div>`;
         }
         function renderStickerPreview(){
@@ -3315,7 +3430,7 @@
             const fields = getSelectedFields('sticker-fields');
             const size = getStickerSize('sticker');
             const wrap = document.getElementById('sticker-preview-wrap');
-            wrap.innerHTML = buildStickerHTML(o, size, fields);
+            wrap.innerHTML = buildStickerHTML(o, size, fields, _stickerStyle);
             // render barcode
             if(fields.barcode){
                 const svg = wrap.querySelector('svg');
@@ -3347,8 +3462,8 @@
             const list = getFilteredOrders();
             if(!list.length) return Swal.fire({icon:'info', title:'কোনো অর্ডার নেই'});
             const sizeVal = document.getElementById('bulk-sticker-size').value;
-            const map = { '4x6':[4,6], '3x4':[3,4], '2x3':[2,3] };
-            const size = map[sizeVal];
+            const size = STICKER_SIZE_MAP[sizeVal] || [4,4];
+            const bulkStyle = (document.getElementById('bulk-sticker-style')||{}).value || 'bold';
             const perPage = parseInt(document.getElementById('bulk-per-page').value)||4;
             const fields = getSelectedFields('bulk-sticker-fields');
             const loadingSwal = Swal.fire({ title:'PDF তৈরি হচ্ছে...', allowOutsideClick:false, didOpen:()=>Swal.showLoading() });
@@ -3368,7 +3483,7 @@
             let idx = 0;
             for(let i=0;i<list.length;i++){
                 const o = list[i];
-                offscreen.innerHTML = buildStickerHTML(o, size, fields);
+                offscreen.innerHTML = buildStickerHTML(o, size, fields, bulkStyle);
                 if(fields.barcode){
                     const svg = offscreen.querySelector('svg');
                     if(svg) try { JsBarcode(svg, (o.phone||String(o.id)), { format:'CODE128', displayValue:true, fontSize:10, height:30, margin:0 }); } catch(e){}
@@ -3507,26 +3622,68 @@
                 return row;
             });
         }
+        // Auto-fit column widths based on longest cell content per column
+        function autoFitCols(rows){
+            if(!rows || !rows.length) return [];
+            const keys = Object.keys(rows[0]);
+            return keys.map(k => {
+                let max = String(k).length;
+                rows.forEach(r => { const v = String(r[k]==null?'':r[k]); if(v.length > max) max = v.length; });
+                // cap to reasonable width (Excel char units)
+                return { wch: Math.min(Math.max(max + 2, 10), 50) };
+            });
+        }
+        function buildAutoTable(pdf, headers, body, title, list){
+            pdf.setFont('helvetica','bold'); pdf.setFontSize(14);
+            pdf.text(title, 30, 28);
+            pdf.setFont('helvetica','normal'); pdf.setFontSize(9);
+            pdf.text(`Total: ${list.length} orders`, 30, 44);
+            pdf.autoTable({
+                head: [headers],
+                body,
+                startY: 52,
+                styles: { font:'helvetica', fontSize:8, cellPadding:3, overflow:'linebreak', valign:'middle', lineColor:[40,40,40], lineWidth:0.3 },
+                headStyles: { fillColor:[15,15,15], textColor:[255,255,255], fontStyle:'bold', halign:'center' },
+                alternateRowStyles: { fillColor:[245,245,245] },
+                margin: { left:20, right:20 },
+                theme: 'grid'
+            });
+        }
         function doExport(kind){
             const list = orders.filter(o => exportSelectedIds.has(o.id)).sort((a,b)=>b.id-a.id);
-
             if(!list.length) return Swal.fire({icon:'info', title:'কোনো অর্ডার নেই'});
             const cols = getSelectedExportCols();
             if(!cols.length) return Swal.fire({icon:'warning', title:'কমপক্ষে একটি কলাম সিলেক্ট করুন'});
             const bName = ((appSettings && appSettings.businessName) || 'Orders').replace(/\s+/g,'');
             const stamp = new Date().toISOString().slice(0,10);
+
             if(kind === 'xlsx'){
                 const wb = XLSX.utils.book_new();
-                const ws = XLSX.utils.json_to_sheet(ordersToRows(list, cols));
+                const rows = ordersToRows(list, cols);
+                const ws = XLSX.utils.json_to_sheet(rows);
+                ws['!cols'] = autoFitCols(rows);
+                ws['!freeze'] = { xSplit: 0, ySplit: 1 };
                 XLSX.utils.book_append_sheet(wb, ws, 'Orders');
                 XLSX.writeFile(wb, `${bName}_Orders_${stamp}.xlsx`);
+
             } else if(kind === 'product'){
-                // Group by productName
                 const groups = {};
                 list.forEach(o => { const k = (o.productName||'UNCATEGORIZED').toUpperCase(); (groups[k] = groups[k] || []).push(o); });
                 const wb = XLSX.utils.book_new();
+
+                // Summary sheet first
+                const summary = Object.keys(groups).sort().map(g => ({
+                    'পণ্যের নাম': g,
+                    'অর্ডার সংখ্যা': groups[g].length,
+                    'মোট পিস': groups[g].reduce((s,o)=>s+(getNum(o.rQty)+getNum(o.cQty)+getNum(o.pQty)),0),
+                    'মোট বিল ৳': groups[g].reduce((s,o)=>s+getNum(o.totalBill),0),
+                    'মোট COD ৳': groups[g].reduce((s,o)=>s+getNum(o.due),0)
+                }));
+                const wsSum = XLSX.utils.json_to_sheet(summary);
+                wsSum['!cols'] = autoFitCols(summary);
+                XLSX.utils.book_append_sheet(wb, wsSum, '📊 Summary');
+
                 Object.keys(groups).sort().forEach(g => {
-                    // Expand into per-item rows so each player line appears separately
                     const rows = [];
                     groups[g].forEach(o => {
                         const items = (o.items && o.items.length) ? o.items : [{}];
@@ -3545,31 +3702,27 @@
                         });
                     });
                     const ws = XLSX.utils.json_to_sheet(rows);
+                    ws['!cols'] = autoFitCols(rows);
+                    ws['!freeze'] = { xSplit: 0, ySplit: 1 };
                     const safe = g.replace(/[\\\/\?\*\[\]:]/g,'_').slice(0,28);
                     XLSX.utils.book_append_sheet(wb, ws, safe || 'Sheet');
                 });
                 XLSX.writeFile(wb, `${bName}_ProductWise_${stamp}.xlsx`);
+
             } else if(kind === 'pdf'){
                 const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('l','pt','a4');
-                const W = pdf.internal.pageSize.getWidth();
-                let y = 30;
-                pdf.setFont('helvetica','bold'); pdf.setFontSize(14);
-                pdf.text(`${bName} - Orders (${list.length}) - ${stamp}`, 30, y); y += 16;
-                pdf.setFontSize(8); pdf.setFont('helvetica','normal');
+                if(!jsPDF) return Swal.fire({icon:'error', title:'PDF লাইব্রেরি লোড হয়নি'});
+                const pdf = new jsPDF({ orientation:'l', unit:'pt', format:'a4' });
+                if(typeof pdf.autoTable !== 'function'){
+                    return Swal.fire({icon:'error', title:'PDF Plugin Missing', text:'jspdf-autotable লোড হয়নি। ইন্টারনেট চেক করুন।'});
+                }
                 const headers = cols.map(c => c.label);
-                const colW = (W-60)/headers.length;
-                const drawRow = (vals, bold) => {
-                    pdf.setFont('helvetica', bold?'bold':'normal');
-                    vals.forEach((v,i) => pdf.text(String(v||'').slice(0,40), 30+i*colW, y));
-                    y += 14;
-                    if(y > 560){ pdf.addPage(); y = 30; }
-                };
-                drawRow(headers, true);
-                list.forEach(o => drawRow(cols.map(c => c.get(o))));
+                const body = list.map(o => cols.map(c => String(c.get(o)==null?'':c.get(o))));
+                buildAutoTable(pdf, headers, body, `${bName} - Orders - ${stamp}`, list);
                 pdf.save(`${bName}_Orders_${stamp}.pdf`);
             }
             document.getElementById('export-modal').classList.add('hidden');
+            Toast && Toast.fire && Toast.fire({ icon:'success', title:`${list.length} অর্ডার এক্সপোর্ট সম্পন্ন!` });
         }
 
         // Inject on load
