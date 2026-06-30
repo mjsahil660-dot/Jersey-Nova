@@ -38,10 +38,30 @@
         :root {
             --card-grad-start: #4f46e5; /* Default matched to your image */
             --card-grad-end: #d946ef;
+            --app-bg: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 50%, #f3e8ff 100%);
+            --accent: #4f46e5;
         }
 
         /* Base Styles */
-        body { font-family: 'Hind Siliguri', sans-serif; background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 50%, #f3e8ff 100%); min-height: 100vh; -webkit-tap-highlight-color: transparent; transition: background 0.3s ease; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: var(--app-bg); min-height: 100vh; -webkit-tap-highlight-color: transparent; transition: background 0.4s ease; }
+
+        /* ===== Settings section tabs ===== */
+        .settings-tab { padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: 800; color:#6b7280; background:transparent; white-space:nowrap; transition:.2s; display:flex; align-items:center; gap:6px; }
+        .settings-tab.active { background: linear-gradient(135deg, var(--card-grad-start), var(--card-grad-end)); color:#fff; box-shadow:0 6px 14px -4px rgba(0,0,0,.3); }
+        .settings-panel { display:none; }
+        .settings-panel.active { display:block; animation: settFade .25s ease both; }
+        @keyframes settFade { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+        /* ===== Theme preset swatches ===== */
+        .theme-card { cursor:pointer; border-radius:16px; padding:10px; border:2px solid transparent; transition:.2s; position:relative; background:#fff; }
+        .theme-card:hover { transform:translateY(-2px); box-shadow:0 10px 20px -8px rgba(0,0,0,.25); }
+        .theme-card.active { border-color: var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+        .theme-card.active::after { content:'\2713'; position:absolute; top:6px; right:8px; width:18px; height:18px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:900; display:flex; align-items:center; justify-content:center; }
+        .theme-swatch { height:42px; border-radius:10px; margin-bottom:6px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+        .theme-name { font-size:11px; font-weight:800; color:#374151; text-align:center; }
+        body.dark-mode .theme-card { background:#0f172a; }
+        body.dark-mode .theme-name { color:#e2e8f0; }
+        body.dark-mode .settings-tab { color:#94a3b8; }
         .hidden { display: none !important; }
         @media print { .no-print { display: none !important; } }
         
@@ -787,41 +807,91 @@
     <div id="settings-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 transition-opacity">
         <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeSettings()" class="absolute top-4 right-4 text-gray-400 hover:text-pink-500 text-xl"><i class="fas fa-times"></i></button>
-            <h2 class="text-2xl font-black mb-6 text-indigo-800 border-b pb-3">⚙️ সেটিংস ও প্রোফাইল</h2>
-            
-            <div class="space-y-6">
-                
-                <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-100">
-                    <label class="block text-sm font-bold text-purple-700 mb-2">ড্যাশবোর্ড কার্ডের কালার (Gradient)</label>
-                    <div class="flex items-center gap-3 mb-3">
-                        <input type="color" id="setting-card-grad1" class="w-10 h-10 rounded cursor-pointer border-0 p-0" value="#4f46e5">
-                        <span class="text-xs font-bold text-gray-500">Left Color</span>
-                        <input type="color" id="setting-card-grad2" class="w-10 h-10 rounded cursor-pointer border-0 p-0" value="#d946ef">
-                        <span class="text-xs font-bold text-gray-500">Right Color</span>
-                    </div>
-                    
-                    <div class="flex items-center justify-between border-t border-purple-100 pt-3 mt-2 mb-2">
-                        <label class="text-sm font-bold text-gray-800">ডার্ক মোড (Dark Mode)</label>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" id="setting-dark-mode" class="sr-only peer" onchange="toggleDarkModePreview(this)">
-                          <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-                        </label>
-                    </div>
-                </div>
+            <h2 class="text-2xl font-black mb-4 text-indigo-800 border-b pb-3">⚙️ সেটিংস ও প্রোফাইল</h2>
 
+            <div class="flex gap-1 overflow-x-auto pb-3 mb-4 -mx-1 px-1" id="settings-tabs">
+                <button class="settings-tab active" data-sect="theme" onclick="switchSettingsSection('theme')">🎨 থিম</button>
+                <button class="settings-tab" data-sect="profile" onclick="switchSettingsSection('profile')">🏢 প্রোফাইল</button>
+                <button class="settings-tab" data-sect="branding" onclick="switchSettingsSection('branding')">🖼️ লোগো/QR</button>
+                <button class="settings-tab" data-sect="invoice" onclick="switchSettingsSection('invoice')">📝 ইনভয়েস</button>
+                <button class="settings-tab" data-sect="security" onclick="switchSettingsSection('security')">🔒 সিকিউরিটি</button>
+                <button class="settings-tab" data-sect="courier" onclick="switchSettingsSection('courier')">🚚 কুরিয়ার</button>
+            </div>
+
+            <!-- THEME -->
+            <div class="settings-panel active" data-panel="theme">
+                <div class="space-y-4">
+                    <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                        <label class="block text-sm font-black text-indigo-700 mb-3">🎨 রেডিমেড থিম (এক ক্লিকে বদলান)</label>
+                        <div id="theme-preset-grid" class="grid grid-cols-3 gap-2"></div>
+                    </div>
+                    <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-100">
+                        <label class="block text-sm font-bold text-purple-700 mb-2">কাস্টম কার্ড কালার (Gradient)</label>
+                        <div class="flex items-center gap-3 mb-3">
+                            <input type="color" id="setting-card-grad1" class="w-10 h-10 rounded cursor-pointer border-0 p-0" value="#4f46e5">
+                            <span class="text-xs font-bold text-gray-500">Left Color</span>
+                            <input type="color" id="setting-card-grad2" class="w-10 h-10 rounded cursor-pointer border-0 p-0" value="#d946ef">
+                            <span class="text-xs font-bold text-gray-500">Right Color</span>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-purple-100 pt-3 mt-2 mb-2">
+                            <label class="text-sm font-bold text-gray-800">ডার্ক মোড (Dark Mode)</label>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                              <input type="checkbox" id="setting-dark-mode" class="sr-only peer" onchange="toggleDarkModePreview(this)">
+                              <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                    <button onclick="saveBusinessProfile()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-3 rounded-xl text-sm font-bold hover:from-indigo-700 hover:to-purple-700 transition shadow-md">থিম সেভ করুন</button>
+                </div>
+            </div>
+
+            <!-- PROFILE -->
+            <div class="settings-panel" data-panel="profile">
                 <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
                     <label class="block text-sm font-bold text-indigo-700 mb-2">আপনার পেজের / ব্যবসার নাম</label>
                     <input type="text" id="setting-biz-name" placeholder="যেমন: Jersey Zone" class="w-full p-3 border border-indigo-200 rounded-xl outline-none focus:border-indigo-500 text-sm mb-3 font-bold text-gray-700 bg-white">
-                    
                     <label class="block text-sm font-bold text-indigo-700 mb-2">ইনভয়েসের থিম কালার (Color)</label>
                     <div class="flex items-center gap-3 mb-3">
                         <input type="color" id="setting-theme-color" class="w-12 h-12 rounded cursor-pointer border-0 p-0" value="#4f46e5">
-                        <span class="text-xs font-bold text-gray-500">ইনভয়েসের ব্র্যান্ড কালার</span>
+                        <span class="text-xs font-bold text-gray-500">ইনভয়েসের ব্র্যান্ড কালার</span>
                     </div>
-                    
                     <button onclick="saveBusinessProfile()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:from-indigo-700 hover:to-purple-700 transition shadow-md">প্রোফাইল ও কালার আপডেট করুন</button>
                 </div>
+            </div>
 
+            <!-- BRANDING -->
+            <div class="settings-panel" data-panel="branding">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">কোম্পানি লোগো (Header & Invoice)</label>
+                        <div class="drop-zone relative rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer" onclick="document.getElementById('logo-upload').click()">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-indigo-400 mb-2"></i>
+                            <span class="text-sm font-bold text-indigo-700">ক্লিক করুন বা ছবি ড্র্যাগ করুন</span>
+                            <input type="file" id="logo-upload" accept="image/*" class="hidden">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">পেমেন্ট QR Code (Invoice)</label>
+                        <div class="drop-zone relative rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer" onclick="document.getElementById('qr-upload').click()">
+                            <i class="fas fa-qrcode text-3xl text-indigo-400 mb-2"></i>
+                            <span class="text-sm font-bold text-indigo-700">ক্লিক করুন বা QR ড্র্যাগ করুন</span>
+                            <input type="file" id="qr-upload" accept="image/*" class="hidden">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INVOICE -->
+            <div class="settings-panel" data-panel="invoice">
+                <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                    <label class="block text-sm font-bold text-indigo-700 mb-2">ইনভয়েস টার্মস / মেসেজ</label>
+                    <textarea id="setting-terms" rows="3" placeholder="যেমন: Exchange within 3 days..." class="w-full p-3 border border-blue-200 rounded-xl outline-none focus:border-blue-500 text-sm mb-2 bg-white"></textarea>
+                    <button onclick="saveSetting('terms', 'setting-terms')" class="w-full bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition">মেসেজ সেভ করুন</button>
+                </div>
+            </div>
+
+            <!-- SECURITY -->
+            <div class="settings-panel" data-panel="security">
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
                     <label class="block text-sm font-bold text-gray-700 mb-2">পাসওয়ার্ড পরিবর্তন (বর্তমান অ্যাকাউন্টের)</label>
                     <div class="flex gap-2">
@@ -829,32 +899,10 @@
                         <button onclick="saveSetting('password', 'setting-password')" class="bg-gray-800 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition">আপডেট</button>
                     </div>
                 </div>
+            </div>
 
-                <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                    <label class="block text-sm font-bold text-indigo-700 mb-2">ইনভয়েস টার্মস / মেসেজ</label>
-                    <textarea id="setting-terms" rows="3" placeholder="যেমন: Exchange within 3 days..." class="w-full p-3 border border-blue-200 rounded-xl outline-none focus:border-blue-500 text-sm mb-2 bg-white"></textarea>
-                    <button onclick="saveSetting('terms', 'setting-terms')" class="w-full bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition">মেসেজ সেভ করুন</button>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">কোম্পানি লোগো (Header & Invoice)</label>
-                    <div class="drop-zone relative rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer" onclick="document.getElementById('logo-upload').click()">
-                        <i class="fas fa-cloud-upload-alt text-3xl text-indigo-400 mb-2"></i>
-                        <span class="text-sm font-bold text-indigo-700">ক্লিক করুন বা ছবি ড্র্যাগ করুন</span>
-                        <input type="file" id="logo-upload" accept="image/*" class="hidden">
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">পেমেন্ট QR Code (Invoice)</label>
-                    <div class="drop-zone relative rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer" onclick="document.getElementById('qr-upload').click()">
-                        <i class="fas fa-qrcode text-3xl text-indigo-400 mb-2"></i>
-                        <span class="text-sm font-bold text-indigo-700">ক্লিক করুন বা QR ড্র্যাগ করুন</span>
-                        <input type="file" id="qr-upload" accept="image/*" class="hidden">
-                    </div>
-                </div>
-
-                <!-- Pathao Courier Integration (Per-User) -->
+            <!-- COURIER -->
+            <div class="settings-panel" data-panel="courier">
                 <div class="bg-pink-50/60 p-4 rounded-xl border border-pink-200">
                     <div class="flex items-center justify-between mb-2">
                         <label class="block text-sm font-black text-pink-700">🚚 Pathao কুরিয়ার কানেকশন (আপনার নিজের অ্যাকাউন্ট)</label>
@@ -884,7 +932,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="invoice-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-2 relative">
             <div id="inv-main-box" class="p-6 bg-white border-2 rounded-2xl shadow-xl relative overflow-hidden" style="border-color: #4f46e5;">
@@ -986,8 +1034,56 @@
             cardGrad1: '#4f46e5', 
             cardGrad2: '#d946ef', 
             themeMode: 'light',
-            logo: '', qr: '', terms: 'Thank you for choosing our service!' 
+            logo: '', qr: '', terms: 'Thank you for choosing our service!',
+            themePreset: 'indigo',
+            appBg: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 50%, #f3e8ff 100%)'
         };
+
+        // ====== UI Theme Presets (one-click switchable) ======
+        const THEME_PRESETS = [
+            { key:'indigo',   name:'Indigo',   g1:'#4f46e5', g2:'#d946ef', accent:'#4f46e5', bg:'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 50%, #f3e8ff 100%)', dark:false },
+            { key:'ocean',    name:'Ocean',    g1:'#0ea5e9', g2:'#06b6d4', accent:'#0284c7', bg:'linear-gradient(135deg, #ecfeff 0%, #cffafe 50%, #e0f2fe 100%)', dark:false },
+            { key:'emerald',  name:'Emerald',  g1:'#059669', g2:'#10b981', accent:'#047857', bg:'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #f0fdfa 100%)', dark:false },
+            { key:'sunset',   name:'Sunset',   g1:'#f97316', g2:'#ec4899', accent:'#ea580c', bg:'linear-gradient(135deg, #fff7ed 0%, #ffe4e6 50%, #fef3c7 100%)', dark:false },
+            { key:'rose',     name:'Rose',     g1:'#e11d48', g2:'#f43f5e', accent:'#be123c', bg:'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 50%, #fdf2f8 100%)', dark:false },
+            { key:'royal',    name:'Royal',    g1:'#7c3aed', g2:'#a855f7', accent:'#6d28d9', bg:'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #faf5ff 100%)', dark:false },
+            { key:'midnight', name:'Midnight', g1:'#6366f1', g2:'#8b5cf6', accent:'#818cf8', bg:'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)', dark:true },
+            { key:'carbon',   name:'Carbon',   g1:'#0ea5e9', g2:'#22d3ee', accent:'#38bdf8', bg:'linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e293b 100%)', dark:true },
+            { key:'forest',   name:'Forest',   g1:'#10b981', g2:'#34d399', accent:'#34d399', bg:'linear-gradient(135deg, #022c22 0%, #064e3b 50%, #065f46 100%)', dark:true }
+        ];
+
+        function renderThemePresets() {
+            const grid = document.getElementById('theme-preset-grid');
+            if(!grid) return;
+            const cur = appSettings.themePreset || 'indigo';
+            grid.innerHTML = THEME_PRESETS.map(p => `
+                <div class="theme-card ${p.key===cur?'active':''}" onclick="selectThemePreset('${p.key}')">
+                    <div class="theme-swatch" style="background:linear-gradient(135deg, ${p.g1}, ${p.g2});"></div>
+                    <div class="theme-name">${p.name}${p.dark?' 🌙':''}</div>
+                </div>`).join('');
+        }
+
+        // Live-preview a preset (not saved until "থিম সেভ করুন")
+        function selectThemePreset(key) {
+            const p = THEME_PRESETS.find(x => x.key === key) || THEME_PRESETS[0];
+            appSettings.themePreset = p.key;
+            appSettings.appBg = p.bg;
+            const g1=document.getElementById('setting-card-grad1'); if(g1) g1.value=p.g1;
+            const g2=document.getElementById('setting-card-grad2'); if(g2) g2.value=p.g2;
+            const tc=document.getElementById('setting-theme-color'); if(tc) tc.value=p.accent;
+            const dm=document.getElementById('setting-dark-mode'); if(dm) dm.checked=p.dark;
+            document.documentElement.style.setProperty('--card-grad-start', p.g1);
+            document.documentElement.style.setProperty('--card-grad-end', p.g2);
+            document.documentElement.style.setProperty('--accent', p.accent);
+            document.body.style.background = p.bg;
+            if(p.dark) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
+            renderThemePresets();
+        }
+
+        function switchSettingsSection(sect) {
+            document.querySelectorAll('#settings-tabs .settings-tab').forEach(b => b.classList.toggle('active', b.dataset.sect===sect));
+            document.querySelectorAll('#settings-modal .settings-panel').forEach(p => p.classList.toggle('active', p.dataset.panel===sect));
+        }
         
         let salesChartInstance = null;
         let itemChartInstance = null;
@@ -1185,6 +1281,11 @@
             document.documentElement.style.setProperty('--card-grad-end', cg2);
             document.getElementById('setting-card-grad1').value = cg1;
             document.getElementById('setting-card-grad2').value = cg2;
+            document.documentElement.style.setProperty('--accent', tColor);
+
+            // Apply overall UI theme (background + preset gallery)
+            if(appSettings.appBg) document.body.style.background = appSettings.appBg;
+            renderThemePresets();
             
             // Apply Dark Mode
             let themeMode = appSettings.themeMode || 'light';
@@ -1308,7 +1409,9 @@
                 themeColor: tColor,
                 cardGrad1: cg1,
                 cardGrad2: cg2,
-                themeMode: themeMode
+                themeMode: themeMode,
+                themePreset: appSettings.themePreset || 'indigo',
+                appBg: appSettings.appBg || ''
             }).then(() => {
                 Toast.fire({ icon: 'success', title: 'প্রোফাইল আপডেট হয়েছে!' });
             });
@@ -1352,7 +1455,7 @@
             document.getElementById('sidebar-overlay').classList.toggle('hidden');
         }
 
-        function openSettings() { toggleSidebar(); document.getElementById('settings-modal').classList.remove('hidden'); }
+        function openSettings() { toggleSidebar(); document.getElementById('settings-modal').classList.remove('hidden'); switchSettingsSection('theme'); renderThemePresets(); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); applyThemeAndSettings(); /* revert if not saved */ }
 
         function switchTab(tabId) {
@@ -3633,21 +3736,50 @@
                 return { wch: Math.min(Math.max(max + 2, 10), 50) };
             });
         }
-        function buildAutoTable(pdf, headers, body, title, list){
-            pdf.setFont('helvetica','bold'); pdf.setFontSize(14);
-            pdf.text(title, 30, 28);
-            pdf.setFont('helvetica','normal'); pdf.setFontSize(9);
-            pdf.text(`Total: ${list.length} orders`, 30, 44);
-            pdf.autoTable({
-                head: [headers],
-                body,
-                startY: 52,
-                styles: { font:'helvetica', fontSize:8, cellPadding:3, overflow:'linebreak', valign:'middle', lineColor:[40,40,40], lineWidth:0.3 },
-                headStyles: { fillColor:[15,15,15], textColor:[255,255,255], fontStyle:'bold', halign:'center' },
-                alternateRowStyles: { fillColor:[245,245,245] },
-                margin: { left:20, right:20 },
-                theme: 'grid'
-            });
+        // Bengali-safe PDF: render a styled HTML table -> canvas (html2canvas) -> image -> multi-page PDF.
+        // jsPDF's built-in fonts cannot shape Bengali (Hind Siliguri), so the canvas route keeps the text correct.
+        async function exportOrdersPDF(headers, body, title, count, fileName){
+            const { jsPDF } = window.jspdf;
+            if(!jsPDF) { Swal.fire({icon:'error', title:'PDF লাইব্রেরি লোড হয়নি'}); return false; }
+            const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'position:fixed;left:-99999px;top:0;width:1400px;background:#fff;padding:28px;font-family:\'Hind Siliguri\',sans-serif;color:#111;';
+            wrap.innerHTML = `
+                <div style="font-size:24px;font-weight:900;margin-bottom:4px;">${esc(title)}</div>
+                <div style="font-size:13px;font-weight:700;color:#555;margin-bottom:14px;">Total: ${count} orders</div>
+                <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                    <thead>
+                        <tr>${headers.map(h=>`<th style="background:#0f0f0f;color:#fff;font-weight:800;padding:8px 6px;border:1px solid #222;text-align:center;">${esc(h)}</th>`).join('')}</tr>
+                    </thead>
+                    <tbody>
+                        ${body.map((row,i)=>`<tr style="background:${i%2?'#f5f5f5':'#fff'};">${row.map(c=>`<td style="padding:7px 6px;border:1px solid #333;vertical-align:middle;">${esc(c)}</td>`).join('')}</tr>`).join('')}
+                    </tbody>
+                </table>`;
+            document.body.appendChild(wrap);
+            try {
+                const canvas = await html2canvas(wrap, { scale: 2, useCORS:true, backgroundColor:'#ffffff' });
+                const pdf = new jsPDF({ orientation:'l', unit:'mm', format:'a4' });
+                const pw = pdf.internal.pageSize.getWidth();
+                const ph = pdf.internal.pageSize.getHeight();
+                const margin = 6;
+                const imgW = pw - margin*2;
+                const imgH = canvas.height * imgW / canvas.width;
+                const img = canvas.toDataURL('image/jpeg', 0.92);
+                let heightLeft = imgH;
+                let position = margin;
+                pdf.addImage(img, 'JPEG', margin, position, imgW, imgH);
+                heightLeft -= (ph - margin*2);
+                while(heightLeft > 0){
+                    pdf.addPage();
+                    position = margin - (imgH - heightLeft);
+                    pdf.addImage(img, 'JPEG', margin, position, imgW, imgH);
+                    heightLeft -= (ph - margin*2);
+                }
+                pdf.save(fileName);
+                return true;
+            } finally {
+                document.body.removeChild(wrap);
+            }
         }
         function doExport(kind){
             const list = orders.filter(o => exportSelectedIds.has(o.id)).sort((a,b)=>b.id-a.id);
@@ -3710,16 +3842,17 @@
                 XLSX.writeFile(wb, `${bName}_ProductWise_${stamp}.xlsx`);
 
             } else if(kind === 'pdf'){
-                const { jsPDF } = window.jspdf;
-                if(!jsPDF) return Swal.fire({icon:'error', title:'PDF লাইব্রেরি লোড হয়নি'});
-                const pdf = new jsPDF({ orientation:'l', unit:'pt', format:'a4' });
-                if(typeof pdf.autoTable !== 'function'){
-                    return Swal.fire({icon:'error', title:'PDF Plugin Missing', text:'jspdf-autotable লোড হয়নি। ইন্টারনেট চেক করুন।'});
-                }
                 const headers = cols.map(c => c.label);
                 const body = list.map(o => cols.map(c => String(c.get(o)==null?'':c.get(o))));
-                buildAutoTable(pdf, headers, body, `${bName} - Orders - ${stamp}`, list);
-                pdf.save(`${bName}_Orders_${stamp}.pdf`);
+                Swal.fire({ title:'PDF তৈরি হচ্ছে...', allowOutsideClick:false, didOpen:()=>Swal.showLoading() });
+                exportOrdersPDF(headers, body, `${bName} - Orders - ${stamp}`, list.length, `${bName}_Orders_${stamp}.pdf`)
+                    .then(ok => {
+                        Swal.close();
+                        document.getElementById('export-modal').classList.add('hidden');
+                        if(ok) Toast && Toast.fire && Toast.fire({ icon:'success', title:`${list.length} অর্ডার এক্সপোর্ট সম্পন্ন!` });
+                    })
+                    .catch(err => { console.error(err); Swal.fire({icon:'error', title:'PDF তৈরি ব্যর্থ', text:String(err&&err.message||err)}); });
+                return;
             }
             document.getElementById('export-modal').classList.add('hidden');
             Toast && Toast.fire && Toast.fire({ icon:'success', title:`${list.length} অর্ডার এক্সপোর্ট সম্পন্ন!` });
