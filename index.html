@@ -3167,11 +3167,14 @@
                 <!-- Style picker -->
                 <div class="mb-3">
                   <p class="text-[10px] font-black text-gray-600 mb-1.5">স্টাইল সিলেক্ট করুন:</p>
-                  <div id="sticker-style-picker" class="grid grid-cols-2 gap-2">
-                    <button type="button" data-style="nova" onclick="setStickerStyle('nova')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[11px] font-black">🌟 NOVA</button>
-                    <button type="button" data-style="bold" onclick="setStickerStyle('bold')" class="sticker-style-btn border-2 border-black bg-black text-white rounded-lg py-2 text-[11px] font-black">⬛ BOLD</button>
-                    <button type="button" data-style="minimal" onclick="setStickerStyle('minimal')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[11px] font-black">▢ MINIMAL</button>
-                    <button type="button" data-style="ticket" onclick="setStickerStyle('ticket')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[11px] font-black">🎫 TICKET</button>
+                  <div id="sticker-style-picker" class="grid grid-cols-3 gap-2">
+                    <button type="button" data-style="nova" onclick="setStickerStyle('nova')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">🌟 NOVA</button>
+                    <button type="button" data-style="bold" onclick="setStickerStyle('bold')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">⬛ BOLD</button>
+                    <button type="button" data-style="minimal" onclick="setStickerStyle('minimal')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">▢ MINIMAL</button>
+                    <button type="button" data-style="ticket" onclick="setStickerStyle('ticket')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">🎫 TICKET</button>
+                    <button type="button" data-style="invoice" onclick="setStickerStyle('invoice')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">🧾 INVOICE</button>
+                    <button type="button" data-style="aurora" onclick="setStickerStyle('aurora')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">🌊 AURORA</button>
+                    <button type="button" data-style="elegant" onclick="setStickerStyle('elegant')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">✨ ELEGANT</button>
                   </div>
                 </div>
 
@@ -3194,6 +3197,36 @@
                       </div>
                     </label>
                   </div>
+
+                  <!-- 🎨 Color customization -->
+                  <div class="mt-2 mb-2 p-2 bg-white rounded-lg border border-gray-200">
+                    <p class="text-[10px] font-black text-gray-700 mb-1">🎨 কালার কাস্টমাইজেশন (Optional):</p>
+                    <div class="grid grid-cols-4 gap-1 items-center">
+                      <label class="text-[9px] font-bold text-gray-600 flex flex-col items-center">BG
+                        <input id="sticker-color-bg" type="color" value="#1e3a8a" class="w-full h-7 rounded cursor-pointer" onchange="renderStickerPreview()">
+                      </label>
+                      <label class="text-[9px] font-bold text-gray-600 flex flex-col items-center">Accent
+                        <input id="sticker-color-accent" type="color" value="#ff7a2b" class="w-full h-7 rounded cursor-pointer" onchange="renderStickerPreview()">
+                      </label>
+                      <label class="text-[9px] font-bold text-gray-600 flex flex-col items-center">Text
+                        <input id="sticker-color-text" type="color" value="#ffffff" class="w-full h-7 rounded cursor-pointer" onchange="renderStickerPreview()">
+                      </label>
+                      <button type="button" onclick="resetStickerColors()" class="text-[9px] font-black px-1 py-1.5 bg-gray-200 hover:bg-gray-300 rounded self-end">↻ Reset</button>
+                    </div>
+                  </div>
+
+                  <!-- ✏️ Editable text fields -->
+                  <div class="mt-2 mb-2 p-2 bg-white rounded-lg border border-gray-200">
+                    <p class="text-[10px] font-black text-gray-700 mb-1">✏️ এডিট করুন (Optional Overrides):</p>
+                    <div class="grid grid-cols-1 gap-1">
+                      <input id="sticker-edit-name" type="text" placeholder="কাস্টমার নাম override" class="p-1.5 border border-gray-200 rounded text-[11px]" oninput="renderStickerPreview()">
+                      <input id="sticker-edit-phone" type="text" placeholder="ফোন override" class="p-1.5 border border-gray-200 rounded text-[11px]" oninput="renderStickerPreview()">
+                      <input id="sticker-edit-addr" type="text" placeholder="ঠিকানা override" class="p-1.5 border border-gray-200 rounded text-[11px]" oninput="renderStickerPreview()">
+                      <input id="sticker-edit-cod" type="text" placeholder="COD override (শুধু নাম্বার)" class="p-1.5 border border-gray-200 rounded text-[11px]" oninput="renderStickerPreview()">
+                      <input id="sticker-edit-extra" type="text" placeholder="এক্সট্রা লাইন (নিচে দেখাবে)" class="p-1.5 border border-gray-200 rounded text-[11px]" oninput="renderStickerPreview()">
+                    </div>
+                  </div>
+
                   <p class="text-[10px] font-black text-gray-700 mb-1">যে ফিল্ডগুলো স্টিকারে থাকবে:</p>
                   <div id="sticker-fields" class="grid grid-cols-2 gap-1 text-[11px] font-bold text-gray-700"></div>
                 </div>
@@ -3228,6 +3261,9 @@
                         <option value="bold">⬛ BOLD (Black)</option>
                         <option value="minimal">▢ MINIMAL</option>
                         <option value="ticket">🎫 TICKET</option>
+                        <option value="invoice">🧾 INVOICE</option>
+                        <option value="aurora">🌊 AURORA</option>
+                        <option value="elegant">✨ ELEGANT</option>
                       </select>
                     </label>
                   </div>
@@ -3422,12 +3458,40 @@
         let _stickerStyle = 'nova';
         function setStickerStyle(s){
             _stickerStyle = s;
+            // Auto-suggest good default colors for each theme (only if user hasn't edited)
+            const themeDefaults = {
+                nova:    { bg:'#1e3a8a', accent:'#ff7a2b', text:'#ffffff' },
+                bold:    { bg:'#111111', accent:'#ffffff', text:'#000000' },
+                minimal: { bg:'#ffffff', accent:'#111111', text:'#111111' },
+                ticket:  { bg:'#ffffff', accent:'#111111', text:'#111111' },
+                invoice: { bg:'#ffffff', accent:'#0f766e', text:'#111111' },
+                aurora:  { bg:'#0891b2', accent:'#a7f3d0', text:'#ffffff' },
+                elegant: { bg:'#faf7f2', accent:'#b8860b', text:'#2d2d2d' },
+            };
+            const d = themeDefaults[s];
+            if(d){
+                const bg = document.getElementById('sticker-color-bg');
+                const ac = document.getElementById('sticker-color-accent');
+                const tx = document.getElementById('sticker-color-text');
+                if(bg && !bg.dataset.userSet) bg.value = d.bg;
+                if(ac && !ac.dataset.userSet) ac.value = d.accent;
+                if(tx && !tx.dataset.userSet) tx.value = d.text;
+            }
             document.querySelectorAll('.sticker-style-btn').forEach(b => {
                 const active = b.dataset.style === s;
-                b.className = `sticker-style-btn border-2 rounded-lg py-2 text-[11px] font-black ${active?'border-black bg-black text-white':'border-gray-300 bg-white text-black'}`;
+                b.className = `sticker-style-btn border-2 rounded-lg py-2 text-[10px] font-black ${active?'border-black bg-black text-white':'border-gray-300 bg-white text-black'}`;
             });
             renderStickerPreview();
         }
+        function resetStickerColors(){
+            ['sticker-color-bg','sticker-color-accent','sticker-color-text'].forEach(id=>{
+                const el = document.getElementById(id); if(el) delete el.dataset.userSet;
+            });
+            setStickerStyle(_stickerStyle);
+        }
+        ['sticker-color-bg','sticker-color-accent','sticker-color-text'].forEach(id=>{
+            document.addEventListener('input', e => { if(e.target && e.target.id===id) e.target.dataset.userSet='1'; });
+        });
         function onStickerSizeChange(){
             const v = document.getElementById('sticker-size').value;
             const w = document.getElementById('sticker-w'), h = document.getElementById('sticker-h');
@@ -3452,6 +3516,34 @@
             return '';
         }
         function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+        function _stickerColors(){
+            return {
+                bg:     (document.getElementById('sticker-color-bg')||{}).value     || '#1e3a8a',
+                accent: (document.getElementById('sticker-color-accent')||{}).value || '#ff7a2b',
+                text:   (document.getElementById('sticker-color-text')||{}).value   || '#ffffff',
+            };
+        }
+        function _stickerOverrides(){
+            const v = id => (document.getElementById(id)||{}).value || '';
+            return { name:v('sticker-edit-name'), phone:v('sticker-edit-phone'), addr:v('sticker-edit-addr'), cod:v('sticker-edit-cod'), extra:v('sticker-edit-extra') };
+        }
+        // Common footer: barcode (large, left) + small QR on right + page phone
+        function _stickerFooter(barcodeId, hPx, fontBase, fields, pagePhone, qrSrc, showQR, opts){
+            opts = opts || {};
+            const bg = opts.bg || '#fff', textCol = opts.text || '#000', border = opts.border || 'rgba(0,0,0,.12)';
+            const bcH = Math.max(28, Math.min(hPx*0.14, 46));
+            const qrS = Math.max(38, Math.min(hPx*0.18, 62));
+            const hasBc = fields.barcode; const hasQr = showQR;
+            if(!hasBc && !hasQr && !(pagePhone && fields.pagePhone)) return '';
+            const phoneLine = (pagePhone && fields.pagePhone) ? `<div style="text-align:center;font-weight:900;font-size:${fontBase-1}px;color:${textCol};letter-spacing:1px;padding:1px 0">📞 ${escapeHtml(pagePhone)}</div>` : '';
+            return `<div style="background:${bg};color:${textCol};padding:4px 8px;display:flex;gap:6px;align-items:center;border-top:1px solid ${border};position:relative;z-index:2">
+                <div style="flex:1;min-width:0">
+                    ${hasBc ? `<svg id="${barcodeId}" style="width:100%;height:${bcH}px;display:block"></svg>` : ''}
+                    ${phoneLine}
+                </div>
+                ${hasQr ? `<div style="flex-shrink:0"><img src="${qrSrc}" style="width:${qrS}px;height:${qrS}px;object-fit:contain;border:1px solid ${border};border-radius:4px;padding:2px;background:#fff;display:block"></div>` : ''}
+            </div>`;
+        }
         function buildStickerHTML(o, sizeInch, fields, style){
             style = style || 'nova';
             const [wIn, hIn] = sizeInch;
@@ -3464,131 +3556,230 @@
             const barcodeId = 'bc-'+o.id+'-'+Date.now();
             const showLogo = fields.logo && logoSrc;
             const showQR = fields.qr && qrSrc;
-            const fontBase = wIn < 2.5 ? 9 : wIn < 3.5 ? 11 : wIn < 4.5 ? 12 : 13;
             const orderTag = fields.orderId ? '#'+String(o.id).slice(-6) : '';
-            const codBlock = fields.cod ? 'COD \u09f3 ' + getNum(o.due) : '';
+            const C = _stickerColors();
+            const OV = _stickerOverrides();
+            const cName    = OV.name  || o.name  || '';
+            const cPhone   = OV.phone || o.phone || '';
+            const cAddr    = OV.addr  || o.addr  || '';
+            const cCodAmt  = OV.cod   || getNum(o.due);
+            const cExtra   = OV.extra || '';
+            const codBlock = fields.cod ? ('COD ৳ ' + cCodAmt) : '';
 
-            // ================= NOVA (JerseyNova colorful theme) =================
+            // ------- Smart auto-fit font sizing -------
+            let lines = 0;
+            if(fields.name && cName) lines += 1;
+            if(fields.phone && cPhone) lines += 1;
+            if(fields.address && cAddr) lines += Math.max(1, Math.ceil(cAddr.length/28));
+            if(fields.product && o.productName) lines += Math.max(1, Math.ceil(o.productName.length/28));
+            if(fields.items && itemsText) lines += Math.max(1, Math.ceil(itemsText.length/30));
+            if(fields.date && o.date) lines += 1;
+            if(fields.notes && o.notes) lines += Math.max(1, Math.ceil((o.notes||'').length/32));
+            if(cExtra) lines += 1;
+            lines = Math.max(3, lines);
+            const headerH = 42, codH = codBlock?32:0, footerH = (fields.barcode||showQR||(pagePhone&&fields.pagePhone))?60:0;
+            const availH = Math.max(70, hPx - headerH - codH - footerH - 20);
+            const perLine = availH / lines;
+            const sizeCap = wIn < 2.5 ? 10 : wIn < 3.5 ? 12 : wIn < 4.5 ? 14 : 15;
+            const fontBase = Math.max(9, Math.min(sizeCap, Math.round(perLine * 0.62)));
+
+            // ================= NOVA (colorful, editable colors) =================
             if(style === 'nova'){
-                const qrSize = Math.max(48, Math.min(hPx*0.28, wPx*0.28));
-                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:linear-gradient(135deg,#0a1a3d 0%,#0f2557 45%,#12307a 100%);border-radius:10px;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,'Noto Sans Bengali',sans-serif;color:#fff;overflow:hidden;font-size:${fontBase}px;line-height:1.3;position:relative">
-                  <div style="position:absolute;top:-14px;right:-14px;width:70px;height:70px;border:3px solid rgba(255,120,40,.55);border-radius:50%"></div>
-                  <div style="position:absolute;bottom:-18px;left:-18px;width:60px;height:60px;border:3px solid rgba(56,150,255,.4);border-radius:50%"></div>
-                  <div style="position:absolute;top:35%;right:12%;width:8px;height:8px;background:#ff7a2b;border-radius:50%"></div>
-                  <div style="position:absolute;top:20%;left:12%;color:rgba(255,122,43,.6);font-size:14px;font-weight:900">+</div>
-
+                const bg = C.bg, accent = C.accent, text = C.text;
+                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:linear-gradient(135deg,${bg} 0%,${bg} 45%,color-mix(in srgb, ${bg} 80%, #ffffff 20%) 100%);border-radius:10px;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,'Noto Sans Bengali',sans-serif;color:${text};overflow:hidden;font-size:${fontBase}px;line-height:1.3;position:relative">
+                  <div style="position:absolute;top:-14px;right:-14px;width:70px;height:70px;border:3px solid ${accent}88;border-radius:50%"></div>
+                  <div style="position:absolute;bottom:-18px;left:-18px;width:60px;height:60px;border:3px solid ${accent}55;border-radius:50%"></div>
                   <div style="padding:7px 10px 4px;display:flex;align-items:center;gap:8px;position:relative;z-index:2">
                     ${showLogo ? `<img src="${logoSrc}" style="width:${Math.min(34,wPx*0.13)}px;height:${Math.min(34,wPx*0.13)}px;object-fit:contain;background:#fff;padding:2px;border-radius:6px">` : ''}
-                    ${fields.pageName ? `<div style="flex:1;line-height:1"><div style="font-weight:900;font-size:${fontBase+5}px;letter-spacing:.5px;background:linear-gradient(90deg,#ff6a1a,#ff9a3c,#ffb347);-webkit-background-clip:text;background-clip:text;color:transparent;text-transform:uppercase">${escapeHtml(bName)}</div><div style="font-size:${fontBase-3}px;color:#8fb4ff;font-weight:700;letter-spacing:1px;text-transform:uppercase">Sport Apparel \u2022 Where Every Stitch Tells a Story</div></div>` : '<div style="flex:1"></div>'}
-                    ${orderTag ? `<div style="font-weight:900;font-size:${fontBase-1}px;background:linear-gradient(90deg,#ff6a1a,#ff9a3c);color:#0a1a3d;padding:3px 8px;border-radius:20px">${orderTag}</div>` : ''}
+                    ${fields.pageName ? `<div style="flex:1;line-height:1.05"><div style="font-weight:900;font-size:${fontBase+5}px;letter-spacing:.5px;color:${accent};text-transform:uppercase">${escapeHtml(bName)}</div><div style="font-size:${fontBase-3}px;color:${text};opacity:.75;font-weight:700;letter-spacing:1px;text-transform:uppercase">Premium Quality</div></div>` : '<div style="flex:1"></div>'}
+                    ${orderTag ? `<div style="font-weight:900;font-size:${fontBase-1}px;background:${accent};color:${bg};padding:3px 8px;border-radius:20px">${orderTag}</div>` : ''}
                   </div>
-
-                  <div style="height:2px;background:linear-gradient(90deg,transparent,#ff7a2b 25%,#3b82f6 75%,transparent);margin:0 8px;position:relative;z-index:2"></div>
-
-                  <div style="flex:1;padding:6px 10px;display:flex;gap:8px;min-height:0;position:relative;z-index:2">
-                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
-                      ${fields.name ? `<div style="font-weight:900;font-size:${fontBase+2}px;color:#fff;word-break:break-word"><span style="color:#ff9a3c;font-size:${fontBase-2}px;font-weight:800">TO \u203a </span>${escapeHtml(o.name)}</div>` : ''}
-                      ${fields.phone ? `<div style="font-weight:800;font-size:${fontBase+1}px;color:#bfd4ff">\u260e ${escapeHtml(o.phone)}</div>` : ''}
-                      ${fields.address ? `<div style="font-size:${fontBase-1}px;color:#dbe6ff;word-break:break-word;line-height:1.35">\ud83d\udccd ${escapeHtml(o.addr)}</div>` : ''}
-                      ${fields.product && o.productName ? `<div style="font-weight:900;font-size:${fontBase}px;text-transform:uppercase;color:#ffb347;word-break:break-word;border-top:1px dashed rgba(255,255,255,.25);padding-top:3px;margin-top:2px">${escapeHtml(o.productName)}</div>` : ''}
-                      ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;color:#c9d7f5;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
-                      ${fields.date ? `<div style="font-size:${fontBase-2}px;color:#8fb4ff">\ud83d\udcc5 ${escapeHtml(o.date)}</div>` : ''}
-                      ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;color:#ffd4a8;font-style:italic;word-break:break-word">\ud83d\udcdd ${escapeHtml(o.notes)}</div>` : ''}
-                    </div>
-                    ${showQR ? `<div style="width:${qrSize}px;flex-shrink:0;background:#fff;padding:4px;border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:2px;align-self:center;box-shadow:0 4px 12px rgba(0,0,0,.35)"><img src="${qrSrc}" style="width:${qrSize-8}px;height:${qrSize-8}px;object-fit:contain"><div style="font-size:8px;font-weight:900;color:#0a1a3d;letter-spacing:1px">SCAN \u2022 PAY</div></div>` : ''}
+                  <div style="height:2px;background:linear-gradient(90deg,transparent,${accent} 25%,${text} 75%,transparent);margin:0 8px;opacity:.6;position:relative;z-index:2"></div>
+                  <div style="flex:1;padding:6px 10px;display:flex;flex-direction:column;gap:3px;min-height:0;position:relative;z-index:2;overflow:hidden">
+                    ${fields.name && cName ? `<div style="font-weight:900;font-size:${fontBase+2}px;word-break:break-word"><span style="color:${accent};font-size:${fontBase-2}px;font-weight:800">TO › </span>${escapeHtml(cName)}</div>` : ''}
+                    ${fields.phone && cPhone ? `<div style="font-weight:800;font-size:${fontBase+1}px;opacity:.9">☎ ${escapeHtml(cPhone)}</div>` : ''}
+                    ${fields.address && cAddr ? `<div style="font-size:${fontBase-1}px;opacity:.85;word-break:break-word;line-height:1.35">📍 ${escapeHtml(cAddr)}</div>` : ''}
+                    ${fields.product && o.productName ? `<div style="font-weight:900;font-size:${fontBase}px;text-transform:uppercase;color:${accent};word-break:break-word;border-top:1px dashed ${text}44;padding-top:3px;margin-top:2px">${escapeHtml(o.productName)}</div>` : ''}
+                    ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;opacity:.8;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
+                    ${fields.date && o.date ? `<div style="font-size:${fontBase-2}px;opacity:.75">📅 ${escapeHtml(o.date)}</div>` : ''}
+                    ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;opacity:.85;font-style:italic;word-break:break-word">📝 ${escapeHtml(o.notes)}</div>` : ''}
+                    ${cExtra ? `<div style="font-size:${fontBase-1}px;font-weight:800;color:${accent}">${escapeHtml(cExtra)}</div>` : ''}
                   </div>
-
-                  ${codBlock ? `<div style="margin:2px 10px;padding:5px 10px;background:linear-gradient(90deg,#ff5a1a,#ff8a2a);color:#fff;font-weight:900;text-align:center;font-size:${fontBase+3}px;letter-spacing:1px;border-radius:6px;box-shadow:0 2px 8px rgba(255,90,26,.5);position:relative;z-index:2">\ud83d\udcb0 ${codBlock}</div>` : ''}
-
-                  ${fields.barcode ? `<div style="background:#fff;margin:4px 8px 4px;padding:3px 6px 2px;border-radius:6px;position:relative;z-index:2"><svg id="${barcodeId}" style="width:100%;height:${Math.max(24,hPx*0.12)}px;display:block"></svg>${pagePhone && fields.pagePhone ? `<div style="text-align:center;font-weight:900;font-size:${fontBase-1}px;color:#0a1a3d;letter-spacing:1px;padding:1px 0 2px">\ud83d\udcde ${escapeHtml(pagePhone)}</div>` : ''}</div>` : (pagePhone && fields.pagePhone ? `<div style="text-align:center;font-weight:900;font-size:${fontBase}px;color:#ffb347;padding:4px 0;position:relative;z-index:2">\ud83d\udcde ${escapeHtml(pagePhone)}</div>` : '')}
+                  ${codBlock ? `<div style="margin:2px 10px;padding:5px 10px;background:${accent};color:${bg};font-weight:900;text-align:center;font-size:${fontBase+3}px;letter-spacing:1px;border-radius:6px;position:relative;z-index:2">💰 ${codBlock}</div>` : ''}
+                  ${_stickerFooter(barcodeId, hPx, fontBase, fields, pagePhone, qrSrc, showQR, {bg:'#fff', text:'#000', border:'rgba(0,0,0,.15)'})}
                 </div>`;
             }
 
             // ================= BOLD (B/W) =================
             if(style === 'bold'){
-                const qrSize = Math.max(46, Math.min(hPx*0.26, wPx*0.26));
-                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:#fff;border:2px solid #000;border-radius:6px;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,'Noto Sans Bengali',sans-serif;color:#000;overflow:hidden;font-size:${fontBase}px;line-height:1.3">
-                  <div style="background:#000;color:#fff;padding:6px 8px;display:flex;align-items:center;gap:6px">
+                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:#fff;border:2px solid ${C.text};border-radius:6px;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,'Noto Sans Bengali',sans-serif;color:${C.text};overflow:hidden;font-size:${fontBase}px;line-height:1.3">
+                  <div style="background:${C.bg};color:${C.accent};padding:6px 8px;display:flex;align-items:center;gap:6px">
                     ${showLogo ? `<img src="${logoSrc}" style="width:${Math.min(34,wPx*0.14)}px;height:${Math.min(34,wPx*0.14)}px;object-fit:contain;background:#fff;padding:2px;border-radius:4px">` : ''}
                     ${fields.pageName ? `<div style="font-weight:900;font-size:${fontBase+3}px;letter-spacing:.5px;text-transform:uppercase">${escapeHtml(bName)}</div>` : ''}
-                    ${orderTag ? `<div style="margin-left:auto;font-weight:900;font-size:${fontBase}px;background:#fff;color:#000;padding:1px 6px;border-radius:3px">${orderTag}</div>` : ''}
+                    ${orderTag ? `<div style="margin-left:auto;font-weight:900;font-size:${fontBase}px;background:${C.accent};color:${C.bg};padding:1px 6px;border-radius:3px">${orderTag}</div>` : ''}
                   </div>
-                  <div style="flex:1;padding:6px 8px;display:flex;gap:6px;min-height:0;overflow:hidden">
-                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
-                      ${fields.name ? `<div style="font-weight:900;font-size:${fontBase+1}px;word-break:break-word">${escapeHtml(o.name)}</div>` : ''}
-                      ${fields.phone ? `<div style="font-weight:900;font-size:${fontBase+1}px">\ud83d\udcde ${escapeHtml(o.phone)}</div>` : ''}
-                      ${fields.address ? `<div style="font-size:${fontBase-1}px;word-break:break-word">${escapeHtml(o.addr)}</div>` : ''}
-                      ${fields.product && o.productName ? `<div style="font-weight:900;text-transform:uppercase;border-top:1px dashed #000;padding-top:2px;word-break:break-word">${escapeHtml(o.productName)}</div>` : ''}
-                      ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
-                      ${fields.date ? `<div style="font-size:${fontBase-2}px">\ud83d\udcc5 ${escapeHtml(o.date)}</div>` : ''}
-                      ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;word-break:break-word">\ud83d\udcdd ${escapeHtml(o.notes)}</div>` : ''}
-                    </div>
-                    ${showQR ? `<div style="width:${qrSize}px;flex-shrink:0;align-self:center;border:1.5px solid #000;padding:2px;border-radius:4px"><img src="${qrSrc}" style="width:${qrSize-8}px;height:${qrSize-8}px;object-fit:contain;display:block"></div>` : ''}
+                  <div style="flex:1;padding:6px 8px;display:flex;flex-direction:column;gap:3px;min-height:0;overflow:hidden">
+                    ${fields.name && cName ? `<div style="font-weight:900;font-size:${fontBase+1}px;word-break:break-word">${escapeHtml(cName)}</div>` : ''}
+                    ${fields.phone && cPhone ? `<div style="font-weight:900;font-size:${fontBase+1}px">📞 ${escapeHtml(cPhone)}</div>` : ''}
+                    ${fields.address && cAddr ? `<div style="font-size:${fontBase-1}px;word-break:break-word">${escapeHtml(cAddr)}</div>` : ''}
+                    ${fields.product && o.productName ? `<div style="font-weight:900;text-transform:uppercase;border-top:1px dashed #000;padding-top:2px;word-break:break-word">${escapeHtml(o.productName)}</div>` : ''}
+                    ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
+                    ${fields.date && o.date ? `<div style="font-size:${fontBase-2}px">📅 ${escapeHtml(o.date)}</div>` : ''}
+                    ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;word-break:break-word">📝 ${escapeHtml(o.notes)}</div>` : ''}
+                    ${cExtra ? `<div style="font-size:${fontBase-1}px;font-weight:800">${escapeHtml(cExtra)}</div>` : ''}
                   </div>
-                  ${codBlock ? `<div style="background:#000;color:#fff;padding:5px 8px;font-weight:900;text-align:center;font-size:${fontBase+3}px;letter-spacing:1px">${codBlock}</div>` : ''}
-                  ${fields.barcode ? `<div style="background:#fff;padding:2px 8px 3px"><svg id="${barcodeId}" style="width:100%;height:${Math.max(24,hPx*0.14)}px;display:block"></svg>${pagePhone && fields.pagePhone ? `<div style="text-align:center;font-weight:900;font-size:${fontBase}px;letter-spacing:2px">\ud83d\udcde ${escapeHtml(pagePhone)}</div>` : ''}</div>` : (pagePhone && fields.pagePhone ? `<div style="text-align:center;font-weight:900;font-size:${fontBase}px;padding:3px 0;border-top:1px solid #000">\ud83d\udcde ${escapeHtml(pagePhone)}</div>` : '')}
+                  ${codBlock ? `<div style="background:${C.bg};color:${C.accent};padding:5px 8px;font-weight:900;text-align:center;font-size:${fontBase+3}px;letter-spacing:1px">${codBlock}</div>` : ''}
+                  ${_stickerFooter(barcodeId, hPx, fontBase, fields, pagePhone, qrSrc, showQR, {bg:'#fff', text:'#000', border:'#000'})}
                 </div>`;
             }
 
             // ================= MINIMAL =================
             if(style === 'minimal'){
-                const qrSize = Math.max(44, Math.min(hPx*0.24, wPx*0.24));
-                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:#fff;border:1px solid #000;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,'Noto Sans Bengali',sans-serif;color:#000;overflow:hidden;font-size:${fontBase}px;line-height:1.35;padding:10px;gap:5px">
-                  <div style="display:flex;align-items:center;gap:6px;padding-bottom:6px;border-bottom:1px solid #000">
+                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:${C.bg};border:1px solid ${C.text};box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,'Noto Sans Bengali',sans-serif;color:${C.text};overflow:hidden;font-size:${fontBase}px;line-height:1.35">
+                  <div style="display:flex;align-items:center;gap:6px;padding:8px 10px 6px;border-bottom:1px solid ${C.text}">
                     ${showLogo ? `<img src="${logoSrc}" style="width:${Math.min(34,wPx*0.13)}px;height:${Math.min(34,wPx*0.13)}px;object-fit:contain">` : ''}
                     <div style="flex:1">
-                      ${fields.pageName ? `<div style="font-weight:900;font-size:${fontBase+2}px;letter-spacing:.3px;text-transform:uppercase">${escapeHtml(bName)}</div>` : ''}
-                      ${fields.date ? `<div style="font-size:${fontBase-2}px;color:#444">${escapeHtml(o.date)}</div>` : ''}
+                      ${fields.pageName ? `<div style="font-weight:900;font-size:${fontBase+2}px;letter-spacing:.3px;text-transform:uppercase;color:${C.accent}">${escapeHtml(bName)}</div>` : ''}
+                      ${fields.date && o.date ? `<div style="font-size:${fontBase-2}px;opacity:.7">${escapeHtml(o.date)}</div>` : ''}
                     </div>
-                    ${orderTag ? `<div style="font-weight:900;font-size:${fontBase-1}px;color:#000">${orderTag}</div>` : ''}
+                    ${orderTag ? `<div style="font-weight:900;font-size:${fontBase-1}px">${orderTag}</div>` : ''}
                   </div>
-                  <div style="flex:1;display:flex;gap:6px;min-height:0;overflow:hidden">
-                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
-                      ${fields.name ? `<div style="font-weight:900;font-size:${fontBase+2}px;word-break:break-word">${escapeHtml(o.name)}</div>` : ''}
-                      ${fields.phone ? `<div style="font-weight:800;font-size:${fontBase+1}px;letter-spacing:.5px">${escapeHtml(o.phone)}</div>` : ''}
-                      ${fields.address ? `<div style="font-size:${fontBase-1}px;color:#222;word-break:break-word">${escapeHtml(o.addr)}</div>` : ''}
-                      ${fields.product && o.productName ? `<div style="font-weight:800;text-transform:uppercase;font-size:${fontBase}px;word-break:break-word">${escapeHtml(o.productName)}</div>` : ''}
-                      ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;color:#333;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
-                      ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;word-break:break-word">${escapeHtml(o.notes)}</div>` : ''}
-                    </div>
-                    ${showQR ? `<div style="width:${qrSize}px;flex-shrink:0;align-self:center"><img src="${qrSrc}" style="width:${qrSize}px;height:${qrSize}px;object-fit:contain;display:block;border:1px solid #000;padding:2px"></div>` : ''}
+                  <div style="flex:1;padding:6px 10px;display:flex;flex-direction:column;gap:3px;min-height:0;overflow:hidden">
+                    ${fields.name && cName ? `<div style="font-weight:900;font-size:${fontBase+2}px;word-break:break-word">${escapeHtml(cName)}</div>` : ''}
+                    ${fields.phone && cPhone ? `<div style="font-weight:800;font-size:${fontBase+1}px;letter-spacing:.5px">${escapeHtml(cPhone)}</div>` : ''}
+                    ${fields.address && cAddr ? `<div style="font-size:${fontBase-1}px;opacity:.85;word-break:break-word">${escapeHtml(cAddr)}</div>` : ''}
+                    ${fields.product && o.productName ? `<div style="font-weight:800;text-transform:uppercase;font-size:${fontBase}px;word-break:break-word;color:${C.accent}">${escapeHtml(o.productName)}</div>` : ''}
+                    ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;opacity:.8;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
+                    ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;word-break:break-word">${escapeHtml(o.notes)}</div>` : ''}
+                    ${cExtra ? `<div style="font-size:${fontBase-1}px;font-weight:800;color:${C.accent}">${escapeHtml(cExtra)}</div>` : ''}
                   </div>
-                  ${codBlock ? `<div style="font-weight:900;font-size:${fontBase+3}px;text-align:center;border-top:1px solid #000;padding-top:4px">${codBlock}</div>` : ''}
-                  ${fields.barcode ? `<div style="border-top:1px solid #000;padding-top:3px"><svg id="${barcodeId}" style="width:100%;height:${Math.max(24,hPx*0.14)}px;display:block"></svg>${pagePhone && fields.pagePhone ? `<div style="text-align:center;font-weight:800;font-size:${fontBase-1}px;letter-spacing:2px">${escapeHtml(pagePhone)}</div>` : ''}</div>` : (pagePhone && fields.pagePhone ? `<div style="text-align:center;font-weight:800;font-size:${fontBase-1}px;letter-spacing:2px;border-top:1px solid #000;padding-top:4px">${escapeHtml(pagePhone)}</div>` : '')}
+                  ${codBlock ? `<div style="font-weight:900;font-size:${fontBase+3}px;text-align:center;border-top:1px solid ${C.text};padding:4px 0;color:${C.accent}">${codBlock}</div>` : ''}
+                  ${_stickerFooter(barcodeId, hPx, fontBase, fields, pagePhone, qrSrc, showQR, {bg:C.bg, text:C.text, border:C.text})}
                 </div>`;
             }
 
             // ================= TICKET (dashed receipt) =================
-            const qrSizeT = Math.max(44, Math.min(hPx*0.24, wPx*0.24));
-            return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:#fff;border:2px dashed #000;box-sizing:border-box;display:flex;flex-direction:column;font-family:'Courier New',Arial,'Noto Sans Bengali',monospace;color:#000;overflow:hidden;font-size:${fontBase}px;line-height:1.3;padding:8px;gap:4px">
-              <div style="text-align:center;border-bottom:1px dashed #000;padding-bottom:4px">
-                ${fields.pageName ? `<div style="font-weight:900;font-size:${fontBase+3}px;letter-spacing:2px;text-transform:uppercase">${escapeHtml(bName)}</div>` : ''}
-                ${orderTag ? `<div style="font-weight:900;font-size:${fontBase}px">ORDER ${orderTag}</div>` : ''}
-              </div>
-              <div style="flex:1;display:flex;gap:6px;min-height:0;overflow:hidden">
-                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
-                  ${fields.name ? `<div><span style="color:#555">TO:</span> <b>${escapeHtml(o.name)}</b></div>` : ''}
-                  ${fields.phone ? `<div style="font-weight:900;font-size:${fontBase+2}px">\u260e ${escapeHtml(o.phone)}</div>` : ''}
-                  ${fields.address ? `<div style="font-size:${fontBase-1}px;word-break:break-word">${escapeHtml(o.addr)}</div>` : ''}
-                  ${fields.product && o.productName ? `<div style="border-top:1px dashed #000;padding-top:3px;font-weight:900;text-transform:uppercase;word-break:break-word">${escapeHtml(o.productName)}</div>` : ''}
-                  ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
-                  ${fields.date ? `<div style="font-size:${fontBase-2}px">\ud83d\udcc5 ${escapeHtml(o.date)}</div>` : ''}
-                  ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;word-break:break-word">${escapeHtml(o.notes)}</div>` : ''}
-                </div>
-                ${showQR ? `<div style="width:${qrSizeT}px;flex-shrink:0;align-self:center"><img src="${qrSrc}" style="width:${qrSizeT}px;height:${qrSizeT}px;object-fit:contain;display:block;border:1px dashed #000;padding:2px"></div>` : ''}
-              </div>
-              ${codBlock ? `<div style="border-top:1px dashed #000;border-bottom:1px dashed #000;padding:3px 0;text-align:center;font-weight:900;font-size:${fontBase+3}px;letter-spacing:1px">${codBlock}</div>` : ''}
-              ${fields.barcode ? `<div><svg id="${barcodeId}" style="width:100%;height:${Math.max(24,hPx*0.13)}px;display:block"></svg>${pagePhone && fields.pagePhone ? `<div style="text-align:center;font-weight:900;font-size:${fontBase}px;letter-spacing:2px">\u260e ${escapeHtml(pagePhone)}</div>` : ''}</div>` : (pagePhone && fields.pagePhone ? `<div style="text-align:center;font-weight:900;font-size:${fontBase}px;letter-spacing:2px">\u260e ${escapeHtml(pagePhone)}</div>` : '')}
-            </div>`;
+            if(style === 'ticket'){
+                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:${C.bg};border:2px dashed ${C.text};box-sizing:border-box;display:flex;flex-direction:column;font-family:'Courier New',Arial,'Noto Sans Bengali',monospace;color:${C.text};overflow:hidden;font-size:${fontBase}px;line-height:1.3;padding:8px;gap:4px">
+                  <div style="text-align:center;border-bottom:1px dashed ${C.text};padding-bottom:4px">
+                    ${fields.pageName ? `<div style="font-weight:900;font-size:${fontBase+3}px;letter-spacing:2px;text-transform:uppercase;color:${C.accent}">${escapeHtml(bName)}</div>` : ''}
+                    ${orderTag ? `<div style="font-weight:900;font-size:${fontBase}px">ORDER ${orderTag}</div>` : ''}
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;overflow:hidden">
+                    ${fields.name && cName ? `<div><span style="opacity:.6">TO:</span> <b>${escapeHtml(cName)}</b></div>` : ''}
+                    ${fields.phone && cPhone ? `<div style="font-weight:900;font-size:${fontBase+2}px">☎ ${escapeHtml(cPhone)}</div>` : ''}
+                    ${fields.address && cAddr ? `<div style="font-size:${fontBase-1}px;word-break:break-word">${escapeHtml(cAddr)}</div>` : ''}
+                    ${fields.product && o.productName ? `<div style="border-top:1px dashed ${C.text};padding-top:3px;font-weight:900;text-transform:uppercase;word-break:break-word">${escapeHtml(o.productName)}</div>` : ''}
+                    ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
+                    ${fields.date && o.date ? `<div style="font-size:${fontBase-2}px">📅 ${escapeHtml(o.date)}</div>` : ''}
+                    ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;word-break:break-word">${escapeHtml(o.notes)}</div>` : ''}
+                    ${cExtra ? `<div style="font-size:${fontBase-1}px;font-weight:800">${escapeHtml(cExtra)}</div>` : ''}
+                  </div>
+                  ${codBlock ? `<div style="border-top:1px dashed ${C.text};border-bottom:1px dashed ${C.text};padding:3px 0;text-align:center;font-weight:900;font-size:${fontBase+3}px;letter-spacing:1px;color:${C.accent}">${codBlock}</div>` : ''}
+                  ${_stickerFooter(barcodeId, hPx, fontBase, fields, pagePhone, qrSrc, showQR, {bg:C.bg, text:C.text, border:C.text})}
+                </div>`;
+            }
+
+            // ================= INVOICE (bill/receipt look) =================
+            if(style === 'invoice'){
+                const totalBill = getNum(o.totalBill), advance = getNum(o.advance), due = OV.cod || getNum(o.due);
+                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:${C.bg};border:1px solid #d1d5db;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,'Noto Sans Bengali',sans-serif;color:${C.text};overflow:hidden;font-size:${fontBase}px;line-height:1.3">
+                  <div style="background:${C.accent};color:#fff;padding:6px 10px;display:flex;align-items:center;gap:8px">
+                    ${showLogo ? `<img src="${logoSrc}" style="width:${Math.min(30,wPx*0.11)}px;height:${Math.min(30,wPx*0.11)}px;object-fit:contain;background:#fff;padding:2px;border-radius:4px">` : ''}
+                    <div style="flex:1">
+                      ${fields.pageName ? `<div style="font-weight:900;font-size:${fontBase+3}px;letter-spacing:.3px;text-transform:uppercase">${escapeHtml(bName)}</div>` : ''}
+                      <div style="font-size:${fontBase-3}px;font-weight:700;opacity:.9;letter-spacing:2px">INVOICE / বিল</div>
+                    </div>
+                    <div style="text-align:right">
+                      ${orderTag ? `<div style="font-weight:900;font-size:${fontBase}px">${orderTag}</div>` : ''}
+                      ${fields.date && o.date ? `<div style="font-size:${fontBase-3}px;opacity:.9">${escapeHtml(o.date)}</div>` : ''}
+                    </div>
+                  </div>
+                  <div style="padding:5px 10px;border-bottom:1px solid #e5e7eb;background:#f9fafb">
+                    <div style="font-size:${fontBase-3}px;font-weight:800;color:#6b7280;letter-spacing:1px">BILL TO</div>
+                    ${fields.name && cName ? `<div style="font-weight:900;font-size:${fontBase+1}px;word-break:break-word">${escapeHtml(cName)}</div>` : ''}
+                    ${fields.phone && cPhone ? `<div style="font-size:${fontBase}px">📞 ${escapeHtml(cPhone)}</div>` : ''}
+                    ${fields.address && cAddr ? `<div style="font-size:${fontBase-1}px;opacity:.8;word-break:break-word">${escapeHtml(cAddr)}</div>` : ''}
+                  </div>
+                  <div style="flex:1;padding:5px 10px;overflow:hidden;min-height:0">
+                    <table style="width:100%;border-collapse:collapse;font-size:${fontBase-1}px">
+                      <thead><tr style="border-bottom:1px solid #d1d5db;color:#6b7280;font-weight:800;text-align:left">
+                        <th style="padding:2px 0">ITEM</th><th style="padding:2px 0;text-align:right">AMOUNT</th>
+                      </tr></thead>
+                      <tbody>
+                        ${fields.product && o.productName ? `<tr><td style="padding:2px 0;word-break:break-word">${escapeHtml(o.productName)}${fields.items && itemsText ? `<div style="font-size:${fontBase-3}px;opacity:.7">${escapeHtml(itemsText)}</div>`:''}</td><td style="padding:2px 0;text-align:right;font-weight:800">৳ ${totalBill}</td></tr>` : ''}
+                        ${advance ? `<tr><td style="padding:2px 0;opacity:.7">Advance Paid</td><td style="padding:2px 0;text-align:right;opacity:.7">- ৳ ${advance}</td></tr>`:''}
+                      </tbody>
+                    </table>
+                    ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;opacity:.75;margin-top:3px">📝 ${escapeHtml(o.notes)}</div>` : ''}
+                    ${cExtra ? `<div style="font-size:${fontBase-1}px;font-weight:800;color:${C.accent};margin-top:2px">${escapeHtml(cExtra)}</div>` : ''}
+                  </div>
+                  ${codBlock ? `<div style="background:#f9fafb;border-top:2px solid ${C.accent};padding:5px 10px;display:flex;justify-content:space-between;align-items:center;font-weight:900"><span style="font-size:${fontBase}px">TOTAL DUE (COD)</span><span style="font-size:${fontBase+3}px;color:${C.accent}">৳ ${due}</span></div>` : ''}
+                  ${_stickerFooter(barcodeId, hPx, fontBase, fields, pagePhone, qrSrc, showQR, {bg:'#fff', text:'#000', border:'#e5e7eb'})}
+                </div>`;
+            }
+
+            // ================= AURORA (soft gradient, light) =================
+            if(style === 'aurora'){
+                const bg = C.bg, accent = C.accent, text = C.text;
+                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:linear-gradient(160deg,${bg} 0%,color-mix(in srgb,${bg} 60%,${accent} 40%) 100%);border-radius:14px;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,'Noto Sans Bengali',sans-serif;color:${text};overflow:hidden;font-size:${fontBase}px;line-height:1.3;position:relative">
+                  <div style="position:absolute;inset:0;background:radial-gradient(circle at 20% 10%, ${accent}44 0%, transparent 40%),radial-gradient(circle at 80% 90%, ${accent}33 0%, transparent 45%);z-index:1"></div>
+                  <div style="padding:8px 12px 5px;display:flex;align-items:center;gap:8px;position:relative;z-index:2;background:rgba(255,255,255,.08);backdrop-filter:blur(4px);border-bottom:1px solid rgba(255,255,255,.15)">
+                    ${showLogo ? `<img src="${logoSrc}" style="width:${Math.min(32,wPx*0.12)}px;height:${Math.min(32,wPx*0.12)}px;object-fit:contain;background:#fff;padding:2px;border-radius:8px">` : ''}
+                    ${fields.pageName ? `<div style="flex:1"><div style="font-weight:900;font-size:${fontBase+4}px;letter-spacing:.5px;text-transform:uppercase">${escapeHtml(bName)}</div></div>` : '<div style="flex:1"></div>'}
+                    ${orderTag ? `<div style="font-weight:900;font-size:${fontBase-1}px;background:rgba(255,255,255,.25);color:${text};padding:2px 8px;border-radius:20px;backdrop-filter:blur(4px)">${orderTag}</div>` : ''}
+                  </div>
+                  <div style="flex:1;padding:8px 12px;display:flex;flex-direction:column;gap:3px;min-height:0;position:relative;z-index:2;overflow:hidden">
+                    ${fields.name && cName ? `<div style="font-weight:900;font-size:${fontBase+2}px;word-break:break-word">${escapeHtml(cName)}</div>` : ''}
+                    ${fields.phone && cPhone ? `<div style="font-weight:800;font-size:${fontBase+1}px;opacity:.95">☎ ${escapeHtml(cPhone)}</div>` : ''}
+                    ${fields.address && cAddr ? `<div style="font-size:${fontBase-1}px;opacity:.85;word-break:break-word">📍 ${escapeHtml(cAddr)}</div>` : ''}
+                    ${fields.product && o.productName ? `<div style="font-weight:900;font-size:${fontBase}px;text-transform:uppercase;word-break:break-word;padding:3px 6px;background:rgba(255,255,255,.15);border-radius:4px;display:inline-block;align-self:flex-start">${escapeHtml(o.productName)}</div>` : ''}
+                    ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;opacity:.85;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
+                    ${fields.date && o.date ? `<div style="font-size:${fontBase-2}px;opacity:.8">📅 ${escapeHtml(o.date)}</div>` : ''}
+                    ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;opacity:.85;word-break:break-word">📝 ${escapeHtml(o.notes)}</div>` : ''}
+                    ${cExtra ? `<div style="font-size:${fontBase-1}px;font-weight:800">${escapeHtml(cExtra)}</div>` : ''}
+                  </div>
+                  ${codBlock ? `<div style="margin:4px 10px;padding:6px 10px;background:rgba(255,255,255,.9);color:${bg};font-weight:900;text-align:center;font-size:${fontBase+3}px;letter-spacing:1px;border-radius:8px;position:relative;z-index:2">💰 ${codBlock}</div>` : ''}
+                  ${_stickerFooter(barcodeId, hPx, fontBase, fields, pagePhone, qrSrc, showQR, {bg:'rgba(255,255,255,.92)', text:'#000', border:'rgba(0,0,0,.1)'})}
+                </div>`;
+            }
+
+            // ================= ELEGANT (luxury / gold-serif) =================
+            if(style === 'elegant'){
+                const bg = C.bg, accent = C.accent, text = C.text;
+                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:${bg};border:1px solid ${accent}44;box-sizing:border-box;display:flex;flex-direction:column;font-family:Georgia,'Noto Sans Bengali',serif;color:${text};overflow:hidden;font-size:${fontBase}px;line-height:1.35;position:relative">
+                  <div style="position:absolute;inset:6px;border:1px solid ${accent}66;pointer-events:none;border-radius:2px;z-index:1"></div>
+                  <div style="padding:10px 14px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;z-index:2;border-bottom:1px solid ${accent}44;margin:0 8px">
+                    ${showLogo ? `<img src="${logoSrc}" style="width:${Math.min(30,wPx*0.11)}px;height:${Math.min(30,wPx*0.11)}px;object-fit:contain">` : ''}
+                    ${fields.pageName ? `<div style="font-weight:700;font-size:${fontBase+4}px;letter-spacing:3px;text-transform:uppercase;color:${accent};text-align:center">${escapeHtml(bName)}</div>` : ''}
+                    <div style="font-size:${fontBase-3}px;letter-spacing:4px;opacity:.6;text-transform:uppercase">— Premium —</div>
+                    ${orderTag ? `<div style="font-size:${fontBase-2}px;letter-spacing:2px;opacity:.7">${orderTag}</div>` : ''}
+                  </div>
+                  <div style="flex:1;padding:8px 14px;display:flex;flex-direction:column;gap:4px;min-height:0;position:relative;z-index:2;overflow:hidden;text-align:center">
+                    ${fields.name && cName ? `<div style="font-weight:700;font-size:${fontBase+3}px;word-break:break-word;font-style:italic">${escapeHtml(cName)}</div>` : ''}
+                    ${fields.phone && cPhone ? `<div style="font-size:${fontBase+1}px;letter-spacing:1px">${escapeHtml(cPhone)}</div>` : ''}
+                    ${fields.address && cAddr ? `<div style="font-size:${fontBase-1}px;opacity:.75;word-break:break-word">${escapeHtml(cAddr)}</div>` : ''}
+                    ${fields.product && o.productName ? `<div style="font-weight:700;font-size:${fontBase}px;text-transform:uppercase;letter-spacing:2px;color:${accent};padding-top:3px;border-top:1px solid ${accent}33;margin-top:2px">${escapeHtml(o.productName)}</div>` : ''}
+                    ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;opacity:.75;font-style:italic;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
+                    ${fields.date && o.date ? `<div style="font-size:${fontBase-2}px;opacity:.6;letter-spacing:1px">${escapeHtml(o.date)}</div>` : ''}
+                    ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;opacity:.75;font-style:italic;word-break:break-word">${escapeHtml(o.notes)}</div>` : ''}
+                    ${cExtra ? `<div style="font-size:${fontBase-1}px;font-weight:700;color:${accent};letter-spacing:1px">${escapeHtml(cExtra)}</div>` : ''}
+                  </div>
+                  ${codBlock ? `<div style="margin:2px 14px;padding:5px 10px;border-top:1px solid ${accent}66;border-bottom:1px solid ${accent}66;color:${accent};font-weight:700;text-align:center;font-size:${fontBase+2}px;letter-spacing:2px;position:relative;z-index:2">${codBlock}</div>` : ''}
+                  ${_stickerFooter(barcodeId, hPx, fontBase, fields, pagePhone, qrSrc, showQR, {bg:bg, text:text, border:accent+'44'})}
+                </div>`;
+            }
+
+            // Fallback → NOVA
+            return buildStickerHTML(o, sizeInch, fields, 'nova');
         }
-        
+
         function renderStickerPreview(){
             const o = orders.find(x => x.id === _stickerCurrentId); if(!o) return;
             const fields = getSelectedFields('sticker-fields');
             const size = getStickerSize('sticker');
             const wrap = document.getElementById('sticker-preview-wrap');
             wrap.innerHTML = buildStickerHTML(o, size, fields, _stickerStyle);
-            // render barcode
             if(fields.barcode){
                 const svg = wrap.querySelector('svg');
                 if(svg) try { JsBarcode(svg, String(o.id), { format:'CODE128', displayValue:false, height:30, margin:0 }); } catch(e){}
