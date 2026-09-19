@@ -555,6 +555,13 @@
 
 
 
+                        <div class="md:col-span-5 grid grid-cols-2 md:grid-cols-4 gap-2 bg-pink-50/50 border border-dashed border-pink-200 rounded-2xl p-3">
+                            <select id="order-city" onchange="onOrderCityChange()" class="p-3 border border-pink-200 rounded-xl text-sm bg-white"><option value="">ডেলিভারি সিটি</option></select>
+                            <select id="order-zone" class="p-3 border border-pink-200 rounded-xl text-sm bg-white"><option value="">জোন</option></select>
+                            <input type="number" step="0.5" id="order-weight" placeholder="ওজন (কেজি) — ডিফল্ট ০.৫" class="p-3 border border-pink-200 rounded-xl text-sm bg-white">
+                            <button type="button" id="auto-charge-btn" onclick="autoDeliveryCharge()" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl text-sm font-black px-3 py-3">⚡ আসল চার্জ আনুন</button>
+                        </div>
+
                         <div class="md:col-span-5 grid grid-cols-1 md:grid-cols-3 gap-3">
                             <input type="number" id="delivery-charge" oninput="calculateStats()" placeholder="ডেলিভারি চার্জ (৳)" class="p-3 border border-gray-200 rounded-xl outline-none focus:border-purple-500">
                             <input type="number" id="other-cost" oninput="calculateStats()" placeholder="প্যাকেজিং/অর্ডার খরচ (৳)" class="p-3 border border-red-100 rounded-xl bg-red-50/50 font-bold text-red-600">
@@ -914,6 +921,9 @@
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <input type="text" id="setting-pathao-sender-name" placeholder="Sender Name" class="p-2 border border-pink-200 rounded-lg text-sm bg-white">
                         <input type="text" id="setting-pathao-sender-phone" placeholder="Sender Phone" class="p-2 border border-pink-200 rounded-lg text-sm bg-white">
+                    </div>
+                    <input type="text" id="setting-pathao-bridge" placeholder="কুরিয়ার সার্ভার URL (খালি রাখলে ডিফল্ট)" class="w-full p-2 border border-pink-200 rounded-lg mb-2 text-xs bg-white">
+                    <div class="hidden">
                     </div>
                     <select id="setting-pathao-store" class="w-full p-2 border border-pink-200 rounded-lg text-sm bg-white mb-2">
                         <option value="">-- Store সিলেক্ট করুন (Connect এর পর লোড হবে) --</option>
@@ -1709,6 +1719,9 @@
                 items: items,
                 notes: notes,
                 designImg: currentDesignImg || (existing && existing.designImg) || '',
+                cityId: (document.getElementById('order-city')||{}).value || (existing && existing.cityId) || '',
+                zoneId: (document.getElementById('order-zone')||{}).value || (existing && existing.zoneId) || '',
+                weight: getNum((document.getElementById('order-weight')||{}).value) || (existing && existing.weight) || 0.5,
                 shippedAt: (status==='Shipped' ? ((existing && existing.shippedAt) || Date.now()) : (existing && existing.shippedAt) || null),
                 createdAt: (existing && existing.createdAt) || id
             };
@@ -1847,7 +1860,7 @@
                     : `<span class="text-gray-300 text-xs">-</span>`;
                 tbody.innerHTML += `
                     <tr class="hover:bg-indigo-50/40 transition border-b border-gray-100 ${rowExtraCls}">
-                        <td class="p-5"><span class="font-black text-gray-800">${o.name} ${badge}${rowAlert}</span><br><span class="text-[11px] font-bold text-gray-500">${o.phone}</span><br><span class="text-[10px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">${o.date}</span>${thumb}</td>
+                        <td class="p-5"><span class="font-black text-gray-800">${o.name} ${badge}${rowAlert}</span><br><span class="text-[11px] font-bold text-gray-500">${o.phone}</span><br><span class="text-[10px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">${o.date}</span>${courierBadgeHTML(o)}${thumb}</td>
                         <td class="p-5 text-center font-black">${qtyDisplay || '-'}</td>
                         <td class="p-5 text-pink-600 font-black tracking-tight">৳ ${getNum(o.due)}</td>
                         <td class="p-5 text-center">${fBillCell}</td>
@@ -1860,6 +1873,8 @@
                                 <option value="Ready" ${o.status=='Ready'?'selected':''}>Ready</option>
                                 <option value="Shipped" ${o.status=='Shipped'?'selected':''}>Shipped</option>
                                 <option value="Paid" ${o.status=='Paid'?'selected':''}>Paid</option>
+                                <option value="Delivered" ${o.status=='Delivered'?'selected':''}>Delivered</option>
+                                <option value="Returned" ${o.status=='Returned'?'selected':''}>Returned</option>
                                 <option value="Hold" ${o.status=='Hold'?'selected':''}>Hold</option>
                             </select>
                         </td>
@@ -2035,7 +2050,9 @@
         }
 
         function openInvoice(id) {
-            const o = orders.find(x => x.id === id);
+            // IDs can arrive as a string (Firebase key) or number — compare loosely.
+            const o = orders.find(x => String(x.id) === String(id));
+            if(!o){ return Swal.fire({icon:'error', title:'ইনভয়েস খোলা যায়নি', text:'এই অর্ডারটি খুঁজে পাওয়া যায়নি। পেজটি রিফ্রেশ করুন।'}); }
             let itemsHtml = '';
             let pQty = getNum(o.pQty), pPrice = getNum(o.pPrice);
             let tColor = appSettings.themeColor || '#4f46e5';
@@ -2077,6 +2094,11 @@
                 <div class="p-4 rounded-xl mt-3 flex justify-between items-center text-white shadow-lg" style="background-color: ${tColor};">
                     <span class="text-[9px] font-black uppercase tracking-wider">Cash on Delivery</span><span class="text-2xl font-black">৳ ${getNum(o.due)}</span>
                 </div>
+                ${(o.pathaoConsignmentId || o.courierStatusText) ? `
+                <div class="mt-3 p-3 rounded-xl border border-dashed border-pink-300 bg-pink-50/60 text-[11px] font-bold text-pink-800">
+                    🚚 কুরিয়ার: ${o.courierStatusText || 'বুকড'}${o.pathaoConsignmentId?` — Consignment <b>${o.pathaoConsignmentId}</b>`:''}
+                    ${o.pathaoTrackingUrl?`<br><a href="${o.pathaoTrackingUrl}" target="_blank" class="text-indigo-600 underline">🔗 পার্সেল ট্র্যাক করুন</a>`:''}
+                </div>` : ''}
             `;
             // legacy element hidden — design now shown inline
             const dwrap = document.getElementById('invoice-design-wrap'); if(dwrap) dwrap.classList.add('hidden');
@@ -2791,13 +2813,13 @@
            - Hardcoded Client ID & Secret (shared OAuth app)
            - Order create does NOT auto-book. User clicks "📦 কুরিয়ার" per order.
         ====================================================================== */
-        const PATHAO_CLIENT_ID = "KQe1Yg0eJY";
-        const PATHAO_CLIENT_SECRET = "9ddnCSz48Cza3Ao2fkfwI4EFfnXDg24dqiAqZr0g";
-        const PATHAO_BASE = "https://api-hermes.pathao.com";
-        // Pathao API has no CORS headers — browser blocks direct calls ("Failed to fetch").
-        // Route every request through a CORS proxy. corsproxy.io supports POST + JSON + custom headers.
-        const PATHAO_CORS_PROXY = "https://corsproxy.io/?url=";
-        function pathaoUrl(path){ return PATHAO_CORS_PROXY + encodeURIComponent(PATHAO_BASE + path); }
+        // Pathao API has no CORS headers, so every call goes through our own
+        // courier bridge server (Lovable). Never call api-hermes.pathao.com directly.
+        const BRIDGE_DEFAULT = "https://project--8cab03ff-35c9-4c57-a54f-7c1ae6f4166f.lovable.app";
+        function bridgeUrl(){
+            const c = (typeof pathaoCfg === 'function') ? pathaoCfg() : {};
+            return ((c.bridge || BRIDGE_DEFAULT) + '').replace(/\/+$/, '');
+        }
 
         function pathaoCfg(){ return (appSettings && appSettings.pathao) || {}; }
         function pathaoTokenKey(){ return 'pathao_tok_' + (currentUserId||'_'); }
@@ -2816,6 +2838,8 @@
             if($('setting-pathao-pass')) $('setting-pathao-pass').value = c.password||'';
             if($('setting-pathao-sender-name')) $('setting-pathao-sender-name').value = c.senderName||'';
             if($('setting-pathao-sender-phone')) $('setting-pathao-sender-phone').value = c.senderPhone||'';
+            if($('setting-pathao-bridge')) $('setting-pathao-bridge').value = c.bridge||'';
+            try { fillOrderCities(); } catch(e){}
             // Repopulate stored selects
             const fill = (selId, list, sel) => {
                 const el = $(selId); if(!el || !list) return;
@@ -2830,50 +2854,37 @@
             pathaoSetStatus(!!(c.email && tok), tok ? ('Connected ✓ ('+(c.email||'')+')') : (c.email ? 'Saved (token expired)' : 'Not Connected'));
         }
 
-        async function pathaoApi(path, opts={}, withAuth=true){
-            const headers = { 'Content-Type':'application/json', 'Accept':'application/json', ...(opts.headers||{}) };
-            if(withAuth){
-                const tok = await pathaoEnsureToken();
-                headers['Authorization'] = 'Bearer ' + tok;
-            }
-            const res = await fetch(pathaoUrl(path), { ...opts, headers });
-            const text = await res.text();
-            let data; try { data = JSON.parse(text); } catch { data = { raw:text }; }
-            if(!res.ok){
-                const msg = (data && (data.message || (data.errors && JSON.stringify(data.errors)))) || ('HTTP '+res.status);
-                throw new Error(msg);
-            }
-            return data;
-        }
-
-        async function pathaoIssueToken(){
+        async function pathaoApi(path, opts={}, _withAuth=true){
             const c = pathaoCfg();
             if(!c.email || !c.password) throw new Error('Pathao Email/Password সেটিংসে সেভ করুন');
-            const body = {
-                client_id: PATHAO_CLIENT_ID, client_secret: PATHAO_CLIENT_SECRET,
-                username: c.email, password: c.password, grant_type: 'password'
-            };
-            const res = await fetch(pathaoUrl('/aladdin/api/v1/issue-token'), {
-                method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
-                body: JSON.stringify(body)
-            });
-            const data = await res.json().catch(()=>({}));
-            if(!res.ok || !data.access_token) throw new Error(data.message || 'Pathao লগইন ব্যর্থ (Email/Password চেক করুন)');
-            const expAt = Date.now() + ((data.expires_in||3600)*1000) - 60000;
-            localStorage.setItem(pathaoTokenKey(), JSON.stringify({ access_token:data.access_token, refresh_token:data.refresh_token, expAt }));
-            return data.access_token;
+            let payload;
+            if(opts.body){ try { payload = JSON.parse(opts.body); } catch { payload = undefined; } }
+            const res = await fetch(bridgeUrl() + '/api/public/pathao/api', {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({
+                    email: c.email, password: c.password, path,
+                    method: (opts.method||'GET'), payload,
+                    forceLogin: !!opts.forceLogin
+                })
+            }).catch(() => { throw new Error('কুরিয়ার সার্ভারে পৌঁছানো যায়নি — ইন্টারনেট চেক করুন'); });
+            const out = await res.json().catch(()=>({}));
+            if(!res.ok || out.ok === false){
+                const d = out.data || {};
+                const msg = out.message || d.message || (d.errors && JSON.stringify(d.errors)) || ('HTTP '+res.status);
+                throw new Error(msg);
+            }
+            return out.data;
         }
 
-        async function pathaoEnsureToken(){
-            try {
-                const raw = localStorage.getItem(pathaoTokenKey());
-                if(raw){
-                    const t = JSON.parse(raw);
-                    if(t && t.access_token && t.expAt && Date.now() < t.expAt) return t.access_token;
-                }
-            } catch(e){}
-            return await pathaoIssueToken();
+        // Login happens on the bridge server; a successful store list proves the credentials.
+        async function pathaoIssueToken(){
+            await pathaoApi('/aladdin/api/v1/stores', { forceLogin: true });
+            localStorage.setItem(pathaoTokenKey(), JSON.stringify({ ok:true, at: Date.now() }));
+            return 'bridge';
         }
+
+        async function pathaoEnsureToken(){ return 'bridge'; }
 
         async function pathaoConnect(){
             const $ = id => document.getElementById(id);
@@ -2883,7 +2894,8 @@
             const senderPhone = ($('setting-pathao-sender-phone').value||'').replace(/\D/g,'');
             if(!email || !pass) return Swal.fire({icon:'warning', title:'Pathao Email ও Password দিন'});
             // Save first (per-user)
-            const newCfg = { ...(pathaoCfg()), email, password: pass, senderName, senderPhone };
+            const bridge = ((document.getElementById('setting-pathao-bridge')||{}).value||'').trim();
+            const newCfg = { ...(pathaoCfg()), email, password: pass, senderName, senderPhone, bridge };
             await safeFbWrite(dbSettings.child('pathao').set(newCfg));
             appSettings.pathao = newCfg;
             try {
@@ -3005,15 +3017,19 @@
 
             Swal.fire({title:'Pathao এ পাঠানো হচ্ছে...', didOpen:()=>Swal.showLoading(), allowOutsideClick:false});
             try {
+                // Tell the bridge where this order lives, so live webhook updates
+                // from Pathao can write straight back into this order.
+                try { await pathaoRegisterIndex(o.id); } catch(ixErr){ console.warn('index write failed', ixErr); }
                 const payload = {
                     store_id: Number(c.storeId),
                     merchant_order_id: String(o.id),
                     recipient_name: o.name,
                     recipient_phone: o.phone,
                     recipient_address: (o.addr || 'N/A').slice(0,220),
-                    recipient_city: Number(c.cityId),
-                    recipient_zone: Number(c.zoneId),
-                    ...(c.areaId ? { recipient_area: Number(c.areaId) } : {}),
+                    // Use THIS customer's city/zone when the order has one, else the default.
+                    recipient_city: Number(o.cityId || c.cityId),
+                    recipient_zone: Number(o.zoneId || c.zoneId),
+                    ...((o.areaId || c.areaId) ? { recipient_area: Number(o.areaId || c.areaId) } : {}),
                     delivery_type: 48,         // 48 = Normal, 12 = On-demand
                     item_type: 2,              // 2 = Parcel
                     special_instruction: '',
@@ -3026,17 +3042,24 @@
                 const cons = (res.data && (res.data.consignment_id || res.data.order_id)) || res.consignment_id || '';
                 const trackingUrl = (res.data && res.data.tracking_url) || '';
                 // Persist on order
+                const finalTrack = trackingUrl || (cons ? ('https://merchant.pathao.com/tracking?consignment_id=' + cons + '&phone=' + (o.phone||'')) : '');
                 await safeFbWrite(db.child(o.id).update({
                     pathaoConsignmentId: cons,
                     pathaoBookedAt: Date.now(),
-                    pathaoTrackingUrl: trackingUrl,
+                    pathaoTrackingUrl: finalTrack,
+                    courierProvider: 'pathao',
+                    courierStatusText: 'কুরিয়ারে বুক হয়েছে',
+                    courierUpdatedAt: Date.now(),
                     status: 'Shipped',
                     shippedAt: o.shippedAt || Date.now()
                 }));
+                if(cons){
+                    try { await firebase.database().ref('pathao_index/cn_' + cons).set({ ordersPath: pathaoOrdersPath(), orderId: String(o.id) }); } catch(e){}
+                }
                 // 📲 Auto WhatsApp message to customer with tracking link
                 try {
                     const storeName = (appSettings && appSettings.storeName) || 'Jersey Nova';
-                    const trackLine = trackingUrl ? `\n🔗 Track: ${trackingUrl}` : (cons ? `\n📦 Consignment: ${cons}` : '');
+                    const trackLine = finalTrack ? `\n🔗 Track: ${finalTrack}` : (cons ? `\n📦 Consignment: ${cons}` : '');
                     const waMsg = `আসসালামু আলাইকুম ${o.name},\n\nআপনার অর্ডার (#${o.id}) কুরিয়ার (Pathao) এ বুক করা হয়েছে ✅${trackLine}\n💰 COD: ৳${amountToCollect}\n\nধন্যবাদ\n— ${storeName}`;
                     const cleanPhone = (o.phone||'').replace(/\D/g,'').replace(/^88/,'');
                     if(cleanPhone){
@@ -3049,7 +3072,7 @@
                 Swal.fire({
                     icon:'success',
                     title:'বুকিং সফল ✓ — WhatsApp পাঠানো হলো',
-                    html:`Consignment: <b>${cons||'—'}</b>${trackingUrl?`<br><a href="${trackingUrl}" target="_blank" style="color:#4f46e5;font-weight:bold">🔗 Track Parcel</a>`:''}<br><span style="font-size:12px;color:#16a34a">📲 কাস্টমারের WhatsApp টাব খুলে দেওয়া হয়েছে — Send চাপুন</span>`
+                    html:`Consignment: <b>${cons||'—'}</b>${finalTrack?`<br><a href="${finalTrack}" target="_blank" style="color:#4f46e5;font-weight:bold">🔗 Track Parcel</a>`:''}<br><span style="font-size:12px;color:#16a34a">📲 কাস্টমারের WhatsApp টাব খুলে দেওয়া হয়েছে — Send চাপুন</span>`
                 });
             } catch(e){
                 Swal.fire({icon:'error', title:'বুকিং ব্যর্থ', text:e.message||String(e)});
@@ -3071,6 +3094,88 @@
                 window.openSettings = function(){ origOpen.apply(this, arguments); setTimeout(()=>{ try{ pathaoLoadSettingsUI(); pathaoBindCascade(); }catch(e){} }, 50); };
             }
         })();
+
+        /* ============ Courier bridge helpers (live status + real charge) ============ */
+        function pathaoOrdersPath(){
+            try { return db.toString().replace(/^https?:\/\/[^/]+\//, '').replace(/\/+$/,''); }
+            catch(e){ return 'orders'; }
+        }
+        async function pathaoRegisterIndex(orderId){
+            return firebase.database().ref('pathao_index/' + String(orderId))
+                .set({ ordersPath: pathaoOrdersPath(), orderId: String(orderId) });
+        }
+
+        // Real Pathao delivery charge for a given city/zone/weight.
+        async function pathaoQuote(cityId, zoneId, weight){
+            const c = pathaoCfg();
+            if(!c.email || !c.password) throw new Error('আগে Pathao কানেক্ট করুন');
+            if(!c.storeId) throw new Error('Settings এ Store সিলেক্ট করে Defaults সেভ করুন');
+            if(!cityId || !zoneId) throw new Error('City ও Zone সিলেক্ট করুন');
+            const res = await fetch(bridgeUrl() + '/api/public/pathao/price', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    email:c.email, password:c.password, store_id:c.storeId,
+                    recipient_city:cityId, recipient_zone:zoneId,
+                    item_weight: Number(weight)>0 ? Number(weight) : 0.5
+                })
+            }).catch(()=>{ throw new Error('কুরিয়ার সার্ভারে পৌঁছানো যায়নি'); });
+            const out = await res.json().catch(()=>({}));
+            if(!res.ok || !out.ok) throw new Error(out.message || 'চার্জ আনা যায়নি');
+            return out.price;
+        }
+
+        function orderCityZoneEls(){
+            return {
+                city: document.getElementById('order-city'),
+                zone: document.getElementById('order-zone'),
+                weight: document.getElementById('order-weight')
+            };
+        }
+        function fillOrderCities(){
+            const { city } = orderCityZoneEls();
+            if(!city) return;
+            const list = (pathaoCfg().cities)||[];
+            const cur = city.value;
+            city.innerHTML = '<option value="">ডেলিভারি সিটি</option>' +
+                list.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
+            if(cur) city.value = cur;
+        }
+        async function onOrderCityChange(){
+            const { city, zone } = orderCityZoneEls();
+            if(!zone) return;
+            zone.innerHTML = '<option value="">লোড হচ্ছে...</option>';
+            if(!city.value){ zone.innerHTML = '<option value="">জোন</option>'; return; }
+            try{
+                const z = await pathaoApi('/aladdin/api/v1/cities/'+city.value+'/zone-list');
+                const list = (z.data && z.data.data) || z.data || [];
+                zone.innerHTML = '<option value="">জোন</option>' + list.map(x=>`<option value="${x.zone_id}">${x.zone_name}</option>`).join('');
+            } catch(e){ zone.innerHTML = '<option value="">জোন (ব্যর্থ)</option>'; }
+        }
+        async function autoDeliveryCharge(){
+            const { city, zone, weight } = orderCityZoneEls();
+            const btn = document.getElementById('auto-charge-btn');
+            if(btn){ btn.disabled = true; btn.innerText = '⏳ আনছি...'; }
+            try{
+                const price = await pathaoQuote(city && city.value, zone && zone.value, weight && weight.value);
+                const el = document.getElementById('delivery-charge');
+                el.value = price; calculateStats();
+                Toast.fire({icon:'success', title:'আসল ডেলিভারি চার্জ: ৳ '+price});
+            } catch(e){
+                Swal.fire({icon:'error', title:'চার্জ আনা যায়নি', text:e.message||String(e)});
+            } finally {
+                if(btn){ btn.disabled = false; btn.innerText = '⚡ আসল চার্জ আনুন'; }
+            }
+        }
+
+        function courierBadgeHTML(o){
+            if(!o || (!o.pathaoConsignmentId && !o.courierStatusText)) return '';
+            const track = o.pathaoTrackingUrl || (o.pathaoConsignmentId ? ('https://merchant.pathao.com/tracking?consignment_id='+o.pathaoConsignmentId+'&phone='+(o.phone||'')) : '');
+            const txt = o.courierStatusText || 'বুকড';
+            return `<div class="mt-1 text-[10px] font-black">
+                <span class="bg-pink-50 text-pink-700 border border-pink-200 px-2 py-0.5 rounded">🚚 ${txt}</span>
+                ${track?`<a href="${track}" target="_blank" class="text-indigo-600 underline ml-1">ট্র্যাক</a>`:''}
+            </div>`;
+        }
         /* =================== End Pathao Integration =================== */
 
         /* =================== 🆕 POS Items + Stickers + Export =================== */
