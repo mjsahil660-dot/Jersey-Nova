@@ -226,6 +226,468 @@
 
         /* Focus visible for keyboard accessibility */
         button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline:2px solid #a855f7; outline-offset:2px; }
+
+        /* =========================================================
+           SMART ERP UI REFRESH — V8 ORGANIZED APP SHELL
+           Visual layer only: existing IDs, handlers and data logic
+           are intentionally preserved so all current functionality
+           continues to work.
+        ========================================================= */
+        :root{
+            --ui-bg:#f6f8fc;
+            --ui-surface:#ffffff;
+            --ui-surface-2:#f8fafc;
+            --ui-border:#e7eaf0;
+            --ui-text:#172033;
+            --ui-muted:#718096;
+            --ui-primary:#4f46e5;
+            --ui-primary-2:#7c3aed;
+            --ui-success:#059669;
+            --ui-warning:#d97706;
+            --ui-danger:#dc2626;
+            --ui-shadow:0 12px 35px rgba(15,23,42,.07);
+            --ui-shadow-lg:0 24px 60px rgba(15,23,42,.12);
+            --ui-radius:20px;
+        }
+
+        html{scroll-behavior:smooth}
+        body{
+            background:
+                radial-gradient(circle at 10% 0%, rgba(99,102,241,.08), transparent 28%),
+                radial-gradient(circle at 100% 10%, rgba(168,85,247,.07), transparent 25%),
+                var(--ui-bg) !important;
+            color:var(--ui-text);
+            padding:0 !important;
+            min-height:100vh;
+        }
+
+        /* App shell */
+        #app-wrapper{
+            width:100%;
+            max-width:1440px !important;
+            margin:0 auto !important;
+            padding:14px 18px 40px;
+            gap:0 !important;
+        }
+        @media (min-width:1024px){
+            #app-wrapper{
+                margin-left:286px !important;
+                margin-right:0 !important;
+                max-width:none !important;
+                width:calc(100% - 286px) !important;
+                padding:18px 28px 44px;
+            }
+        }
+
+        /* Top bar */
+        #app-wrapper > .bg-white\/90{
+            background:rgba(255,255,255,.88) !important;
+            border:1px solid rgba(226,232,240,.9) !important;
+            box-shadow:0 8px 30px rgba(15,23,42,.06) !important;
+            border-radius:18px !important;
+            min-height:68px;
+            padding:10px 14px !important;
+            position:sticky;
+            top:12px;
+        }
+        #app-wrapper > .bg-white\/90 .biz-name-display{
+            color:#182033 !important;
+            background:none !important;
+            -webkit-text-fill-color:initial !important;
+        }
+        #app-wrapper > .bg-white\/90 button{
+            border:1px solid #e5e7eb;
+            background:#f8fafc;
+            color:#475569;
+        }
+        @media (min-width:1024px){
+            #app-wrapper > .bg-white\/90 button{
+                display:none;
+            }
+        }
+
+        /* Desktop navigation becomes a clean left rail. */
+        #sidebar{
+            right:auto !important;
+            left:0 !important;
+            width:268px !important;
+            padding:18px 14px !important;
+            background:rgba(255,255,255,.96) !important;
+            border-right:1px solid #e5e7eb;
+            box-shadow:14px 0 45px rgba(15,23,42,.08) !important;
+            backdrop-filter:blur(18px);
+            -webkit-backdrop-filter:blur(18px);
+        }
+        #sidebar > div:first-child{
+            padding:8px 8px 16px !important;
+            margin-bottom:10px !important;
+        }
+        #sidebar > div:first-child h2{
+            font-size:15px;
+            letter-spacing:.08em;
+            color:#111827 !important;
+            background:none !important;
+            -webkit-text-fill-color:initial !important;
+        }
+        #sidebar .tab-btn,
+        #sidebar button[onclick="openSettings()"],
+        #sidebar .admin-only,
+        #sidebar button[onclick="exportData()"]{
+            border:1px solid transparent;
+            border-radius:13px !important;
+            min-height:46px;
+            padding:11px 13px !important;
+            color:#64748b !important;
+            transition:.2s ease;
+        }
+        #sidebar .tab-btn:hover,
+        #sidebar button[onclick="openSettings()"]:hover{
+            background:#f4f5ff !important;
+            color:#4338ca !important;
+            transform:translateX(2px);
+        }
+        #sidebar .tab-btn.active{
+            background:linear-gradient(90deg,#eef2ff,#f8f7ff) !important;
+            color:#4338ca !important;
+            border:1px solid #e0e7ff !important;
+            border-right:3px solid #4f46e5 !important;
+            box-shadow:0 7px 20px rgba(79,70,229,.08);
+        }
+        #sidebar hr{border-color:#eef2f7 !important}
+        #sidebar button[onclick="logout()"]{
+            min-height:44px;
+            border:1px solid #fee2e2;
+            border-radius:13px !important;
+        }
+        #sidebar-overlay{background:rgba(15,23,42,.38) !important}
+        @media (min-width:1024px){
+            #sidebar{transform:translateX(0) !important}
+            #sidebar-overlay{display:none !important}
+        }
+
+        /* Page headings */
+        #tab-dashboard > .flex.flex-col.mb-4{
+            padding:4px 2px 12px !important;
+        }
+        #tab-dashboard > .flex.flex-col.mb-4 h2{
+            font-size:25px;
+            letter-spacing:-.03em;
+            color:#111827 !important;
+            background:none !important;
+            -webkit-text-fill-color:initial !important;
+        }
+        #dashboard-date-range{
+            color:#7c3aed !important;
+            font-size:12px !important;
+        }
+
+        /* Hero */
+        .dash-hero{
+            border-radius:22px !important;
+            padding:24px 26px !important;
+            background:
+                radial-gradient(circle at 90% 10%, rgba(255,255,255,.22), transparent 24%),
+                linear-gradient(125deg,#4338ca,#6d28d9 52%,#8b5cf6) !important;
+            box-shadow:0 18px 40px rgba(79,70,229,.20) !important;
+        }
+        .dash-hero-title{font-size:25px !important}
+        .dash-hero-greeting{font-size:12px !important}
+        .dash-hero-pill{
+            background:rgba(255,255,255,.13) !important;
+            border-color:rgba(255,255,255,.20) !important;
+        }
+
+        /* Dashboard KPI cards */
+        #tab-dashboard .dash-grad-card{
+            border-radius:18px !important;
+            box-shadow:0 10px 26px rgba(15,23,42,.10) !important;
+            border:1px solid rgba(255,255,255,.22);
+        }
+        #tab-dashboard .dash-grad-card:hover{
+            transform:translateY(-2px);
+            box-shadow:0 18px 36px rgba(15,23,42,.14) !important;
+        }
+        #tab-dashboard .grid.grid-cols-2.md\:grid-cols-4{
+            gap:14px !important;
+        }
+
+        /* Status mini cards */
+        #tab-dashboard .bg-white.border{
+            border-radius:16px !important;
+            box-shadow:0 6px 18px rgba(15,23,42,.04);
+        }
+
+        /* All main panels */
+        #app-wrapper .tab-content > .bg-white\/95,
+        #app-wrapper .tab-content > .bg-white\/90,
+        #app-wrapper .tab-content .bg-white\/90{
+            border:1px solid #e7eaf0 !important;
+            box-shadow:var(--ui-shadow) !important;
+            border-radius:20px !important;
+        }
+        #app-wrapper .tab-content > .bg-white\/95:hover{
+            box-shadow:0 16px 40px rgba(15,23,42,.08) !important;
+        }
+
+        /* Forms */
+        #app-wrapper input,
+        #app-wrapper select,
+        #app-wrapper textarea{
+            border-color:#e3e8ef !important;
+            background:#fff;
+            color:#263247;
+            border-radius:12px !important;
+            transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+        #app-wrapper input:focus,
+        #app-wrapper select:focus,
+        #app-wrapper textarea:focus{
+            border-color:#818cf8 !important;
+            box-shadow:0 0 0 3px rgba(99,102,241,.10) !important;
+        }
+
+        /* New order form */
+        #tab-dashboard #form-title{
+            font-size:18px !important;
+            color:#312e81 !important;
+            padding-bottom:14px !important;
+        }
+        #tab-dashboard .md\:col-span-5.bg-amber-50\/40{
+            background:linear-gradient(180deg,#fffbeb,#fff) !important;
+            border-color:#fde68a !important;
+        }
+        #tab-dashboard .md\:col-span-5.bg-pink-50\/50{
+            background:#fff7fb !important;
+        }
+        #tab-dashboard #items-rows > *{
+            border-radius:12px;
+        }
+
+        /* Action buttons */
+        #app-wrapper button{
+            transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+        #app-wrapper button:hover{transform:translateY(-1px)}
+        #app-wrapper button:active{transform:translateY(0) scale(.985)}
+
+        /* Search/action toolbar */
+        #search-input{
+            min-height:46px;
+            border-color:#e5e7eb !important;
+        }
+
+        /* Tables */
+        #app-wrapper table{
+            border-collapse:separate;
+            border-spacing:0;
+        }
+        #app-wrapper table thead th{
+            font-size:10px !important;
+            letter-spacing:.08em;
+            white-space:nowrap;
+        }
+        #app-wrapper table tbody tr{
+            transition:background .16s ease;
+        }
+        #app-wrapper table tbody tr:hover{
+            background:#f8faff !important;
+        }
+        #app-wrapper table td,
+        #app-wrapper table th{
+            border-color:#eef2f7 !important;
+        }
+
+        /* Factory / expenses / CRM section headers */
+        #tab-factory h2,#tab-expenses h2,#tab-crm h2,#tab-reports h2{
+            letter-spacing:-.01em;
+        }
+
+        /* Reports */
+        #report-print-area{
+            box-shadow:var(--ui-shadow) !important;
+            border:1px solid #e7eaf0 !important;
+        }
+        #compare-box > div > div,
+        #monthly-breakdown-wrap{
+            border-radius:16px !important;
+        }
+
+        /* Modal system */
+        #settings-modal,
+        #invoice-modal,
+        #admin-modal,
+        [id$="-modal"]{
+            background:rgba(15,23,42,.54) !important;
+            backdrop-filter:blur(9px);
+            -webkit-backdrop-filter:blur(9px);
+        }
+        #settings-modal > div,
+        #invoice-modal > div,
+        #admin-modal > div{
+            border:1px solid rgba(255,255,255,.65);
+            box-shadow:0 30px 90px rgba(15,23,42,.22) !important;
+        }
+        #settings-modal > div{
+            max-width:680px !important;
+            padding:22px !important;
+            border-radius:24px !important;
+        }
+        #settings-tabs{
+            padding:5px !important;
+            background:#f6f7fb;
+            border:1px solid #e8ebf1;
+            border-radius:14px;
+        }
+        .settings-tab{
+            border-radius:10px !important;
+            color:#64748b !important;
+        }
+        .settings-tab.active{
+            background:#fff !important;
+            color:#4338ca !important;
+            box-shadow:0 5px 16px rgba(15,23,42,.08) !important;
+        }
+        .settings-panel > div > div,
+        .settings-panel > div > .bg-indigo-50\/50,
+        .settings-panel > div > .bg-purple-50\/50,
+        .settings-panel > .bg-blue-50\/50,
+        .settings-panel > .bg-gray-50,
+        .settings-panel > .bg-pink-50\/60{
+            border-radius:16px !important;
+        }
+
+        /* Branding drop zones */
+        .drop-zone{
+            background:linear-gradient(180deg,#fafaff,#f7f8ff);
+            border-color:#c7d2fe !important;
+            border-radius:16px !important;
+        }
+        .drop-zone:hover{
+            background:#eef2ff;
+            border-color:#818cf8 !important;
+        }
+
+        /* Invoice */
+        #invoice-modal > div{border-radius:22px !important}
+        #inv-main-box{border-radius:18px !important}
+
+        /* Auth screen */
+        #auth-section{
+            max-width:430px !important;
+            margin:8vh auto 0 !important;
+            border:1px solid #e5e7eb !important;
+            background:rgba(255,255,255,.92) !important;
+            box-shadow:0 28px 80px rgba(15,23,42,.12) !important;
+            border-radius:26px !important;
+        }
+        #auth-title{
+            color:#111827 !important;
+            background:none !important;
+            -webkit-text-fill-color:initial !important;
+        }
+        #auth-section input{
+            border-color:#e5e7eb !important;
+            background:#f8fafc !important;
+            border-radius:13px !important;
+        }
+        #auth-section .logo-container{
+            border-radius:20px;
+            box-shadow:0 16px 34px rgba(79,70,229,.24);
+        }
+
+        /* Splash */
+        #app-splash{
+            background:
+                radial-gradient(circle at 80% 15%, rgba(255,255,255,.15), transparent 22%),
+                linear-gradient(135deg,#312e81,#4f46e5 50%,#7c3aed) !important;
+        }
+
+        /* Dark mode */
+        body.dark-mode{
+            --ui-bg:#0b1120;
+            --ui-surface:#111827;
+            --ui-surface-2:#0f172a;
+            --ui-border:#263244;
+            --ui-text:#e5e7eb;
+            --ui-muted:#94a3b8;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(79,70,229,.15), transparent 30%),
+                #0b1120 !important;
+        }
+        body.dark-mode #app-wrapper > .bg-white\/90,
+        body.dark-mode #app-wrapper .tab-content > .bg-white\/95,
+        body.dark-mode #app-wrapper .tab-content > .bg-white\/90{
+            background:rgba(17,24,39,.94) !important;
+            border-color:#263244 !important;
+        }
+        body.dark-mode #app-wrapper > .bg-white\/90 .biz-name-display{
+            color:#f8fafc !important;
+        }
+        body.dark-mode #sidebar{
+            background:rgba(15,23,42,.97) !important;
+            border-color:#263244 !important;
+        }
+        body.dark-mode #sidebar > div:first-child h2,
+        body.dark-mode #tab-dashboard > .flex.flex-col.mb-4 h2{
+            color:#f8fafc !important;
+        }
+        body.dark-mode #sidebar .tab-btn,
+        body.dark-mode #sidebar button[onclick="openSettings()"]{
+            color:#94a3b8 !important;
+        }
+        body.dark-mode #sidebar .tab-btn.active{
+            background:#1e293b !important;
+            color:#a5b4fc !important;
+            border-color:#3730a3 !important;
+        }
+        body.dark-mode #app-wrapper input,
+        body.dark-mode #app-wrapper select,
+        body.dark-mode #app-wrapper textarea{
+            background:#0f172a !important;
+            color:#e5e7eb !important;
+            border-color:#334155 !important;
+        }
+        body.dark-mode #app-wrapper table tbody tr:hover{
+            background:#172033 !important;
+        }
+        body.dark-mode .settings-tab.active{
+            background:#1e293b !important;
+            color:#a5b4fc !important;
+        }
+
+        /* Mobile polish */
+        @media (max-width:1023px){
+            #app-wrapper{padding:10px 10px 30px !important}
+            #sidebar{width:min(88vw,330px) !important}
+            #tab-dashboard > .flex.flex-col.mb-4 h2{font-size:22px}
+            .dash-hero{padding:20px !important}
+            #tab-dashboard .grid.grid-cols-2.md\:grid-cols-4{
+                grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+            }
+        }
+        @media (max-width:560px){
+            #app-wrapper{padding-left:8px !important;padding-right:8px !important}
+            #tab-dashboard .grid.grid-cols-2.md\:grid-cols-4{
+                grid-template-columns:1fr 1fr !important;
+                gap:9px !important;
+            }
+            #tab-dashboard .dash-grad-card{padding:14px !important}
+            #tab-dashboard .dash-grad-card h3{font-size:20px !important}
+            #tab-dashboard .dash-grad-card.md\:col-span-4{
+                grid-column:1/-1;
+            }
+            .dash-hero-title{font-size:21px !important}
+            #settings-modal{padding:8px !important}
+            #settings-modal > div{padding:14px !important}
+            #settings-tabs{gap:3px !important}
+            .settings-tab{font-size:11px !important;padding:8px 9px !important}
+        }
+
+        /* Accessibility / reduced motion */
+        @media (prefers-reduced-motion:reduce){
+            *,*::before,*::after{scroll-behavior:auto !important;animation-duration:.001ms !important;transition-duration:.001ms !important}
+        }
+
     </style>
 </head>
 <body class="p-2 md:p-6" onload="initApp()">
@@ -2815,13 +3277,10 @@
         ====================================================================== */
         // Pathao API has no CORS headers, so every call goes through our own
         // courier bridge server (Lovable). Never call api-hermes.pathao.com directly.
-        const BRIDGE_DEFAULT = "https://project--8cab03ff-35c9-4c57-a54f-7c1ae6f4166f-dev.lovable.app";
+        const BRIDGE_DEFAULT = "https://project--8cab03ff-35c9-4c57-a54f-7c1ae6f4166f.lovable.app";
         function bridgeUrl(){
             const c = (typeof pathaoCfg === 'function') ? pathaoCfg() : {};
-            let u = ((c.bridge || BRIDGE_DEFAULT) + '').trim().replace(/\/+$/, '');
-            if(!u) u = BRIDGE_DEFAULT;
-            if(!/^https?:\/\//i.test(u)) u = 'https://' + u;
-            return u;
+            return ((c.bridge || BRIDGE_DEFAULT) + '').replace(/\/+$/, '');
         }
 
         function pathaoCfg(){ return (appSettings && appSettings.pathao) || {}; }
