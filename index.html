@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart ERP Manager</title>
+    <title>Jersey Nova ERP — অর্ডার, হিসাব ও কাস্টমার ম্যানেজমেন্ট</title>
+    <meta name="description" content="Jersey Nova ERP — জার্সি ব্যবসার অর্ডার, ফ্যাক্টরি পেমেন্ট, খরচ, কাস্টমার, রিপোর্ট, ইনভয়েস ও কুরিয়ার এক জায়গায়।">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://mjsahil660-dot.github.io/Jersey-Nova/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Jersey Nova ERP">
+    <meta property="og:description" content="জার্সি ব্যবসার সম্পূর্ণ অর্ডার ও হিসাব ম্যানেজমেন্ট সিস্টেম।">
+    <meta property="og:url" content="https://mjsahil660-dot.github.io/Jersey-Nova/">
+    <meta name="twitter:card" content="summary">
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -31,6 +39,7 @@
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
@@ -356,10 +365,24 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
         </div>
         
         <div id="login-box">
-            <input type="text" id="login-id" aria-label="ইউজার আইডি" autocomplete="username" placeholder="আপনার ইউজার আইডি" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('login-pass').focus();}" class="w-full p-4 border border-blue-100 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none font-bold bg-white/80">
-            <input type="password" id="login-pass" aria-label="পাসওয়ার্ড" autocomplete="current-password" placeholder="পাসওয়ার্ড" onkeydown="if(event.key==='Enter'){event.preventDefault();loginUser();}" class="w-full p-4 border border-blue-100 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none font-bold bg-white/80">
-            <button onclick="loginUser()" aria-label="লগিন" class="dash-grad-card w-full text-white py-4 rounded-xl font-bold text-lg transition active:scale-95 shadow-lg">লগিন করুন</button>
-            <p class="text-center text-sm font-bold text-gray-500 mt-5">অ্যাকাউন্ট নেই? <button onclick="toggleAuthMode()" class="text-purple-600 hover:underline">নতুন অ্যাকাউন্ট খুলুন</button></p>
+            <button onclick="erpGoogleLogin()" class="dash-grad-card w-full py-4 rounded-xl font-bold text-lg mb-4"><i class="fab fa-google"></i> Gmail দিয়ে লগিন</button>
+            <div style="text-align:center;opacity:.6;font-size:12px;margin:6px 0 12px">অথবা মোবাইল নম্বর</div>
+            <input type="tel" id="login-phone" placeholder="+8801XXXXXXXXX" autocomplete="tel">
+            <div id="recaptcha-box" style="margin-bottom:12px"></div>
+            <button id="otp-send-btn" onclick="erpSendOtp()" class="dash-grad-card w-full py-3 rounded-xl font-bold mb-3">কোড পাঠান</button>
+            <div id="otp-area" class="hidden">
+                <input type="text" id="login-otp" inputmode="numeric" placeholder="৬ সংখ্যার কোড" autocomplete="one-time-code">
+                <button onclick="erpVerifyOtp()" class="dash-grad-card w-full py-3 rounded-xl font-bold">কোড যাচাই করে লগিন</button>
+            </div>
+        </div>
+
+        <div id="link-box" class="hidden">
+            <p style="font-size:13px;margin-bottom:12px;line-height:1.6">প্রথমবার লগিন। আগের ইউজার আইডি থাকলে দিন — আপনার সব অর্ডার ও কাস্টমার ডাটা এই অ্যাকাউন্টে চলে আসবে।</p>
+            <input type="text" id="login-id" placeholder="আগের ইউজার আইডি" autocomplete="username">
+            <input type="password" id="login-pass" placeholder="আগের পাসওয়ার্ড" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();loginUser();}">
+            <button onclick="loginUser()" class="dash-grad-card w-full py-3 rounded-xl font-bold mb-3">আগের ডাটা যুক্ত করুন</button>
+            <button onclick="erpNewAccount()" class="w-full py-3 rounded-xl font-bold" style="border:1px solid var(--nf-line)">আমি নতুন — নতুন অ্যাকাউন্ট</button>
+            <button onclick="logout()" class="w-full py-2 mt-3" style="font-size:12px;opacity:.7">অন্য অ্যাকাউন্টে লগিন</button>
         </div>
 
         <div id="reg-box" class="hidden">
@@ -1072,7 +1095,16 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     </div>
 
     <script>
-        const firebaseConfig = { databaseURL: "https://jersey-nova-default-rtdb.firebaseio.com/" };
+        // ▼▼ Firebase Console → Project settings → Your apps → Web app থেকে apiKey, authDomain, projectId, appId এখানে বসান ▼▼
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFJormxqK3yQ7H_HTSioaBc6UZ5JlQQAU",
+            authDomain: "jersey-nova.firebaseapp.com",
+            databaseURL: "https://jersey-nova-default-rtdb.firebaseio.com",
+            projectId: "jersey-nova",
+            storageBucket: "jersey-nova.firebasestorage.app",
+            messagingSenderId: "274296655905",
+            appId: "1:274296655905:web:bd0709fd97d665fdd8d360"
+        };
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -1086,8 +1118,11 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
         let dbPresence = null;
         let dbAllUsers = null;
         let presenceUnsub = null;
-        const ADMIN_USERS = { 'mjsahil660': 'sahil882' };
-        function isUserAdmin(uid){ return Object.prototype.hasOwnProperty.call(ADMIN_USERS, uid); }
+        // Admin শুধু এই Gmail — Firebase Rules-এও একই Gmail দেওয়া আছে, তাই HTML বদলালেও কেউ admin ডাটা পাবে না
+        const ADMIN_EMAIL = 'mjsahil660@gmail.com';
+        const ADMIN_TENANT = 'mjsahil660';
+        let authUser = null;
+        function isUserAdmin(uid){ return !!(authUser && authUser.email && authUser.email.toLowerCase() === ADMIN_EMAIL && authUser.emailVerified); }
         let currentDesignImg = ''; // base64 for order being edited / new
 
 
@@ -1207,6 +1242,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
         }
 
         function initApp() {
+            try{ if(firebaseConfig.apiKey){ firebase.auth().getRedirectResult().catch(()=>{}); firebase.auth().onAuthStateChanged(u=>{ if(!currentUserId) erpAfterAuth(u); }); } }catch(e){}
             document.getElementById('order-date').valueAsDate = new Date();
             document.getElementById('exp-date').valueAsDate = new Date();
             document.getElementById('fact-pay-date').valueAsDate = new Date();
@@ -1250,31 +1286,83 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
         function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
         async function loginUser() {
+            if(!authUser) return Swal.fire({icon:'warning', title:'আগে Gmail বা নম্বর দিয়ে লগিন করুন'});
             const uid = document.getElementById('login-id').value.trim();
             const pwd = document.getElementById('login-pass').value;
             if(!uid || !pwd) return Swal.fire({icon: 'warning', title: 'সব ঘর পূরণ করুন!'});
             if(!/^[a-zA-Z0-9_.-]{2,32}$/.test(uid)) return Swal.fire({icon:'warning', title:'আইডি শুধু ইংরেজি অক্ষর/সংখ্যা'});
-
-            if(uid === 'admin' && pwd === '123') { startSession(uid, true); return; }
-            if(isUserAdmin(uid) && ADMIN_USERS[uid] === pwd) { startSession(uid, false); return; }
-
+            if(uid.toLowerCase() === ADMIN_TENANT || uid.toLowerCase()==='admin') return Swal.fire({icon:'error', title:'এই আইডি যুক্ত করা যাবে না'});
             const hashed = await hashPwd(pwd);
             try{
                 const snap = await firebase.database().ref('user_accounts/' + uid).once('value');
-                if(!snap.exists()) return Swal.fire({icon:'error', title:'ভুল ইউজার আইডি বা পাসওয়ার্ড!'});
                 const stored = snap.val();
-                if(stored === hashed || stored === pwd){
-                    // Auto-migrate old plain-text passwords to hashed on successful login
-                    if(stored === pwd && stored !== hashed){
-                        firebase.database().ref('user_accounts/' + uid).set(hashed).catch(()=>{});
-                    }
-                    startSession(uid, false);
-                } else {
-                    Swal.fire({icon:'error', title:'ভুল ইউজার আইডি বা পাসওয়ার্ড!'});
-                }
+                if(!snap.exists() || (stored !== hashed && stored !== pwd)) return Swal.fire({icon:'error', title:'ভুল ইউজার আইডি বা পাসওয়ার্ড!'});
+                const cl = await firebase.database().ref('claimed/' + uid).once('value');
+                if(cl.exists() && cl.val() !== authUser.uid) return Swal.fire({icon:'error', title:'এই আইডি অন্য অ্যাকাউন্টে যুক্ত আছে'});
+                if(!cl.exists()) await firebase.database().ref('claimed/' + uid).set(authUser.uid);
+                await firebase.database().ref('user_links/' + authUser.uid).set(uid);
+                startSession(uid, false);
             }catch(e){
-                Swal.fire({icon:'error', title:'কানেকশন সমস্যা!', text:'ইন্টারনেট চেক করে আবার চেষ্টা করুন।'});
+                Swal.fire({icon:'error', title:'যুক্ত করা যায়নি', text: e && e.message ? e.message : ''});
             }
+        }
+
+        async function erpNewAccount(){
+            if(!authUser) return;
+            try{
+                await firebase.database().ref('user_links/' + authUser.uid).set(authUser.uid);
+                startSession(authUser.uid, false);
+            }catch(e){ Swal.fire({icon:'error', title:'অ্যাকাউন্ট খোলা যায়নি', text:e.message||''}); }
+        }
+
+        function erpShowAuthStep(step){
+            ['login-box','reg-box','link-box'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.toggle('hidden', id!==step); });
+        }
+
+        async function erpAfterAuth(user){
+            authUser = user;
+            if(!user){ erpShowAuthStep('login-box'); return; }
+            try{
+                if(isUserAdmin()){
+                    const r = firebase.database().ref('user_links/' + user.uid);
+                    if((await r.once('value')).val() !== ADMIN_TENANT) await r.set(ADMIN_TENANT);
+                    return startSession(ADMIN_TENANT, false);
+                }
+                const link = await firebase.database().ref('user_links/' + user.uid).once('value');
+                if(link.exists()) return startSession(link.val(), false);
+                erpShowAuthStep('link-box');
+            }catch(e){ Swal.fire({icon:'error', title:'কানেকশন সমস্যা', text:e.message||''}); }
+        }
+
+        function erpAuthReady(){
+            if(!firebaseConfig.apiKey){ Swal.fire({icon:'warning', title:'Firebase সেটআপ বাকি', text:'firebaseConfig-এ apiKey ও appId বসাতে হবে।'}); return false; }
+            return true;
+        }
+        function erpGoogleLogin(){
+            if(!erpAuthReady()) return;
+            const prov = new firebase.auth.GoogleAuthProvider();
+            prov.setCustomParameters({prompt:'select_account'});
+            firebase.auth().signInWithPopup(prov).catch(e=>{
+                if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment') return firebase.auth().signInWithRedirect(prov);
+                Swal.fire({icon:'error', title:'লগিন হয়নি', text:e.message});
+            });
+        }
+        let erpConfirm = null;
+        function erpSendOtp(){
+            if(!erpAuthReady()) return;
+            let ph = document.getElementById('login-phone').value.trim().replace(/[\s-]/g,'');
+            if(/^01\d{9}$/.test(ph)) ph = '+88' + ph;
+            if(!/^\+\d{10,15}$/.test(ph)) return Swal.fire({icon:'warning', title:'সঠিক নম্বর দিন (যেমন 01XXXXXXXXX)'});
+            if(!window.erpRecaptcha) window.erpRecaptcha = new firebase.auth.RecaptchaVerifier('recaptcha-box', {size:'normal'});
+            firebase.auth().signInWithPhoneNumber(ph, window.erpRecaptcha).then(c=>{
+                erpConfirm = c; document.getElementById('otp-area').classList.remove('hidden');
+                Toast.fire({icon:'success', title:'কোড পাঠানো হয়েছে'});
+            }).catch(e=>Swal.fire({icon:'error', title:'কোড পাঠানো যায়নি', text:e.message}));
+        }
+        function erpVerifyOtp(){
+            const code = document.getElementById('login-otp').value.trim();
+            if(!erpConfirm || !/^\d{6}$/.test(code)) return Swal.fire({icon:'warning', title:'৬ সংখ্যার কোড দিন'});
+            erpConfirm.confirm(code).catch(e=>Swal.fire({icon:'error', title:'ভুল কোড', text:e.message}));
         }
 
         async function registerUser() {
@@ -1283,7 +1371,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
             if(!uid || !pwd) return Swal.fire({icon: 'warning', title: 'সব ঘর পূরণ করুন!'});
             if(!/^[a-zA-Z0-9_.-]{2,32}$/.test(uid)) return Swal.fire({icon:'warning', title:'আইডি শুধু ইংরেজি অক্ষর/সংখ্যা (২-৩২ অক্ষর)'});
             if(pwd.length < 6) return Swal.fire({icon:'warning', title:'পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে'});
-            if(uid.toLowerCase() === 'admin' || isUserAdmin(uid)) return Swal.fire({icon: 'error', title: 'এই আইডিটি নেওয়া যাবে না!'});
+            if(uid.toLowerCase() === 'admin' || uid.toLowerCase() === ADMIN_TENANT) return Swal.fire({icon: 'error', title: 'এই আইডিটি নেওয়া যাবে না!'});
 
             try{
                 const snap = await firebase.database().ref('user_accounts/' + uid).once('value');
@@ -1296,7 +1384,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
 
         function startSession(uid, isLegacyAdmin) {
             currentUserId = uid;
-            isAdmin = isUserAdmin(uid) || (isLegacyAdmin === true);
+            isAdmin = isUserAdmin(uid);
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('app-wrapper').classList.remove('hidden');
             document.getElementById('data-loading').classList.add('show');
@@ -1309,7 +1397,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                 upd(); setInterval(upd, 30000);
             }catch(e){}
             
-            let basePath = isLegacyAdmin ? '' : ('tenant_data/' + uid + '/');
+            let basePath = 'tenant_data/' + uid + '/';
             
             db = firebase.database().ref(basePath + 'orders');
             dbSettings = firebase.database().ref(basePath + 'settings');
@@ -1532,7 +1620,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
             document.getElementById('qr-upload').addEventListener('change', (e) => { if(e.target.files[0]) processFile(e.target.files[0], 'qr'); });
         }
 
-        function logout() { location.reload(); }
+        function logout() { try{ firebase.auth().signOut().finally(()=>location.reload()); }catch(e){ location.reload(); } }
 
         function toggleSidebar(forceOpen) {
             const sidebar = document.getElementById('sidebar');
@@ -4320,6 +4408,78 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     window.switchTab=showPage;window.openSettings=function(){showPage('settings')};window.closeSettings=function(){showPage('dashboard');applyThemeAndSettings()};var oldEdit=window.editOrder;if(typeof oldEdit==='function')window.editOrder=function(id){oldEdit(id);showPage('order-new')};showPage('dashboard');
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
+})();
+</script>
+<script id="auto-zone-and-paid">
+(function(){
+  /* ---------- 1) ঠিকানা থেকে অটো সিটি/জোন + দেখানো ---------- */
+  var ALIAS={'ঢাকা':'dhaka','চট্টগ্রাম':'chattogram','চিটাগাং':'chattogram','chittagong':'chattogram','সিলেট':'sylhet','খুলনা':'khulna','রাজশাহী':'rajshahi','বরিশাল':'barishal','barisal':'barishal','রংপুর':'rangpur','ময়মনসিংহ':'mymensingh','কুমিল্লা':'cumilla','comilla':'cumilla','গাজীপুর':'gazipur','নারায়ণগঞ্জ':'narayanganj','বগুড়া':'bogura','bogra':'bogura','যশোর':'jashore','jessore':'jashore','মিরপুর':'mirpur','উত্তরা':'uttara','ধানমন্ডি':'dhanmondi','মোহাম্মদপুর':'mohammadpur','গুলশান':'gulshan','বাড্ডা':'badda','যাত্রাবাড়ী':'jatrabari','বনানী':'banani','সাভার':'savar','টঙ্গী':'tongi','কেরানীগঞ্জ':'keraniganj'};
+  function norm(s){return (s||'').toString().toLowerCase().replace(/[^a-z0-9\u0980-\u09ff ]+/g,' ').replace(/\s+/g,' ').trim();}
+  function addrText(a){var t=norm(a);Object.keys(ALIAS).forEach(function(k){if(t.indexOf(k)>-1)t+=' '+ALIAS[k];});return ' '+t+' ';}
+  function best(list,text){var hit=null,len=0;(list||[]).forEach(function(x){var n=norm(x.name);if(!n)return;var parts=[n].concat(n.split(' ').filter(function(p){return p.length>3}));parts.forEach(function(p){if(text.indexOf(' '+p+' ')>-1&&p.length>len){hit=x;len=p.length;}});});return hit;}
+  var zoneCache={};
+  async function zonesFor(cityId){if(zoneCache[cityId])return zoneCache[cityId];var z=await pathaoApi('/aladdin/api/v1/cities/'+cityId+'/zone-list');var l=((z.data&&z.data.data)||z.data||[]).map(function(x){return {id:x.zone_id,name:x.zone_name}});zoneCache[cityId]=l;return l;}
+  function label(){
+    var el=document.getElementById('auto-zone-info');
+    if(!el){var box=document.getElementById('order-city');if(!box)return;el=document.createElement('div');el.id='auto-zone-info';el.style.cssText='grid-column:1/-1;font-size:12px;font-weight:700;padding:6px 10px;border-radius:6px;border:1px solid rgba(34,211,238,.35);color:#67e8f9';box.parentNode.insertBefore(el,box);}
+    var c=document.getElementById('order-city'),z=document.getElementById('order-zone');
+    var cn=c&&c.value?c.options[c.selectedIndex].text:'—',zn=z&&z.value?z.options[z.selectedIndex].text:'—';
+    el.innerHTML='📍 সিলেক্ট হয়েছে — সিটি: <b>'+cn+'</b> · জোন: <b>'+zn+'</b>'+((!c||!c.value||!z||!z.value)?' <span style="color:#fbbf24">(মিলেনি হলে নিজে সিলেক্ট করুন)</span>':'');
+  }
+  window.erpZoneLabel=label;
+  var timer;
+  async function detect(){
+    var a=(document.getElementById('cust-address')||{}).value||'';if(a.trim().length<3)return label();
+    try{
+      if(typeof fillOrderCities==='function')fillOrderCities();
+      var cfg=(typeof pathaoCfg==='function')?pathaoCfg():{};var text=addrText(a);
+      var city=best(cfg.cities,text);
+      var c=document.getElementById('order-city'),z=document.getElementById('order-zone');if(!c||!z)return;
+      if(!city&&/dhaka|ঢাকা|mirpur|uttara|dhanmondi|gulshan|badda|banani|mohammadpur|jatrabari/.test(text))city=(cfg.cities||[]).find(function(x){return norm(x.name)==='dhaka'});
+      if(city&&String(c.value)!==String(city.id)){c.value=city.id;await onOrderCityChange();}
+      if(c.value){var zl=await zonesFor(c.value);var zone=best(zl,text);if(zone)z.value=zone.id;}
+    }catch(e){console.warn('auto zone',e);}
+    label();
+  }
+  function bind(){
+    var a=document.getElementById('cust-address');if(a&&!a.dataset.az){a.dataset.az=1;a.addEventListener('input',function(){clearTimeout(timer);timer=setTimeout(detect,700);});a.addEventListener('change',detect);}
+    ['order-city','order-zone'].forEach(function(id){var e=document.getElementById(id);if(e&&!e.dataset.az){e.dataset.az=1;e.addEventListener('change',function(){setTimeout(label,400)});}});
+    label();
+  }
+  // সম্পাদনার সময় আগের সিটি/জোন ফিরিয়ে আনা
+  var oEdit=window.editOrder;
+  if(typeof oEdit==='function'){window.editOrder=function(id){var r=oEdit.apply(this,arguments);setTimeout(async function(){try{var o=(orders||[]).find(function(x){return String(x.id)===String(id)});var c=document.getElementById('order-city'),z=document.getElementById('order-zone');if(o&&o.cityId&&c){fillOrderCities();c.value=o.cityId;await onOrderCityChange();if(o.zoneId)z.value=o.zoneId;}}catch(e){}label();},80);return r;};}
+  var oReset=window.resetFormUI;
+  if(typeof oReset==='function'){window.resetFormUI=function(){var r=oReset.apply(this,arguments);setTimeout(label,50);return r;};}
+
+  /* ---------- 2) Pathao টাকা দিলে (bKash/invoice) অটো Paid ---------- */
+  var PAID_RX=/paid|payment|invoice|পেমেন্ট|পরিশোধ/i;
+  var busy=false,done={};
+  async function markPaid(o,why){
+    if(!o||o.status==='Paid'||done[o.id])return;done[o.id]=1;
+    try{await db.child(o.id).update({status:'Paid',courierStatusText:'টাকা পেয়েছি ✅ (Pathao পেমেন্ট)',autoPaidAt:Date.now(),autoPaidReason:why||''});
+      if(window.Toast)Toast.fire({icon:'success',title:'অর্ডার #'+o.id+' অটো Paid হয়েছে'});}catch(e){done[o.id]=0;console.warn('auto paid',e);}
+  }
+  async function check(){
+    if(busy||typeof db==='undefined'||!db||!Array.isArray(orders))return;busy=true;
+    try{
+      var cfg=(typeof pathaoCfg==='function')?pathaoCfg():{};
+      var list=orders.filter(function(o){return o.status!=='Paid'&&o.pathaoConsignmentId;});
+      list.forEach(function(o){ if(PAID_RX.test(o.courierStatusText||'')&&!/unpaid|return/i.test(o.courierStatusText||''))markPaid(o,'status'); });
+      if(!cfg.email||!cfg.password)return;
+      var targets=list.filter(function(o){return o.status==='Delivered'||o.status==='Shipped'||/deliver|ডেলিভার/i.test(o.courierStatusText||'');}).slice(0,15);
+      for(var i=0;i<targets.length;i++){
+        var o=targets[i];
+        try{var r=await pathaoApi('/aladdin/api/v1/orders/'+o.pathaoConsignmentId+'/info');var d=(r&&r.data)||r||{};
+          var slug=(d.order_status_slug||d.order_status||'')+'';
+          if(d.invoice_id||/^(paid|payment[_ ]?invoice)$/i.test(slug)||/payment.?invoice|^paid$/i.test(slug))await markPaid(o,'invoice');
+          else if(/deliver/i.test(slug)&&o.status!=='Delivered')await db.child(o.id).update({status:'Delivered',courierStatusText:'ডেলিভারি হয়েছে'});
+        }catch(e){}
+      }
+    }finally{busy=false;}
+  }
+  function start(){bind();setTimeout(check,8000);setInterval(check,5*60*1000);setInterval(bind,3000);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
 </body>
