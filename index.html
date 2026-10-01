@@ -1095,14 +1095,16 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     </div>
 
     <script>
-        // ▼▼ Firebase Console → Project settings → Your apps → Web app থেকে apiKey, authDomain, projectId, appId এখানে বসান ▼▼
-        const firebaseConfig = {
-            apiKey: "",
+               const firebaseConfig = {
+            apiKey: "AIzaSyDFJormxqK3yQ7H_HTSioaBc6UZ5JlQQAU",
             authDomain: "jersey-nova.firebaseapp.com",
+            databaseURL: "https://jersey-nova-default-rtdb.firebaseio.com",
             projectId: "jersey-nova",
-            appId: "",
-            databaseURL: "https://jersey-nova-default-rtdb.firebaseio.com/"
+            storageBucket: "jersey-nova.firebasestorage.app",
+            messagingSenderId: "274296655905",
+            appId: "1:274296655905:web:bd0709fd97d665fdd8d360"
         };
+
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -4482,10 +4484,3 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
 </script>
 </body>
 </html>
-
-User-agent: *
-Allow: /
-Sitemap: https://mjsahil660-dot.github.io/Jersey-Nova/sitemap.xml
-
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://mjsahil660-dot.github.io/Jersey-Nova/</loc></url></urlset>
