@@ -11,7 +11,11 @@
     <meta property="og:title" content="Jersey Nova ERP">
     <meta property="og:description" content="জার্সি ব্যবসার সম্পূর্ণ অর্ডার ও হিসাব ম্যানেজমেন্ট সিস্টেম।">
     <meta property="og:url" content="https://mjsahil660-dot.github.io/Jersey-Nova/">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://mjsahil660-dot.github.io/Jersey-Nova/og-banner.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://mjsahil660-dot.github.io/Jersey-Nova/og-banner.jpg">
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1095,7 +1099,8 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     </div>
 
     <script>
-               const firebaseConfig = {
+        // ▼▼ Firebase Console → Project settings → Your apps → Web app থেকে apiKey, authDomain, projectId, appId এখানে বসান ▼▼
+        const firebaseConfig = {
             apiKey: "AIzaSyDFJormxqK3yQ7H_HTSioaBc6UZ5JlQQAU",
             authDomain: "jersey-nova.firebaseapp.com",
             databaseURL: "https://jersey-nova-default-rtdb.firebaseio.com",
@@ -1104,7 +1109,6 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
             messagingSenderId: "274296655905",
             appId: "1:274296655905:web:bd0709fd97d665fdd8d360"
         };
-
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -1397,8 +1401,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                 upd(); setInterval(upd, 30000);
             }catch(e){}
             
-            let basePath = (isAdmin || uid === ADMIN_TENANT || uid === 'admin' || isLegacyAdmin) ? '' : ('tenant_data/' + uid + '/');
-
+            let basePath = 'tenant_data/' + uid + '/';
             
             db = firebase.database().ref(basePath + 'orders');
             dbSettings = firebase.database().ref(basePath + 'settings');
