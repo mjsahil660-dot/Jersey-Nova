@@ -1397,7 +1397,8 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                 upd(); setInterval(upd, 30000);
             }catch(e){}
             
-            let basePath = 'tenant_data/' + uid + '/';
+            let basePath = (isAdmin || uid === ADMIN_TENANT || uid === 'admin' || isLegacyAdmin) ? '' : ('tenant_data/' + uid + '/');
+
             
             db = firebase.database().ref(basePath + 'orders');
             dbSettings = firebase.database().ref(basePath + 'settings');
