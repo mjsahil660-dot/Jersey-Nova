@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mjsahil660-dot.github.io/Jersey-Nova/sitemap.xml
