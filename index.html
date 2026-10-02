@@ -11,11 +11,7 @@
     <meta property="og:title" content="Jersey Nova ERP">
     <meta property="og:description" content="জার্সি ব্যবসার সম্পূর্ণ অর্ডার ও হিসাব ম্যানেজমেন্ট সিস্টেম।">
     <meta property="og:url" content="https://mjsahil660-dot.github.io/Jersey-Nova/">
-    <meta property="og:image" content="https://mjsahil660-dot.github.io/Jersey-Nova/og-banner.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://mjsahil660-dot.github.io/Jersey-Nova/og-banner.jpg">
+    <meta name="twitter:card" content="summary">
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4488,3 +4484,28 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
 </script>
 </body>
 </html>
+
+User-agent: *
+Allow: /
+Sitemap: https://mjsahil660-dot.github.io/Jersey-Nova/sitemap.xml
+
+{
+  "rules": {
+    ".read": "auth != null && auth.token.email === 'mjsahil660@gmail.com' && auth.token.email_verified === true",
+    ".write": "auth != null && auth.token.email === 'mjsahil660@gmail.com' && auth.token.email_verified === true",
+    "tenant_data": { "$t": {
+      ".read": "auth != null && root.child('user_links/' + auth.uid).val() === $t",
+      ".write": "auth != null && root.child('user_links/' + auth.uid).val() === $t" } },
+    "user_links": { "$uid": {
+      ".read": "auth != null && auth.uid === $uid",
+      ".write": "auth != null && auth.uid === $uid && !data.exists() && newData.isString() && (newData.val() === auth.uid || root.child('claimed/' + newData.val()).val() === auth.uid)" } },
+    "claimed": { "$t": {
+      ".read": "auth != null",
+      ".write": "auth != null && !data.exists() && newData.val() === auth.uid" } },
+    "user_accounts": { "$t": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('user_links/' + auth.uid).val() === $t" } },
+    "active_sessions": { "$d": { ".write": "auth != null" } },
+    "pathao_index": { ".read": "auth != null", ".write": "auth != null" }
+  }
+}
