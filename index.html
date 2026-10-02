@@ -4484,28 +4484,3 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
 </script>
 </body>
 </html>
-
-User-agent: *
-Allow: /
-Sitemap: https://mjsahil660-dot.github.io/Jersey-Nova/sitemap.xml
-
-{
-  "rules": {
-    ".read": "auth != null && auth.token.email === 'mjsahil660@gmail.com' && auth.token.email_verified === true",
-    ".write": "auth != null && auth.token.email === 'mjsahil660@gmail.com' && auth.token.email_verified === true",
-    "tenant_data": { "$t": {
-      ".read": "auth != null && root.child('user_links/' + auth.uid).val() === $t",
-      ".write": "auth != null && root.child('user_links/' + auth.uid).val() === $t" } },
-    "user_links": { "$uid": {
-      ".read": "auth != null && auth.uid === $uid",
-      ".write": "auth != null && auth.uid === $uid && !data.exists() && newData.isString() && (newData.val() === auth.uid || root.child('claimed/' + newData.val()).val() === auth.uid)" } },
-    "claimed": { "$t": {
-      ".read": "auth != null",
-      ".write": "auth != null && !data.exists() && newData.val() === auth.uid" } },
-    "user_accounts": { "$t": {
-      ".read": "auth != null",
-      ".write": "auth != null && root.child('user_links/' + auth.uid).val() === $t" } },
-    "active_sessions": { "$d": { ".write": "auth != null" } },
-    "pathao_index": { ".read": "auth != null", ".write": "auth != null" }
-  }
-}
