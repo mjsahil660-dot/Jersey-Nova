@@ -11,7 +11,11 @@
     <meta property="og:title" content="Jersey Nova ERP">
     <meta property="og:description" content="জার্সি ব্যবসার সম্পূর্ণ অর্ডার ও হিসাব ম্যানেজমেন্ট সিস্টেম।">
     <meta property="og:url" content="https://mjsahil660-dot.github.io/Jersey-Nova/">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://mjsahil660-dot.github.io/Jersey-Nova/og-banner.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://mjsahil660-dot.github.io/Jersey-Nova/og-banner.jpg">
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -309,6 +313,41 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
 @media print{#neon-mobile-dock{display:none!important}body{background:#fff!important;color:#000!important}#app-wrapper{padding:0!important}}
 </style>
 
+<style id="jn-login-theme">
+.jn-auth{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;background:#070B14;overflow-y:auto;font-family:Sora,Manrope,sans-serif}
+#auth-section.jn-auth{max-width:none!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#070B14!important}
+#auth-section.jn-auth::before,#auth-section.jn-auth::after{display:none!important}
+.jn-auth > .jn-card::before{display:none}
+.jn-auth.hidden{display:none!important}
+.jn-aura{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.jn-aura i{position:absolute;width:55vmax;height:55vmax;border-radius:50%;filter:blur(90px);opacity:.28;animation:jnFloat 18s ease-in-out infinite alternate}
+.jn-aura i:nth-child(1){background:#22d3ee;top:-20vmax;left:-15vmax}
+.jn-aura i:nth-child(2){background:#3b5bff;bottom:-25vmax;right:-15vmax;animation-delay:-6s}
+.jn-aura i:nth-child(3){background:#0ea5a4;top:30%;left:40%;width:30vmax;height:30vmax;opacity:.15;animation-delay:-12s}
+@keyframes jnFloat{to{transform:translate(8vmax,6vmax) scale(1.15)}}
+.jn-card{position:relative;width:100%;max-width:440px;margin:auto;padding:28px 26px;border-radius:18px;background:rgba(12,18,32,.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(34,211,238,.28);box-shadow:0 0 0 1px rgba(34,211,238,.05),0 20px 60px rgba(0,0,0,.6),0 0 40px rgba(34,211,238,.12);color:#e6f6ff}
+.jn-status{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7dd3fc;padding:5px 12px;border:1px solid rgba(34,211,238,.25);border-radius:99px;background:rgba(34,211,238,.06)}
+.jn-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 10px #4ade80;animation:jnPulse 1.6s infinite}
+@keyframes jnPulse{50%{opacity:.35}}
+.jn-brand{margin-top:16px;font-size:26px;font-weight:800;letter-spacing:.04em;color:#fff;text-shadow:0 0 18px rgba(34,211,238,.55)}
+.jn-brand span{color:#22d3ee}
+.jn-title{font-size:16px;font-weight:700;color:#cfe9ff;margin-top:6px}
+.jn-sub{font-size:11px;color:#7c93ad;letter-spacing:.15em;text-transform:uppercase;margin:2px 0 14px}
+.jn-banner{width:100%;height:auto;border-radius:10px;border:1px solid rgba(34,211,238,.3);box-shadow:0 0 24px rgba(34,211,238,.18);margin-bottom:14px}
+.jn-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.jn-chips span{font-size:11px;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.04);border:1px solid rgba(125,211,252,.18);color:#bae6fd}
+.jn-card button{transition:all .18s ease}
+.jn-card #login-box>button:first-child{background:linear-gradient(135deg,#0e7490,#1d4ed8)!important;color:#fff!important;border:1px solid rgba(34,211,238,.5)!important;box-shadow:0 0 20px rgba(34,211,238,.25)}
+.jn-card .dash-grad-card{background:linear-gradient(135deg,#0891b2,#2563eb)!important;color:#fff!important;border:none!important}
+.jn-card button:hover{box-shadow:0 0 28px rgba(34,211,238,.5)!important;transform:translateY(-1px)}
+.jn-card input{width:100%;padding:13px 14px;margin-bottom:12px;border-radius:10px;background:rgba(7,11,20,.8)!important;border:1px solid rgba(125,211,252,.2)!important;color:#e6f6ff!important;outline:none}
+.jn-card input::placeholder{color:#5b7189}
+.jn-card input:focus{border-color:#22d3ee!important;box-shadow:0 0 0 3px rgba(34,211,238,.18),0 0 16px rgba(34,211,238,.3)}
+.jn-card #login-box>div[style*="text-align"]{color:#7c93ad}
+.jn-card p,.jn-card label{color:#cfe9ff}
+.jn-trust{display:flex;justify-content:center;gap:16px;margin-top:18px;font-size:11px;color:#4ade80;opacity:.85}
+@media (prefers-reduced-motion:reduce){.jn-aura i,.jn-dot{animation:none}}
+</style>
 </head>
 <body class="p-2 md:p-6" onload="initApp()">
 
@@ -353,17 +392,16 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
 
 
 
-    <div id="auth-section" class="max-w-md mx-auto bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-2xl mt-16 border border-white/50">
-        <div class="text-center mb-6">
-            <div class="logo-container">
-                <img class="app-logo hidden" src="" alt="Logo">
-                <span class="app-logo-text">ERP</span>
-            </div>
-
-            <h2 id="auth-title" class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-purple-600 uppercase tracking-tighter">সিস্টেমে প্রবেশ করুন</h2>
-            <p class="text-purple-400 text-[10px] font-bold tracking-[0.3em] mt-1 uppercase">Cloud Manager v7.3</p>
-        </div>
-        
+    <div id="auth-section" class="jn-auth">
+        <div class="jn-aura" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="jn-card">
+        <div class="jn-status"><span class="jn-dot"></span> System Online • Cloud v7.3</div>
+        <div class="logo-container" style="display:none"><img class="app-logo hidden" src="" alt="Logo"><span class="app-logo-text">ERP</span></div>
+        <div class="jn-brand">JERSEY NOVA <span>CLOUD ERP</span></div>
+        <h2 id="auth-title" class="jn-title">সিস্টেমে প্রবেশ করুন</h2>
+        <p class="jn-sub">Enterprise Apparel Management Suite</p>
+        <img src="og-banner.jpg" alt="Jersey Nova ERP" width="1200" height="630" class="jn-banner">
+        <div class="jn-chips"><span>⚡ 1-Click Courier</span><span>📦 Auto Tracking</span><span>📊 Live Orders</span><span>🔒 Firebase Shield</span></div>
         <div id="login-box">
             <button onclick="erpGoogleLogin()" class="dash-grad-card w-full py-4 rounded-xl font-bold text-lg mb-4"><i class="fab fa-google"></i> Gmail দিয়ে লগিন</button>
             <div style="text-align:center;opacity:.6;font-size:12px;margin:6px 0 12px">অথবা মোবাইল নম্বর</div>
@@ -390,6 +428,8 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
             <input type="password" id="reg-pass" aria-label="নতুন পাসওয়ার্ড" autocomplete="new-password" placeholder="নতুন পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" onkeydown="if(event.key==='Enter'){event.preventDefault();registerUser();}" class="w-full p-4 border rounded-xl mb-4 focus:ring-2 focus:ring-green-500 outline-none font-bold bg-green-50 border-green-100">
             <button onclick="registerUser()" aria-label="রেজিস্ট্রেশন" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition active:scale-95 shadow-lg shadow-green-500/30">রেজিস্ট্রেশন করুন</button>
             <p class="text-center text-sm font-bold text-gray-500 mt-5">আগে থেকে অ্যাকাউন্ট আছে? <button onclick="toggleAuthMode()" class="text-purple-600 hover:underline">লগিন করুন</button></p>
+        </div>
+    <div class="jn-trust"><span>● 256-Bit Encrypted</span><span>● Realtime Cloud Sync</span></div>
         </div>
     </div>
 
@@ -1397,7 +1437,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                 upd(); setInterval(upd, 30000);
             }catch(e){}
             
-           let basePath = (isAdmin || uid === ADMIN_TENANT || uid === 'admin' || isLegacyAdmin || uid === 'mjsahil660') ? '' : ('tenant_data/' + uid + '/');
+            let basePath = (isAdmin || uid === ADMIN_TENANT || uid === 'admin' || isLegacyAdmin || uid === 'mjsahil660') ? '' : ('tenant_data/' + uid + '/');
 
             
             db = firebase.database().ref(basePath + 'orders');
