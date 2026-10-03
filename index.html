@@ -14,6 +14,12 @@
     <meta property="og:image" content="https://mjsahil660-dot.github.io/Jersey-Nova/og-banner.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:secure_url" content="https://mjsahil660-dot.github.io/Jersey-Nova/og-banner.jpg">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:alt" content="Jersey Nova ERP — Orders, Customers, Courier Booking">
+    <meta name="twitter:domain" content="mjsahil660-dot.github.io">
+    <meta name="twitter:title" content="Jersey Nova ERP">
+    <meta name="twitter:description" content="জার্সি ব্যবসার সম্পূর্ণ অর্ডার ও হিসাব ম্যানেজমেন্ট সিস্টেম।">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://mjsahil660-dot.github.io/Jersey-Nova/og-banner.jpg">
     
@@ -3477,14 +3483,16 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
             const html = `
             <!-- Courier Sticker Modal -->
             <div id="sticker-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[70] p-4 overflow-y-auto">
-              <div class="bg-white rounded-3xl w-full max-w-md p-4 my-8 relative shadow-2xl border border-gray-200">
+              <div class="bg-white rounded-3xl w-full max-w-4xl p-4 my-8 relative shadow-2xl border border-gray-200">
                 <button onclick="document.getElementById('sticker-modal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-400 hover:text-black text-lg z-10"><i class="fas fa-times"></i></button>
                 <h2 class="text-lg font-black text-black mb-3 flex items-center gap-2"><i class="fas fa-tags"></i> কুরিয়ার স্টিকার <span class="text-[10px] font-bold bg-black text-white px-2 py-0.5 rounded-full">B&W</span></h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-3 md:max-h-[70vh] md:overflow-y-auto md:pr-1">
 
                 <!-- Style picker -->
                 <div class="mb-3">
                   <p class="text-[10px] font-black text-gray-600 mb-1.5">স্টাইল সিলেক্ট করুন:</p>
-                  <div id="sticker-style-picker" class="grid grid-cols-3 gap-2">
+                  <div id="sticker-style-picker" class="grid grid-cols-4 gap-2">
                     <button type="button" data-style="nova" onclick="setStickerStyle('nova')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">🌟 NOVA</button>
                     <button type="button" data-style="bold" onclick="setStickerStyle('bold')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">⬛ BOLD</button>
                     <button type="button" data-style="minimal" onclick="setStickerStyle('minimal')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">▢ MINIMAL</button>
@@ -3492,6 +3500,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                     <button type="button" data-style="invoice" onclick="setStickerStyle('invoice')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">🧾 INVOICE</button>
                     <button type="button" data-style="aurora" onclick="setStickerStyle('aurora')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">🌊 AURORA</button>
                     <button type="button" data-style="elegant" onclick="setStickerStyle('elegant')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">✨ ELEGANT</button>
+                    <button type="button" data-style="courier" onclick="setStickerStyle('courier')" class="sticker-style-btn border-2 border-gray-300 bg-white text-black rounded-lg py-2 text-[10px] font-black">🚚 COURIER</button>
                   </div>
                 </div>
 
@@ -3547,10 +3556,14 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                   <p class="text-[10px] font-black text-gray-700 mb-1">যে ফিল্ডগুলো স্টিকারে থাকবে:</p>
                   <div id="sticker-fields" class="grid grid-cols-2 gap-1 text-[11px] font-bold text-gray-700"></div>
                 </div>
-                <div id="sticker-preview-wrap" class="flex justify-center bg-gray-100 p-3 rounded-xl overflow-auto"></div>
+                </div>
+                <div class="md:sticky md:top-0 self-start">
+                <div id="sticker-preview-wrap" class="flex justify-center bg-gray-100 p-3 rounded-xl overflow-auto max-h-[60vh]"></div>
                 <div class="grid grid-cols-2 gap-2 mt-3">
                   <button onclick="downloadStickerImage()" class="bg-black hover:bg-gray-800 text-white py-2.5 rounded-xl font-black text-sm">📸 ইমেজ ডাউনলোড</button>
                   <button onclick="printSticker()" class="bg-gray-800 hover:bg-black text-white py-2.5 rounded-xl font-black text-sm">🖨️ প্রিন্ট</button>
+                </div>
+                </div>
                 </div>
               </div>
             </div>
@@ -3784,6 +3797,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                 invoice: { bg:'#ffffff', accent:'#0f766e', text:'#111111' },
                 aurora:  { bg:'#0891b2', accent:'#a7f3d0', text:'#ffffff' },
                 elegant: { bg:'#faf7f2', accent:'#b8860b', text:'#2d2d2d' },
+                courier: { bg:'#ffffff', accent:'#111111', text:'#111111' },
             };
             const d = themeDefaults[s];
             if(d){
@@ -3899,6 +3913,39 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
             const perLine = availH / lines;
             const sizeCap = wIn < 2.5 ? 10 : wIn < 3.5 ? 12 : wIn < 4.5 ? 14 : 15;
             const fontBase = Math.max(9, Math.min(sizeCap, Math.round(perLine * 0.62)));
+
+            // ================= COURIER (professional ink-saving label) =================
+            if(style === 'courier'){
+                return `<div id="sticker-card" style="width:${wPx}px;height:${hPx}px;background:#fff;border:2px solid #111;box-sizing:border-box;display:flex;flex-direction:column;font-family:Arial,'Noto Sans Bengali',sans-serif;color:#111;overflow:hidden;font-size:${fontBase}px;line-height:1.3">
+                  <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-bottom:2px solid #111">
+                    ${showLogo ? `<img src="${logoSrc}" style="width:${Math.min(28,wPx*0.1)}px;height:${Math.min(28,wPx*0.1)}px;object-fit:contain">` : ''}
+                    ${fields.pageName ? `<div style="flex:1;font-weight:900;font-size:${fontBase+2}px;letter-spacing:.5px;text-transform:uppercase">${escapeHtml(bName)}</div>` : '<div style="flex:1"></div>'}
+                    ${orderTag ? `<div style="font-weight:900;font-size:${fontBase-1}px;border:1.5px solid #111;padding:1px 6px;border-radius:3px">${orderTag}</div>` : ''}
+                  </div>
+                  <div style="display:flex;border-bottom:1.5px solid #111">
+                    <div style="flex:1;padding:4px 8px;border-right:1.5px solid #111">
+                      <div style="font-size:${fontBase-3}px;font-weight:900;letter-spacing:1px;color:#555">FROM / প্রেরক</div>
+                      <div style="font-weight:800;font-size:${fontBase-1}px">${escapeHtml(bName)}</div>
+                      ${pagePhone ? `<div style="font-size:${fontBase-2}px">📞 ${escapeHtml(pagePhone)}</div>` : ''}
+                    </div>
+                    <div style="flex:1.4;padding:4px 8px">
+                      <div style="font-size:${fontBase-3}px;font-weight:900;letter-spacing:1px;color:#555">TO / প্রাপক</div>
+                      ${fields.name && cName ? `<div style="font-weight:900;font-size:${fontBase+1}px;word-break:break-word">${escapeHtml(cName)}</div>` : ''}
+                      ${fields.phone && cPhone ? `<div style="font-weight:900;font-size:${fontBase}px">📞 ${escapeHtml(cPhone)}</div>` : ''}
+                    </div>
+                  </div>
+                  <div style="flex:1;padding:5px 8px;display:flex;flex-direction:column;gap:2px;min-height:0;overflow:hidden">
+                    ${fields.address && cAddr ? `<div style="font-size:${fontBase-1}px;word-break:break-word">📍 ${escapeHtml(cAddr)}</div>` : ''}
+                    ${fields.product && o.productName ? `<div style="font-weight:900;text-transform:uppercase;font-size:${fontBase}px;border-top:1px dashed #999;padding-top:2px;word-break:break-word">${escapeHtml(o.productName)}</div>` : ''}
+                    ${fields.items && itemsText ? `<div style="font-size:${fontBase-2}px;word-break:break-word">${escapeHtml(itemsText)}</div>` : ''}
+                    ${fields.date && o.date ? `<div style="font-size:${fontBase-2}px;color:#555">📅 ${escapeHtml(o.date)}</div>` : ''}
+                    ${fields.notes && o.notes ? `<div style="font-size:${fontBase-2}px;font-style:italic;word-break:break-word">📝 ${escapeHtml(o.notes)}</div>` : ''}
+                    ${cExtra ? `<div style="font-size:${fontBase-1}px;font-weight:800">${escapeHtml(cExtra)}</div>` : ''}
+                  </div>
+                  ${codBlock ? `<div style="margin:0 8px 4px;border:2.5px solid #111;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;font-weight:900"><span style="font-size:${fontBase+1}px;letter-spacing:2px">COD</span><span style="font-size:${fontBase+5}px">৳ ${cCodAmt}</span></div>` : ''}
+                  ${_stickerFooter(barcodeId, hPx, fontBase, fields, pagePhone, qrSrc, showQR, {bg:'#fff', text:'#000', border:'#111'})}
+                </div>`;
+            }
 
             // ================= NOVA (colorful, editable colors) =================
             if(style === 'nova'){
@@ -4493,29 +4540,56 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
   var oReset=window.resetFormUI;
   if(typeof oReset==='function'){window.resetFormUI=function(){var r=oReset.apply(this,arguments);setTimeout(label,50);return r;};}
 
-  /* ---------- 2) Pathao টাকা দিলে (bKash/invoice) অটো Paid ---------- */
-  var PAID_RX=/paid|payment|invoice|পেমেন্ট|পরিশোধ/i;
-  var busy=false,done={};
-  async function markPaid(o,why){
-    if(!o||o.status==='Paid'||done[o.id])return;done[o.id]=1;
-    try{await db.child(o.id).update({status:'Paid',courierStatusText:'টাকা পেয়েছি ✅ (Pathao পেমেন্ট)',autoPaidAt:Date.now(),autoPaidReason:why||''});
-      if(window.Toast)Toast.fire({icon:'success',title:'অর্ডার #'+o.id+' অটো Paid হয়েছে'});}catch(e){done[o.id]=0;console.warn('auto paid',e);}
+  /* ---------- 2) Pathao লাইভ স্ট্যাটাস সিংক + অটো Paid ---------- */
+  var busy=false;
+  // ⚠️ ক্রম গুরুত্বপূর্ণ: উপরের ম্যাচ আগে চেক হয়। "Assigned_for_Delivery" যেন ভুলে Delivered না হয়।
+  var STATUS_MAP=[
+    [/^paid$/i,'টাকা পেয়েছি ✅ (Pathao পেমেন্ট)','Paid'],
+    [/payment.?invoice/i,'পেমেন্ট ইনভয়েস তৈরি হয়েছে',null],
+    [/^delivered$/i,'ডেলিভারি হয়েছে ✅','Delivered'],
+    [/partial.?deliver/i,'আংশিক ডেলিভারি হয়েছে','Delivered'],
+    [/cancel/i,'কুরিয়ার বাতিল করেছে ❌','Cancelled'],
+    [/return/i,'পার্সেল রিটার্ন হয়েছে ⚠️','Returned'],
+    [/assigned.?for.?delivery/i,'ডেলিভারির জন্য বের হয়েছে 🛵',null],
+    [/in.?transit|reached.?hub|hub/i,'পথে আছে (In Transit) 🚚',null],
+    [/^picked$/i,'পিকআপ সম্পন্ন 📦',null],
+    [/assigned.?for.?pickup/i,'পিকআপের জন্য অ্যাসাইন্ড হয়েছে',null],
+    [/pickup.?pending|^pending/i,'পিকআপ অপেক্ষমাণ ⏳',null],
+    [/hold/i,'অপেক্ষায় আছে (On Hold)',null]
+  ];
+  async function syncOne(o){
+    var r=await pathaoApi('/aladdin/api/v1/orders/'+o.pathaoConsignmentId+'/info');
+    var d=(r&&r.data)||r||{};
+    var slug=((d.order_status_slug||d.order_status||'')+'').trim();
+    if(!slug)return;
+    var upd=null;
+    for(var i=0;i<STATUS_MAP.length;i++){
+      if(STATUS_MAP[i][0].test(slug)){upd={text:STATUS_MAP[i][1],status:STATUS_MAP[i][2]};break;}
+    }
+    if(!upd)upd={text:slug,status:null};
+    var patch={courierStatusText:upd.text,courierStatusSlug:slug,courierStatusAt:Date.now()};
+    // শুধু invoice_id বা exact paid/payment_invoice হলেই অটো Paid — "Unpaid"/"Pending" তে আর ভুল হবে না
+    if(d.invoice_id||/^paid$/i.test(slug)||/payment.?invoice/i.test(slug)){
+      if(o.status!=='Paid'){patch.status='Paid';patch.autoPaidAt=Date.now();}
+    }else if(upd.status&&o.status!==upd.status&&o.status!=='Paid'){
+      patch.status=upd.status;
+    }
+    if(o.courierStatusText!==upd.text||patch.status){
+      await db.child(o.id).update(patch);
+      if(patch.status==='Paid'&&window.Toast)Toast.fire({icon:'success',title:'অর্ডার #'+o.id+' অটো Paid হয়েছে'});
+    }
   }
   async function check(){
     if(busy||typeof db==='undefined'||!db||!Array.isArray(orders))return;busy=true;
     try{
       var cfg=(typeof pathaoCfg==='function')?pathaoCfg():{};
-      var list=orders.filter(function(o){return o.status!=='Paid'&&o.pathaoConsignmentId;});
-      list.forEach(function(o){ if(PAID_RX.test(o.courierStatusText||'')&&!/unpaid|return/i.test(o.courierStatusText||''))markPaid(o,'status'); });
       if(!cfg.email||!cfg.password)return;
-      var targets=list.filter(function(o){return o.status==='Delivered'||o.status==='Shipped'||/deliver|ডেলিভার/i.test(o.courierStatusText||'');}).slice(0,15);
-      for(var i=0;i<targets.length;i++){
-        var o=targets[i];
-        try{var r=await pathaoApi('/aladdin/api/v1/orders/'+o.pathaoConsignmentId+'/info');var d=(r&&r.data)||r||{};
-          var slug=(d.order_status_slug||d.order_status||'')+'';
-          if(d.invoice_id||/^(paid|payment[_ ]?invoice)$/i.test(slug)||/payment.?invoice|^paid$/i.test(slug))await markPaid(o,'invoice');
-          else if(/deliver/i.test(slug)&&o.status!=='Delivered')await db.child(o.id).update({status:'Delivered',courierStatusText:'ডেলিভারি হয়েছে'});
-        }catch(e){}
+      // শুধু চূড়ান্ত অবস্থায় নেই এমন বুকড অর্ডারগুলোর স্ট্যাটাস সিংক হবে
+      var list=orders.filter(function(o){
+        return o.pathaoConsignmentId&&o.status!=='Paid'&&o.status!=='Cancelled'&&o.status!=='Returned';
+      }).slice(0,15);
+      for(var i=0;i<list.length;i++){
+        try{await syncOne(list[i]);}catch(e){console.warn('status sync',e);}
       }
     }finally{busy=false;}
   }
