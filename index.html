@@ -2314,6 +2314,10 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                     🚚 কুরিয়ার: ${o.courierStatusText || 'বুকড'}${o.pathaoConsignmentId?` — Consignment <b>${o.pathaoConsignmentId}</b>`:''}
                     ${o.pathaoTrackingUrl?`<br><a href="${o.pathaoTrackingUrl}" target="_blank" class="text-indigo-600 underline">🔗 পার্সেল ট্র্যাক করুন</a>`:''}
                 </div>` : ''}
+                ${(o.courierCost !== undefined && o.courierCost !== null && o.courierCost !== '') ? `
+                <div data-html2canvas-ignore="true" class="no-print mt-2 p-2 rounded-xl border border-emerald-300 bg-emerald-50 text-[11px] font-bold text-emerald-800">
+                    🔒 শুধু আপনার জন্য — কাস্টমার দিয়েছে: ৳${getNum(o.dCharge)} | কুরিয়ার খরচ: ৳${getNum(o.courierCost)}${o.courierDeliveryFee?` (ডেলিভারি ${getNum(o.courierDeliveryFee)} + COD ${getNum(o.courierCodFee)})`:''} | ${(getNum(o.dCharge)-getNum(o.courierCost))>=0?'লাভ: +':'ক্ষতি: '}৳${Math.round((getNum(o.dCharge)-getNum(o.courierCost))*100)/100}
+                </div>` : ''}
             `;
             // legacy element hidden — design now shown inline
             const dwrap = document.getElementById('invoice-design-wrap'); if(dwrap) dwrap.classList.add('hidden');
@@ -2392,6 +2396,8 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                     tSales += bill; tFact += factCost;
                     let p = getNum(o.profit);
                     if(p === 0 && bill > 0) p = bill - (factCost + dCharge + otherCost);
+                    // বুকিংয়ের পর পাঠাও-এর আসল খরচ এলে: কাস্টমারের চার্জ − আসল খরচ = ডেলিভারি লাভ/ক্ষতি
+                    if(o.courierCost !== undefined && o.courierCost !== null && o.courierCost !== '') p += (dCharge - getNum(o.courierCost));
                     tRawProfit += p;
                     tOrderExp += otherCost;
                     totalJQty += getNum(o.qty) + getNum(o.rQty) + getNum(o.cQty);
@@ -4568,13 +4574,22 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     }
     if(!upd)upd={text:slug,status:null};
     var patch={courierStatusText:upd.text,courierStatusSlug:slug,courierStatusAt:Date.now()};
+    // পাঠাও-এর আসল খরচ (বুকিংয়ের পরেই আসে; ইনভয়েসের চার্জ বদলায় না)
+    var num=function(v){var n=parseFloat(v);return isNaN(n)?null:n;};
+    var dFee=num(d.delivery_fee!=null?d.delivery_fee:d.delivery_charge);
+    var cFee=num(d.cod_fee!=null?d.cod_fee:d.cod_charge);
+    var tCost=num(d.total_fee!=null?d.total_fee:(d.total_cost!=null?d.total_cost:d.total_charge));
+    if(tCost===null&&(dFee!==null||cFee!==null))tCost=(dFee||0)+(cFee||0)-(num(d.discount)||0)-(num(d.promo_discount)||0)+(num(d.additional_charge)||0);
+    var costChanged=false;
+    if(tCost!==null&&tCost>0){tCost=Math.round(tCost*100)/100;
+      if(getNum(o.courierCost)!==tCost){costChanged=true;patch.courierCost=tCost;patch.courierDeliveryFee=dFee||0;patch.courierCodFee=cFee||0;patch.courierCostAt=Date.now();}}
     // শুধু invoice_id বা exact paid/payment_invoice হলেই অটো Paid — "Unpaid"/"Pending" তে আর ভুল হবে না
     if(d.invoice_id||/^paid$/i.test(slug)||/payment.?invoice/i.test(slug)){
       if(o.status!=='Paid'){patch.status='Paid';patch.autoPaidAt=Date.now();}
     }else if(upd.status&&o.status!==upd.status&&o.status!=='Paid'){
       patch.status=upd.status;
     }
-    if(o.courierStatusText!==upd.text||patch.status){
+    if(o.courierStatusText!==upd.text||patch.status||costChanged){
       await db.child(o.id).update(patch);
       if(patch.status==='Paid'&&window.Toast)Toast.fire({icon:'success',title:'অর্ডার #'+o.id+' অটো Paid হয়েছে'});
     }
