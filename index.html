@@ -2008,6 +2008,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                 if (calculatedProfit === 0 && bill > 0) {
                     calculatedProfit = bill - (factCost + dCharge + otherCost);
                 }
+                if(o.courierCost !== undefined && o.courierCost !== null && o.courierCost !== '') calculatedProfit += (dCharge - getNum(o.courierCost));
                 tProf += calculatedProfit; 
                 
                 tFact += factCost;
@@ -2299,7 +2300,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                     <span class="flex justify-center">${designThumb}</span>
                     <span class="text-right">Order ID: #${o.id.toString().slice(-4)}</span>
                 </div>
-                <div class="mt-4"><p class="font-black text-xl text-indigo-900 leading-tight">${o.name}</p><p class="text-sm font-bold text-gray-600">${o.phone}</p><p class="text-[11px] text-gray-500 mt-1">${o.addr}</p></div>
+                <div class="mt-4"><p class="font-black text-xl leading-tight" style="color:#0f172a !important;opacity:1 !important;">${o.name}</p><p class="text-sm font-bold" style="color:#1e293b !important;opacity:1 !important;">${o.phone}</p><p class="text-[11px] mt-1" style="color:#334155 !important;opacity:1 !important;">${o.addr}</p></div>
                 <div class="p-4 rounded-xl mt-4 space-y-2" style="background-color: ${tColor}10;">
                     ${itemsHtml}
                     <div class="flex justify-between text-xs font-bold"><span>Delivery Charge</span> <span>৳ ${getNum(o.dCharge)}</span></div>
@@ -2396,7 +2397,6 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                     tSales += bill; tFact += factCost;
                     let p = getNum(o.profit);
                     if(p === 0 && bill > 0) p = bill - (factCost + dCharge + otherCost);
-                    // বুকিংয়ের পর পাঠাও-এর আসল খরচ এলে: কাস্টমারের চার্জ − আসল খরচ = ডেলিভারি লাভ/ক্ষতি
                     if(o.courierCost !== undefined && o.courierCost !== null && o.courierCost !== '') p += (dCharge - getNum(o.courierCost));
                     tRawProfit += p;
                     tOrderExp += otherCost;
@@ -4574,12 +4574,12 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     }
     if(!upd)upd={text:slug,status:null};
     var patch={courierStatusText:upd.text,courierStatusSlug:slug,courierStatusAt:Date.now()};
-    // পাঠাও-এর আসল খরচ (বুকিংয়ের পরেই আসে; ইনভয়েসের চার্জ বদলায় না)
-    var num=function(v){var n=parseFloat(v);return isNaN(n)?null:n;};
-    var dFee=num(d.delivery_fee!=null?d.delivery_fee:d.delivery_charge);
-    var cFee=num(d.cod_fee!=null?d.cod_fee:d.cod_charge);
-    var tCost=num(d.total_fee!=null?d.total_fee:(d.total_cost!=null?d.total_cost:d.total_charge));
-    if(tCost===null&&(dFee!==null||cFee!==null))tCost=(dFee||0)+(cFee||0)-(num(d.discount)||0)-(num(d.promo_discount)||0)+(num(d.additional_charge)||0);
+    var num=function(v){if(v==null||v==='')return null;var n=parseFloat((v+'').replace(/[^0-9.\-]/g,''));return isNaN(n)?null:n;};
+    var pick=function(){for(var i=0;i<arguments.length;i++){var v=num(d[arguments[i]]);if(v!==null)return v;}return null;};
+    var dFee=pick('delivery_fee','delivery_charge','deliveryFee','delivery_cost');
+    var cFee=pick('cod_fee','cod_charge','codFee','cod_cost');
+    var tCost=pick('total_fee','total_cost','total_charge','charge','totalFee');
+    if(tCost===null&&(dFee!==null||cFee!==null))tCost=(dFee||0)+(cFee||0)-(pick('discount','promo_discount')||0)+(pick('additional_charge')||0);
     var costChanged=false;
     if(tCost!==null&&tCost>0){tCost=Math.round(tCost*100)/100;
       if(getNum(o.courierCost)!==tCost){costChanged=true;patch.courierCost=tCost;patch.courierDeliveryFee=dFee||0;patch.courierCodFee=cFee||0;patch.courierCostAt=Date.now();}}
@@ -4612,5 +4612,121 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
+<script>
+/* ===== Fraud/Return Checker + Steadfast Courier ===== */
+(function(){
+  function $(i){return document.getElementById(i);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  /* ---- 1) Fraud checker ---- */
+  function fraudStats(phone){
+    var p=String(phone||'').replace(/\D/g,'').slice(-11), s={total:0,ok:0,bad:0,pending:0};
+    ((typeof orders!=='undefined'&&orders)||[]).forEach(function(o){
+      if(String(o.phone||'').replace(/\D/g,'').slice(-11)!==p) return;
+      s.total++;
+      if(o.status==='Delivered'||o.status==='Paid') s.ok++;
+      else if(o.status==='Returned'||o.status==='Cancelled') s.bad++;
+      else s.pending++;
+    });
+    return s;
+  }
+  function renderFraud(){
+    var inp=$('cust-phone'); if(!inp) return;
+    var box=$('jn-fraud-box');
+    if(!box){box=document.createElement('div');box.id='jn-fraud-box';box.style.cssText='margin-top:6px;font-size:12px;font-weight:800;border-radius:8px;padding:8px 10px;display:none';inp.insertAdjacentElement('afterend',box);}
+    var p=inp.value.replace(/\D/g,'');
+    if(!/^01[0-9]{9}$/.test(p)){box.style.display='none';return;}
+    var editId=($('edit-id')||{}).value, s=fraudStats(p);
+    if(editId){ /* বর্তমান অর্ডার বাদ */ var cur=((typeof orders!=='undefined'&&orders)||[]).find(function(o){return String(o.id)===String(editId)}); if(cur&&String(cur.phone).slice(-11)===p.slice(-11)){s.total--; if(cur.status==='Delivered'||cur.status==='Paid')s.ok--; else if(cur.status==='Returned'||cur.status==='Cancelled')s.bad--; else s.pending--;} }
+    var done=s.ok+s.bad, rate=done?Math.round(s.ok*100/done):null, bg,fg,msg;
+    if(s.total<=0){bg='#fef9c3';fg='#854d0e';msg='🟡 নতুন কাস্টমার — আগে কোনো অর্ডার নেই। ফোনে কনফার্ম করে নিন।';}
+    else if(rate===null){bg='#fef9c3';fg='#854d0e';msg='🟡 আগের '+s.total+'টি অর্ডার এখনো চলমান — ফলাফল জানা নেই।';}
+    else if(rate>=90){bg='#dcfce7';fg='#166534';msg='🟢 নিরাপদ কাস্টমার — সফলতা '+rate+'% (ডেলিভারি '+s.ok+' / রিটার্ন '+s.bad+')';}
+    else if(rate>=70){bg='#fef9c3';fg='#854d0e';msg='🟡 সতর্কতা — সফলতা '+rate+'% (ডেলিভারি '+s.ok+' / রিটার্ন '+s.bad+')। ফোনে কনফার্ম করুন।';}
+    else {bg='#fee2e2';fg='#991b1b';msg='🔴 উচ্চ ঝুঁকি! সফলতা '+rate+'% (ডেলিভারি '+s.ok+' / রিটার্ন '+s.bad+')<br>⚠️ অগ্রিম ডেলিভারি চার্জ ছাড়া এই পার্সেল পাঠানো ঝুঁকিপূর্ণ!';}
+    box.style.display='block';box.style.background=bg;box.style.color=fg;box.style.border='1px solid '+fg;box.innerHTML=msg;
+  }
+  window.jnFraudStats=fraudStats;
+
+  /* ---- 2) Steadfast ---- */
+  var SF='https://portal.packzy.com/api/v1';
+  function sfCfg(){try{return JSON.parse(localStorage.getItem('jn_steadfast')||'{}')}catch(e){return {}}}
+  function sfHeaders(){var c=sfCfg();return {'Api-Key':c.key||'','Secret-Key':c.secret||'','Content-Type':'application/json'};}
+  function injectSettings(){
+    var panel=document.querySelector('.settings-panel[data-panel="courier"]'); if(!panel||$('sf-key')) return;
+    var c=sfCfg(), d=document.createElement('div');
+    d.style.cssText='margin-top:14px;padding:16px;border-radius:12px;border:1px solid #22d3ee;background:rgba(34,211,238,.06)';
+    d.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="color:#0891b2">🚀 Steadfast কুরিয়ার কানেকশন</b><span id="sf-pill" style="font-size:10px;font-weight:900;padding:3px 8px;border-radius:99px;background:'+(c.key?'#dcfce7;color:#166534':'#e5e7eb;color:#4b5563')+'">'+(c.key?'Connected':'Not Connected')+'</span></div>'+
+      '<p style="font-size:11px;opacity:.7;margin-bottom:8px">Steadfast Merchant Panel → API থেকে API Key ও Secret Key কপি করে এখানে দিন।</p>'+
+      '<input id="sf-key" class="w-full p-3 rounded-xl border mb-2" placeholder="API Key" value="'+esc(c.key)+'">'+
+      '<input id="sf-secret" type="password" class="w-full p-3 rounded-xl border mb-2" placeholder="Secret Key" value="'+esc(c.secret)+'">'+
+      '<button type="button" id="sf-save" class="w-full p-3 rounded-xl font-black" style="background:#0891b2;color:#fff">সেভ ও টেস্ট করুন</button>';
+    panel.appendChild(d);
+    $('sf-save').onclick=async function(){
+      var k=$('sf-key').value.trim(), s=$('sf-secret').value.trim();
+      if(!k||!s) return Swal.fire({icon:'warning',title:'API Key ও Secret Key দুটোই দিন'});
+      localStorage.setItem('jn_steadfast',JSON.stringify({key:k,secret:s}));
+      try{var r=await fetch(SF+'/get_balance',{headers:sfHeaders()});var j=await r.json();
+        if(j.status==200){$('sf-pill').textContent='Connected';$('sf-pill').style.cssText+=';background:#dcfce7;color:#166534';Swal.fire({icon:'success',title:'Steadfast কানেক্ট হয়েছে ✅',text:'ব্যালেন্স: ৳'+(j.current_balance||0)});}
+        else Swal.fire({icon:'error',title:'Key ভুল মনে হচ্ছে',text:j.message||''});
+      }catch(e){Swal.fire({icon:'error',title:'কানেক্ট হয়নি',text:'ইন্টারনেট বা Key চেক করুন'});}
+    };
+  }
+  window.openSteadfastBooking=async function(id){
+    var c=sfCfg(); if(!c.key||!c.secret) return Swal.fire({icon:'info',title:'প্রথমে Steadfast কানেক্ট করুন',text:'Settings → কুরিয়ার এ API Key ও Secret Key দিন।'});
+    var o=((typeof orders!=='undefined'&&orders)||[]).find(function(x){return String(x.id)===String(id)}); if(!o) return;
+    if(o.steadfastCid) return Swal.fire({icon:'info',title:'আগেই বুক করা হয়েছে',html:'Consignment: <b>'+esc(o.steadfastCid)+'</b><br>Tracking: <b>'+esc(o.steadfastTracking)+'</b>'});
+    var s=fraudStats(o.phone), done=s.ok+s.bad, rate=done?Math.round(s.ok*100/done):null;
+    var warn=(rate!==null&&rate<70)?'<div style="background:#fee2e2;color:#991b1b;padding:8px;border-radius:8px;margin-top:8px;font-weight:800">🔴 উচ্চ ঝুঁকি কাস্টমার ('+rate+'% সফল)</div>':'';
+    var cod=Math.max(0,Math.round(getNum(o.due!=null?o.due:(o.totalBill-o.advance))));
+    var r=await Swal.fire({title:'Steadfast এ বুক করবেন?',html:'<b>'+esc(o.name)+'</b> ('+esc(o.phone)+')<br>'+esc(o.addr)+'<br>COD: <b>৳'+cod+'</b>'+warn,showCancelButton:true,confirmButtonText:'হ্যাঁ, বুক করুন',cancelButtonText:'বাতিল'});
+    if(!r.isConfirmed) return;
+    Swal.fire({title:'বুক হচ্ছে...',allowOutsideClick:false,didOpen:function(){Swal.showLoading()}});
+    try{
+      var res=await fetch(SF+'/create_order',{method:'POST',headers:sfHeaders(),body:JSON.stringify({invoice:String(o.id),recipient_name:o.name,recipient_phone:o.phone,recipient_address:(o.addr||'').slice(0,250),cod_amount:cod,note:(o.notes||'').slice(0,200)})});
+      var j=await res.json();
+      if(j.status!=200||!j.consignment){var m=j.message||'';if(j.errors)m+=' '+JSON.stringify(j.errors);throw new Error(m||'বুকিং ব্যর্থ');}
+      var cn=j.consignment;
+      await db.child(o.id).update({courier:'steadfast',steadfastCid:cn.consignment_id,steadfastTracking:cn.tracking_code||'',courierStatusText:'Steadfast এ বুক হয়েছে',courierStatusAt:Date.now(),status:(o.status==='Paid'||o.status==='Delivered')?o.status:'Shipped',shippedAt:o.shippedAt||Date.now()});
+      Swal.fire({icon:'success',title:'Steadfast বুকিং সফল ✅',html:'Consignment: <b>'+esc(cn.consignment_id)+'</b><br>Tracking: <b>'+esc(cn.tracking_code)+'</b>'});
+    }catch(e){Swal.fire({icon:'error',title:'বুকিং হয়নি',text:e.message||''});}
+  };
+  var SF_MAP={delivered:['ডেলিভারি হয়েছে ✅','Delivered'],partial_delivered:['আংশিক ডেলিভারি','Delivered'],cancelled:['বাতিল/রিটার্ন ❌','Returned'],delivered_approval_pending:['ডেলিভারি (অনুমোদন বাকি)',null],partial_delivered_approval_pending:['আংশিক ডেলিভারি (অনুমোদন বাকি)',null],cancelled_approval_pending:['বাতিল (অনুমোদন বাকি)',null],hold:['হোল্ডে আছে',null],in_review:['রিভিউতে আছে',null],pending:['পথে আছে 🚚',null],unknown:['অজানা',null]};
+  var sfBusy=false;
+  async function sfSync(){
+    var c=sfCfg(); if(sfBusy||!c.key||typeof db==='undefined') return; sfBusy=true;
+    try{
+      var list=((typeof orders!=='undefined'&&orders)||[]).filter(function(o){return o.steadfastCid&&['Paid','Returned','Cancelled'].indexOf(o.status)<0&&!(o.status==='Delivered'&&o.courierStatusSlug==='sf_delivered');});
+      for(var i=0;i<list.length;i++){var o=list[i];
+        try{var r=await fetch(SF+'/status_by_cid/'+encodeURIComponent(o.steadfastCid),{headers:sfHeaders()});var j=await r.json();
+          var st=String(j.delivery_status||'').toLowerCase(); if(!st) continue;
+          var m=SF_MAP[st]||[st,null], slug='sf_'+st;
+          if(o.courierStatusSlug===slug) continue;
+          var up={courierStatusText:m[0],courierStatusSlug:slug,courierStatusAt:Date.now()};
+          if(m[1]&&o.status!=='Paid') up.status=m[1];
+          await db.child(o.id).update(up);
+        }catch(e){}
+      }
+    }finally{sfBusy=false;}
+  }
+  function addRowButtons(){
+    document.querySelectorAll('button[onclick^="openPathaoBooking("]').forEach(function(b){
+      if(b.nextElementSibling&&b.nextElementSibling.dataset.sf) return;
+      var id=(b.getAttribute('onclick').match(/\((\d+)/)||[])[1]; if(!id) return;
+      var o=((typeof orders!=='undefined'&&orders)||[]).find(function(x){return String(x.id)===id});
+      var n=document.createElement('button'); n.dataset.sf=1; n.type='button';
+      n.className='px-2 py-1 rounded-lg text-[10px] font-black uppercase';
+      n.style.cssText='background:#cffafe;color:#0e7490';
+      n.title='Steadfast কুরিয়ার বুকিং'; n.textContent=(o&&o.steadfastCid)?'✅ SF':'🚀 Steadfast';
+      n.onclick=function(){openSteadfastBooking(id)}; b.insertAdjacentElement('afterend',n);
+    });
+  }
+  function bindPhone(){var i=$('cust-phone');if(i&&!i.dataset.fr){i.dataset.fr=1;i.addEventListener('input',renderFraud);i.addEventListener('change',renderFraud);}}
+  var oR=window.renderOrders; if(typeof oR==='function'){window.renderOrders=function(){var r=oR.apply(this,arguments);try{addRowButtons();renderFraud();}catch(e){}return r;};}
+  var oE=window.editOrder; if(typeof oE==='function'){window.editOrder=function(){var r=oE.apply(this,arguments);setTimeout(renderFraud,120);return r;};}
+  setInterval(function(){bindPhone();injectSettings();addRowButtons();},2000);
+  setTimeout(sfSync,10000); setInterval(sfSync,5*60*1000);
+})();
+</script>
+
 </body>
 </html>
