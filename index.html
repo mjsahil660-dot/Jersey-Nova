@@ -1086,12 +1086,12 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     </div>
 
     <div id="invoice-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-2 relative">
-            <div id="inv-main-box" class="p-6 bg-white border-2 rounded-2xl shadow-xl relative overflow-hidden" style="border-color: #4f46e5;">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-2 relative max-h-[94vh] overflow-y-auto">
+            <div id="inv-main-box" class="p-4 bg-white border-2 rounded-2xl shadow-xl relative overflow-hidden" style="border-color: #4f46e5;">
                 <img class="app-logo absolute inset-0 m-auto opacity-[0.03] w-56 h-56 object-contain pointer-events-none z-0 hidden" src="" alt="Watermark">
                 
                 <div class="relative z-10">
-                    <div id="inv-top-border" class="relative text-center border-b-2 pb-4 mb-4" style="border-color: #e0e7ff;">
+                    <div id="inv-top-border" class="relative text-center border-b-2 pb-2 mb-2" style="border-color: #e0e7ff;">
                         <img class="app-logo absolute left-0 top-0 w-12 h-12 rounded-lg object-cover shadow-sm hidden" src="" alt="Logo">
                         
                         <div id="inv-logo-box" class="dash-grad-card app-logo-text absolute left-0 top-0 w-12 h-12 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-sm biz-icon-text">JN</div>
@@ -1105,13 +1105,14 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                     <div id="invoice-content" class="text-sm space-y-3"></div>
                     <div id="invoice-design-wrap" class="hidden"></div>
 
-                    <div class="mt-6 pt-4 border-t border-dashed text-center flex flex-col items-center justify-center gap-2">
+                    <div class="mt-3 pt-2 border-t border-dashed text-center flex flex-col items-center justify-center gap-2">
                         <p id="invoice-terms-display" class="text-[9px] text-gray-500 font-bold italic leading-tight whitespace-pre-line"></p>
                     </div>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-2 mt-4 p-2">
+            <div id="invoice-admin" class="px-2"></div>
+            <div class="flex flex-col gap-2 mt-2 p-2">
                 <button onclick="downloadInvoiceImage()" class="dash-grad-card w-full text-white py-3 rounded-xl font-bold shadow-md">📸 ইনভয়েস ইমেজ ডাউনলোড করুন</button>
                 <button onclick="closeInvoice()" class="w-full bg-gray-100 text-gray-500 py-2 rounded-xl font-bold text-xs hover:bg-gray-200 transition">বন্ধ করুন</button>
             </div>
@@ -2300,27 +2301,28 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                     <span class="flex justify-center">${designThumb}</span>
                     <span class="text-right">Order ID: #${o.id.toString().slice(-4)}</span>
                 </div>
-                <div class="mt-4"><p class="font-black text-xl leading-tight" style="color:#0f172a !important;opacity:1 !important;">${o.name}</p><p class="text-sm font-bold" style="color:#1e293b !important;opacity:1 !important;">${o.phone}</p><p class="text-[11px] mt-1" style="color:#334155 !important;opacity:1 !important;">${o.addr}</p></div>
-                <div class="p-4 rounded-xl mt-4 space-y-2" style="background-color: ${tColor}10;">
+                <div class="mt-2"><p class="font-black text-lg leading-tight" style="color:#0f172a !important;opacity:1 !important;">${o.name}</p><p class="text-sm font-bold" style="color:#1e293b !important;opacity:1 !important;">${o.phone}</p><p class="text-[11px] mt-1" style="color:#334155 !important;opacity:1 !important;">${o.addr}</p></div>
+                <div class="px-3 py-2 rounded-xl mt-2 space-y-1" style="background-color: ${tColor}10;">
                     ${itemsHtml}
                     <div class="flex justify-between text-xs font-bold" style="color:#0f172a !important"><span>Delivery Charge</span> <span>৳ ${getNum(o.dCharge)}</span></div>
                     <div class="flex justify-between font-black border-t pt-2" style="border-color: ${tColor}40; color: ${tColor};"><span>Total Bill</span> <span>৳ ${getNum(o.totalBill)}</span></div>
                     <div class="flex justify-between text-emerald-600 text-[10px] font-black italic"><span>Advance Paid</span> <span>- ৳ ${getNum(o.advance)}</span></div>
                 </div>
-                <div class="p-4 rounded-xl mt-3 flex justify-between items-center text-white shadow-lg" style="background-color: ${tColor};">
-                    <span class="text-[9px] font-black uppercase tracking-wider">Cash on Delivery</span><span class="text-2xl font-black">৳ ${getNum(o.due)}</span>
+                <div class="px-4 py-2 rounded-xl mt-2 flex justify-between items-center text-white shadow" style="background-color: ${tColor};">
+                    <span class="text-[9px] font-black uppercase tracking-wider">Cash on Delivery</span><span class="text-xl font-black">৳ ${getNum(o.due)}</span>
                 </div>
-                ${(o.pathaoConsignmentId || o.courierStatusText) ? `
-                <div class="mt-3 p-3 rounded-xl border border-dashed border-pink-300 bg-pink-50/60 text-[11px] font-bold text-pink-800">
+            `;
+            const _adm=document.getElementById('invoice-admin'); if(_adm) _adm.innerHTML = `                ${(o.pathaoConsignmentId || o.courierStatusText) ? `
+                <div class="mt-2 px-2 py-1.5 rounded-lg border border-dashed border-pink-300 bg-pink-50/60 text-[10px] font-bold text-pink-800 leading-snug">
                     🚚 কুরিয়ার: ${o.courierStatusText || 'বুকড'}${o.pathaoConsignmentId?` — Consignment <b>${o.pathaoConsignmentId}</b>`:''}
-                    ${o.pathaoTrackingUrl?`<br><a href="${o.pathaoTrackingUrl}" target="_blank" class="text-indigo-600 underline">🔗 পার্সেল ট্র্যাক করুন</a>`:''}
+                    ${o.pathaoTrackingUrl?` · <a href="${o.pathaoTrackingUrl}" target="_blank" class="text-indigo-600 underline">🔗 পার্সেল ট্র্যাক করুন</a>`:''}
                 </div>` : ''}
                 ${(o.courierCost !== undefined && o.courierCost !== null && o.courierCost !== '') ? `
-                <div data-html2canvas-ignore="true" class="no-print mt-2 p-2 rounded-xl border border-emerald-300 bg-emerald-50 text-[11px] font-bold text-emerald-800">
+                <div data-html2canvas-ignore="true" class="no-print mt-2 p-2 rounded-xl border border-emerald-400 bg-emerald-50 text-[11px] font-bold text-emerald-800">
                     🔒 শুধু আপনার জন্য — কাস্টমার দিয়েছে: ৳${getNum(o.dCharge)} | কুরিয়ার খরচ: ৳${getNum(o.courierCost)}${o.courierDeliveryFee?` (ডেলিভারি ${getNum(o.courierDeliveryFee)} + COD ${getNum(o.courierCodFee)})`:''} | ${(getNum(o.dCharge)-getNum(o.courierCost))>=0?'লাভ: +':'ক্ষতি: '}৳${Math.round((getNum(o.dCharge)-getNum(o.courierCost))*100)/100}
                 </div>` : ''}
                 ${(appSettings && (o.pathaoConsignmentId || o.courierStatusText)) ? `<button data-html2canvas-ignore="true" onclick="jnSyncCourier('${o.id}')" class="no-print mt-2 w-full p-2 rounded-xl border border-emerald-400 bg-emerald-600 text-[12px] font-black" style="color:#fff !important">🔄 আসল কুরিয়ার চার্জ সিংক করুন</button>` : ''}
-            `;
+`;
             // legacy element hidden — design now shown inline
             const dwrap = document.getElementById('invoice-design-wrap'); if(dwrap) dwrap.classList.add('hidden');
             document.getElementById('invoice-modal').classList.remove('hidden');
