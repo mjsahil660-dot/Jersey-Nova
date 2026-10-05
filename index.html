@@ -2277,16 +2277,16 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
             let oldQty = getNum(o.qty);
             if(oldQty > 0) {
                 let neck = o.neckType === 'Collar' ? 'Collar' : 'Round Neck';
-                itemsHtml += `<div class="flex justify-between text-xs font-bold"><span>Jersey - ${neck} (${oldQty} pcs)</span> <span>৳ ${oldQty * getNum(o.uprice)}</span></div>`;
+                itemsHtml += `<div class="flex justify-between text-xs font-bold" style="color:#0f172a !important"><span>Jersey - ${neck} (${oldQty} pcs)</span> <span>৳ ${oldQty * getNum(o.uprice)}</span></div>`;
             }
             
             // New separate inputs
             let rQty = getNum(o.rQty);
             let cQty = getNum(o.cQty);
             
-            if(rQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold"><span>Jersey - Round Neck (${rQty} pcs)</span> <span>৳ ${rQty * getNum(o.rPrice)}</span></div>`;
-            if(cQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold text-gray-700"><span>Jersey - Collar (${cQty} pcs)</span> <span>৳ ${cQty * getNum(o.cPrice)}</span></div>`;
-            if(pQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold text-gray-700"><span>Pant (${pQty} pcs)</span> <span>৳ ${pQty * pPrice}</span></div>`;
+            if(rQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold" style="color:#0f172a !important"><span>Jersey - Round Neck (${rQty} pcs)</span> <span>৳ ${rQty * getNum(o.rPrice)}</span></div>`;
+            if(cQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold" style="color:#0f172a !important"><span>Jersey - Collar (${cQty} pcs)</span> <span>৳ ${cQty * getNum(o.cPrice)}</span></div>`;
+            if(pQty > 0) itemsHtml += `<div class="flex justify-between text-xs font-bold" style="color:#0f172a !important"><span>Pant (${pQty} pcs)</span> <span>৳ ${pQty * pPrice}</span></div>`;
 
             document.getElementById('invoice-terms-display').innerText = appSettings.terms || "Thank you for choosing our service!";
 
@@ -2303,7 +2303,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                 <div class="mt-4"><p class="font-black text-xl leading-tight" style="color:#0f172a !important;opacity:1 !important;">${o.name}</p><p class="text-sm font-bold" style="color:#1e293b !important;opacity:1 !important;">${o.phone}</p><p class="text-[11px] mt-1" style="color:#334155 !important;opacity:1 !important;">${o.addr}</p></div>
                 <div class="p-4 rounded-xl mt-4 space-y-2" style="background-color: ${tColor}10;">
                     ${itemsHtml}
-                    <div class="flex justify-between text-xs font-bold"><span>Delivery Charge</span> <span>৳ ${getNum(o.dCharge)}</span></div>
+                    <div class="flex justify-between text-xs font-bold" style="color:#0f172a !important"><span>Delivery Charge</span> <span>৳ ${getNum(o.dCharge)}</span></div>
                     <div class="flex justify-between font-black border-t pt-2" style="border-color: ${tColor}40; color: ${tColor};"><span>Total Bill</span> <span>৳ ${getNum(o.totalBill)}</span></div>
                     <div class="flex justify-between text-emerald-600 text-[10px] font-black italic"><span>Advance Paid</span> <span>- ৳ ${getNum(o.advance)}</span></div>
                 </div>
@@ -2319,6 +2319,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
                 <div data-html2canvas-ignore="true" class="no-print mt-2 p-2 rounded-xl border border-emerald-300 bg-emerald-50 text-[11px] font-bold text-emerald-800">
                     🔒 শুধু আপনার জন্য — কাস্টমার দিয়েছে: ৳${getNum(o.dCharge)} | কুরিয়ার খরচ: ৳${getNum(o.courierCost)}${o.courierDeliveryFee?` (ডেলিভারি ${getNum(o.courierDeliveryFee)} + COD ${getNum(o.courierCodFee)})`:''} | ${(getNum(o.dCharge)-getNum(o.courierCost))>=0?'লাভ: +':'ক্ষতি: '}৳${Math.round((getNum(o.dCharge)-getNum(o.courierCost))*100)/100}
                 </div>` : ''}
+                ${(appSettings && (o.pathaoConsignmentId || o.courierStatusText)) ? `<button data-html2canvas-ignore="true" onclick="jnSyncCourier('${o.id}')" class="no-print mt-2 w-full p-2 rounded-xl border border-emerald-400 bg-emerald-600 text-[12px] font-black" style="color:#fff !important">🔄 আসল কুরিয়ার চার্জ সিংক করুন</button>` : ''}
             `;
             // legacy element hidden — design now shown inline
             const dwrap = document.getElementById('invoice-design-wrap'); if(dwrap) dwrap.classList.add('hidden');
@@ -4601,13 +4602,26 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
       if(!cfg.email||!cfg.password)return;
       // শুধু চূড়ান্ত অবস্থায় নেই এমন বুকড অর্ডারগুলোর স্ট্যাটাস সিংক হবে
       var list=orders.filter(function(o){
-        return o.pathaoConsignmentId&&o.status!=='Paid'&&o.status!=='Cancelled'&&o.status!=='Returned';
-      }).slice(0,15);
+        var noCost=(o.courierCost===undefined||o.courierCost===null||o.courierCost==='');
+        return o.pathaoConsignmentId&&((o.status!=='Paid'&&o.status!=='Cancelled'&&o.status!=='Returned')||noCost);
+      }).slice(0,25);
       for(var i=0;i<list.length;i++){
         try{await syncOne(list[i]);}catch(e){console.warn('status sync',e);}
       }
     }finally{busy=false;}
   }
+  window.jnSyncCourier=async function(id){
+    var o=(orders||[]).find(function(x){return String(x.id)===String(id)});if(!o)return;
+    try{if(o.pathaoConsignmentId){await syncOne(o);}}catch(e){console.warn(e);}
+    var n=(orders||[]).find(function(x){return String(x.id)===String(id)})||o;
+    if(n.courierCost===undefined||n.courierCost===null||n.courierCost===''){
+      var r=window.Swal?await Swal.fire({title:'আসল কুরিয়ার খরচ',text:'Pathao থেকে খরচ আসেনি। Pathao প্যানেলের Charge লিখুন (যেমন 141.50):',input:'number',inputAttributes:{step:'0.01'},showCancelButton:true,confirmButtonText:'সেভ'}):{value:prompt('আসল কুরিয়ার খরচ (৳):')};
+      var v=parseFloat(r&&r.value);if(!isNaN(v)&&v>=0){await db.child(id).update({courierCost:Math.round(v*100)/100,courierCostAt:Date.now(),courierCostManual:true});}
+      else return;
+    }
+    if(window.Toast)Toast.fire({icon:'success',title:'কুরিয়ার খরচ আপডেট হয়েছে'});
+    setTimeout(function(){try{if(typeof openInvoice==='function')openInvoice(id);}catch(e){}},600);
+  };
   function start(){bind();setTimeout(check,8000);setInterval(check,5*60*1000);setInterval(bind,3000);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
