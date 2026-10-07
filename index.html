@@ -4890,7 +4890,8 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
   function calc(){
     var printC = n(cur.printCharge), qty = roster.length;
     var named = roster.filter(function(r){return r.name||r.num;}).length;
-    return {qty:qty, named:named, sub:qty*n(cur.price) + named*printC};
+    var sub = qty*n(cur.price) + named*printC;
+    return {qty:qty, named:named, sub:sub, total:sub};
   }
   window.jnShopRecalc = function(){ collect(); var c=calc(); document.getElementById('sh-sum').innerHTML='মোট পিস: <b>'+c.qty+'</b> · নাম/নম্বর প্রিন্ট: <b>'+c.named+'</b><br>মোট দাম: <b>৳'+c.sub+'</b> <small style="color:#7a9">(ডেলিভারি চার্জ আলাদা)</small>'; };
 
@@ -4942,26 +4943,26 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
        jnShopRecalc();
   }
 
-  window.jnShopRecalc = function(){
+    window.jnShopRecalc = function(){
     collect();
     var c = calc();
     var adv30 = Math.ceil(c.sub * 0.30);
     var restCod = Math.max(0, c.total - adv30);
     var box = document.getElementById('sh-calc-box') || document.getElementById('sh-sum');
     if(box){
-      box.innerHTML = 'মোট জার্সি: <b>'+c.qty+' টি</b> | সাব-টোটাল: <b>৳'+c.sub+'</b> | ডেলিভারি: <b>৳'+c.deliv+'</b><br>'+
+      box.innerHTML = 'মোট জার্সি: <b>'+c.qty+' টি</b> | জার্সি বিল: <b>৳'+c.sub+'</b> <small style="color:#7a99a8">(ডেলিভারি চার্জ কুরিয়ারে আলাদা)</small><br>'+
         '<div style="margin-top:8px;font-size:15px;color:#22d3ee;font-weight:800">'+
           'সর্বমোট বিল: ৳'+c.total+
         '</div>'+
         '<div style="margin-top:6px;padding:8px;background:rgba(239,68,68,0.12);border:1px solid #ef4444;border-radius:6px;font-size:12px;color:#fca5a5">'+
-          '⚠️ <b>কাস্টম অর্ডার পলিসি:</b> ন্যূনতম ৩০% অগ্রিম = <b style="color:#fff;font-size:13px">৳'+adv30+'</b> পরিশোধ করতে হবে। বাকি ৳'+restCod+' ডেলিভারিতে ক্যাশ-অন।'+
+          '⚠️ <b>কাস্টম অর্ডার পলিসি:</b> ন্যূনতম ৩০% অগ্রিম = <b style="color:#fff;font-size:13px">৳'+adv30+'</b> পরিশোধ করতে হবে। বাকি ৳'+restCod+' (+ডেলিভারি চার্জ) ক্যাশ-অন ডেলিভারিতে।'+
         '</div>';
     }
   };
-  function summaryText(o){
+    function summaryText(o){
     var t='🛒 Jersey Nova অর্ডার\nজার্সি: '+o.product+'\n'+(o.team?'টিম: '+o.team+'\n':'')+'মোট: '+o.qty+' পিস · ৳'+o.subtotal+'\n\n';
     o.items.forEach(function(r,i){t+=(i+1)+'. '+(r.name||'-')+'  #'+(r.num||'-')+'  ('+r.size+')\n';});
-    return t+'\nনাম: '+o.name+'\nফোন: '+o.phone+'\nঠিকানা: '+o.address+(o.note?'\nনোট: '+o.note:'');
+    return t+'\nনাম: '+o.name+'\nফোন: '+o.phone+'\nঠিকানা: '+o.address+(o.trxId?'\n\n💳 অগ্রিম TrxID: '+o.trxId+(o.senderPhone?' ('+o.senderPhone+')':''):'')+(o.note?'\nনোট: '+o.note:'');
   }
   function build(){
     collect(); var c=calc();
