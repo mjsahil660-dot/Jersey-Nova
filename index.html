@@ -4926,10 +4926,38 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
       '<div class="sh-row"><input id="sh-cn" class="sh-in" placeholder="আপনার নাম *" value="'+esc(p['_sh-cn']||'')+'"><input id="sh-cp" class="sh-in" inputmode="numeric" maxlength="11" placeholder="মোবাইল নম্বর (১১ ডিজিট) *" value="'+esc(p['_sh-cp']||'')+'"></div>'+
       '<textarea id="sh-ca" rows="2" placeholder="সম্পূর্ণ ঠিকানা *">'+esc(p['_sh-ca']||'')+'</textarea>'+
       '<textarea id="sh-note" rows="2" style="margin-top:8px" placeholder="অতিরিক্ত নোট (ঐচ্ছিক)">'+esc(p['_sh-note']||'')+'</textarea>'+
+        '<div class="sh-pay-box">'+
+  '<div class="sh-pay-title">💳 ৩০% অগ্রিম পরিশোধ (bKash / Nagad Send Money)</div>'+
+  '<div style="font-size:12px;color:#8fb3c4;margin-bottom:8px">পার্সোনাল নম্বর: <b style="color:#22d3ee;font-size:14px;letter-spacing:1px">01907966882</b> (কপি করুন)</div>'+
+  '<div class="sh-row">'+
+    '<input id="sh-trx" class="sh-in" placeholder="TrxID (যেমন: 9J4K2L...)" style="text-transform:uppercase">'+
+    '<input id="sh-sender" class="sh-in" placeholder="যে নম্বর থেকে টাকা পাঠিয়েছেন">'+
+  '</div>'+
+  '<div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">'+
+    '<span style="font-size:11px;color:#fca5a5">* TrxID না থাকলে সরাসরি কথা বলে কনফার্ম করুন →</span>'+
+    '<button type="button" class="sh-btn g" style="padding:6px 12px;font-size:12px" onclick="jnShopWa()">💬 WhatsApp-এ কথা বলুন</button>'+
+  '</div>'+
+'</div>'+
       '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="sh-btn" style="flex:1" onclick="jnShopSubmit()">✅ অর্ডার কনফার্ম করুন</button>'+(CFG.whatsapp?'<button class="sh-btn g" onclick="jnShopWa()"><i class="fab fa-whatsapp"></i> WhatsApp</button>':'')+'</div>';
-    jnShopRecalc();
+       jnShopRecalc();
   }
 
+  window.jnShopRecalc = function(){
+    collect();
+    var c = calc();
+    var adv30 = Math.ceil(c.sub * 0.30);
+    var restCod = Math.max(0, c.total - adv30);
+    var box = document.getElementById('sh-calc-box') || document.getElementById('sh-sum');
+    if(box){
+      box.innerHTML = 'মোট জার্সি: <b>'+c.qty+' টি</b> | সাব-টোটাল: <b>৳'+c.sub+'</b> | ডেলিভারি: <b>৳'+c.deliv+'</b><br>'+
+        '<div style="margin-top:8px;font-size:15px;color:#22d3ee;font-weight:800">'+
+          'সর্বমোট বিল: ৳'+c.total+
+        '</div>'+
+        '<div style="margin-top:6px;padding:8px;background:rgba(239,68,68,0.12);border:1px solid #ef4444;border-radius:6px;font-size:12px;color:#fca5a5">'+
+          '⚠️ <b>কাস্টম অর্ডার পলিসি:</b> ন্যূনতম ৩০% অগ্রিম = <b style="color:#fff;font-size:13px">৳'+adv30+'</b> পরিশোধ করতে হবে। বাকি ৳'+restCod+' ডেলিভারিতে ক্যাশ-অন।'+
+        '</div>';
+    }
+  };
   function summaryText(o){
     var t='🛒 Jersey Nova অর্ডার\nজার্সি: '+o.product+'\n'+(o.team?'টিম: '+o.team+'\n':'')+'মোট: '+o.qty+' পিস · ৳'+o.subtotal+'\n\n';
     o.items.forEach(function(r,i){t+=(i+1)+'. '+(r.name||'-')+'  #'+(r.num||'-')+'  ('+r.size+')\n';});
@@ -4940,9 +4968,27 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     var o={product:cur.name||'',productId:cur.id,price:n(cur.price),printCharge:n(cur.printCharge),type:mode,team:(cur['_sh-team']||'').slice(0,60),
       items:roster.map(function(r){return {name:(r.name||'').slice(0,30),num:(r.num||'').slice(0,4),size:r.size};}),
       qty:c.qty,subtotal:c.sub,name:(cur['_sh-cn']||'').trim().slice(0,60),phone:(cur['_sh-cp']||'').replace(/\D/g,''),
-      address:(cur['_sh-ca']||'').trim().slice(0,300),note:(cur['_sh-note']||'').trim().slice(0,300),status:'New',createdAt:Date.now()};
-    if(!o.name||!o.address||!/^01\d{9}$/.test(o.phone)){ Swal.fire('তথ্য দিন','নাম, ঠিক ১১ ডিজিটের মোবাইল নম্বর ও ঠিকানা লিখুন।','warning'); return null; }
-    if(o.qty>200){ Swal.fire('অনেক বেশি','একবারে সর্বোচ্চ ২০০ পিস।','warning'); return null; }
+       address:(cur['_sh-ca']||'').trim().slice(0,300),note:(cur['_sh-note']||'').trim().slice(0,300),
+    trxId:(document.getElementById('sh-trx')?document.getElementById('sh-trx').value.trim():''),
+    senderPhone:(document.getElementById('sh-sender')?document.getElementById('sh-sender').value.trim():''),
+    status:'New',createdAt:Date.now()};
+    if(!o.name||!o.address||!/^01\d{9}$/.test(o.phone)){ Swal.fire('তথ্য দিন','নাম, ঠিক ১১ ডিজিটের মোবাইল নম্বর ও ঠিকানা লিখুন!','warning'); return null; }
+    if(o.qty>200){ Swal.fire('অনেক বেশি','একবারে সর্বোচ্চ ২০০ পিস!','warning'); return null; }
+    if(!o.trxId){
+      Swal.fire({
+        title: '৩০% অগ্রিম বা আলোচনা প্রয়োজন',
+        text: 'কাস্টম জার্সিতে ন্যূনতম ৩০% অগ্রিম ছাড়া অর্ডার কনফার্ম হয় না। আপনি কি সরাসরি আমাদের WhatsApp-এ কথা বলে অর্ডারটি কনফার্ম করতে চান?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'হ্যাঁ, WhatsApp-এ কথা বলব',
+        cancelButtonText: 'আগে টাকা পাঠাব'
+      }).then(function(res){
+        if(res.isConfirmed){ jnShopWa(); }
+      });
+      return null;
+    }
     return o;
   }
   window.jnShopSubmit = function(){
