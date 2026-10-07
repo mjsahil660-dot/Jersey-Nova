@@ -4774,11 +4774,47 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
 .sh-sum{background:#071019;border:1px solid #1d4b63;border-radius:6px;padding:10px;margin:10px 0;font-size:14px}
 .sh-sum b{color:#22d3ee}
 .sh-x{float:right;background:none;border:0;color:#9ab;font-size:22px;cursor:pointer}
+    /* --- ফ্লোটিং স্লাইডার ও ব্যানার --- */
+.sh-hero-wrap{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:center;padding:24px 18px;max-width:1100px;margin:auto}
+@media(max-width:768px){.sh-hero-wrap{grid-template-columns:1fr;text-align:center}}
+.sh-hero-badge{display:inline-block;background:rgba(34,211,238,0.15);border:1px solid #22d3ee;color:#22d3ee;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;margin-bottom:12px}
+.sh-slider{position:relative;height:240px;display:flex;align-items:center;justify-content:center}
+.sh-slide-card{position:absolute;width:170px;height:220px;background:#0b1522;border:1px solid #1a425a;border-radius:12px;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,0.6);transition:all 0.6s ease;cursor:pointer;animation:floatJersey 4s ease-in-out infinite}
+.sh-slide-card img{width:100%;height:150px;object-fit:cover;border-radius:8px}
+.sh-slide-card h4{font-size:12px;margin:6px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-slide-card .sp{color:#22d3ee;font-weight:800;font-size:13px}
+@keyframes floatJersey{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* --- ট্রাস্ট ব্যাজ --- */
+.sh-trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;max-width:1100px;margin:0 auto 16px;padding:0 18px}
+.sh-trust-item{background:rgba(11,21,34,0.6);border:1px solid #14324a;border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:12px}
+.sh-trust-item i{font-size:18px;color:#22d3ee}
+
+/* --- ৩০% অগ্রিম পেমেন্ট বক্স --- */
+.sh-pay-box{background:rgba(34,211,238,0.05);border:1px solid #1d4b63;border-radius:8px;padding:12px;margin:12px 0}
+.sh-pay-title{font-size:13px;font-weight:800;color:#22d3ee;margin-bottom:6px;display:flex;align-items:center;gap:6px}
 </style>
 
 <div id="jn-shop" style="display:none">
   <div class="sh-top"><div class="sh-brand">JERSEY <b>NOVA</b></div><a href="#admin" class="sh-lock" title="Admin"><i class="fas fa-lock"></i></a></div>
-  <div class="sh-hero"><h1>প্রিমিয়াম জার্সি কালেকশন</h1><p>সিঙ্গেল বা পুরো টিমের কাস্টম নাম-নম্বর সহ অর্ডার করুন</p></div>
+    <!-- হিরো সেকশন + ফ্লোটিং স্লাইডার -->
+  <div class="sh-hero-wrap">
+    <div>
+      <span class="sh-hero-badge">🔥 NEW SEASON 2026 COLLECTION</span>
+      <h1 style="font-family:Sora;font-size:30px;margin:0 0 10px;line-height:1.2">আপনার পছন্দের জার্সি,<br><span style="color:#22d3ee">নিজের নাম ও নম্বরে</span></h1>
+      <p style="color:#8fb3c4;margin:0 0 16px;font-size:14px">১০০% প্রিমিয়াম ড্রাই-ফিট ফেব্রিক · নিখুঁত প্রিন্টিং ও দ্রুত ডেলিভারি</p>
+      <a href="#sh-grid" class="sh-btn" style="text-decoration:none;display:inline-block">সব কালেকশন দেখুন ↓</a>
+    </div>
+    <div class="sh-slider" id="sh-hero-slider"></div>
+  </div>
+
+  <!-- ৪টি ট্রাস্ট ব্যাজ -->
+  <div class="sh-trust">
+    <div class="sh-trust-item"><i class="fas fa-truck-fast"></i><div><b>সারা দেশে হোম ডেলিভারি</b><div style="color:#7a99a8">২৪-৭২ ঘণ্টায় পৌঁছাবে</div></div></div>
+    <div class="sh-trust-item"><i class="fas fa-shirt"></i><div><b>প্রিমিয়াম ড্রাই-ফিট</b><div style="color:#7a99a8">কালার ও প্রিন্ট গ্যারান্টি</div></div></div>
+    <div class="sh-trust-item"><i class="fas fa-users"></i><div><b>টিম অর্ডার সুবিধা</b><div style="color:#7a99a8">১০+ পিসে বিশেষ ছাড়</div></div></div>
+    <div class="sh-trust-item"><i class="fas fa-handshake"></i><div><b>কাস্টম অর্ডার পলিসি</b><div style="color:#7a99a8">৩০% অগ্রিম বা আলোচনা সাপেক্ষে</div></div></div>
+  </div>
   <div class="sh-grid" id="sh-grid"><div class="sh-empty">লোড হচ্ছে...</div></div>
 </div>
 
@@ -4806,6 +4842,26 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     rdb().ref('shop_public/settings').on('value', function(s){ CFG = s.val()||{}; });
     rdb().ref('shop_public/products').on('value', function(s){ P = s.val()||{}; renderGrid(); },
       function(){ document.getElementById('sh-grid').innerHTML='<div class="sh-empty">শপ এখনো চালু হয়নি।</div>'; });
+  }  function updateHeroSlider(){
+    var sl = document.getElementById('sh-hero-slider');
+    if(!sl) return;
+    var ids = Object.keys(P).filter(function(k){return P[k] && !P[k].hidden;});
+    if(!ids.length){ sl.innerHTML = ''; return; }
+    var pick = ids.slice(0, 5);
+    var h = '';
+    var rot = [-6, 3, -2, 5, -4];
+    pick.forEach(function(k, idx){
+      var pr = P[k];
+      var im = (pr.images && pr.images[0]) || '';
+      var r = rot[idx % rot.length];
+      var leftOffset = (idx * 28) - 15;
+      var delay = (idx * 0.4).toFixed(1);
+      h += '<div class="sh-slide-card" onclick="jnShopOpen(\''+k+'\')" style="left:calc(50% - 85px + '+leftOffset+'px);transform:rotate('+r+'deg);animation:floatJersey 4s ease-in-out infinite '+delay+'s;z-index:'+(idx+1)+'">'+
+           '<img src="'+esc(im)+'" alt="'+esc(pr.name)+'">'+
+           '<h4>'+esc(pr.name)+'</h4>'+
+           '<div class="sp">৳'+n(pr.price)+'</div></div>';
+    });
+    sl.innerHTML = h;
   }
   function renderGrid(){
     var ids = Object.keys(P).filter(function(k){return P[k] && !P[k].hidden;}).reverse();
@@ -4813,6 +4869,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     if(!ids.length){ g.innerHTML='<div class="sh-empty">শীঘ্রই নতুন জার্সি আসছে...</div>'; return; }
     g.innerHTML = ids.map(function(k){var p=P[k];var im=(p.images||[])[0]||'';
       return '<div class="sh-card" onclick="jnShopOpen(\''+k+'\')"><img loading="lazy" src="'+esc(im)+'" alt="'+esc(p.name)+'"><div class="b"><h3>'+esc(p.name)+'</h3><div class="p">৳'+n(p.price)+'</div></div></div>';}).join('');
+          updateHeroSlider();
   }
 
   window.jnShopOpen = function(id){
@@ -4865,7 +4922,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
         '<details style="margin-bottom:8px"><summary style="cursor:pointer;color:#22d3ee">📋 মেসেঞ্জার থেকে পুরো লিস্ট পেস্ট করুন</summary><textarea id="sh-paste" rows="5" placeholder="প্রতি লাইনে একজন, যেমন:\nSAHIL 10 L\nRAFI 7 XL"></textarea><button class="sh-btn o" style="margin-top:6px" onclick="jnShopPaste()">টেবিলে বসান</button></details>':'')+
       '<div style="overflow-x:auto"><table class="sh-tbl" id="sh-roster" oninput="jnShopRecalc()" onchange="jnShopRecalc()"><tr><th>#</th><th>প্রিন্ট নাম</th><th>নম্বর</th><th>সাইজ</th>'+(mode==='team'?'<th></th>':'')+'</tr>'+rows+'</table></div>'+
       (mode==='team'?'<button class="sh-btn o" style="margin-top:8px" onclick="jnShopAdd()">+ প্লেয়ার যোগ করুন</button>':'<small style="color:#7a9">নাম/নম্বর না চাইলে ফাঁকা রাখুন</small>')+
-      '<div class="sh-sum" id="sh-sum"></div>'+
+      '<div class="sh-sum" id="sh-calc-box"></div>'+
       '<div class="sh-row"><input id="sh-cn" class="sh-in" placeholder="আপনার নাম *" value="'+esc(p['_sh-cn']||'')+'"><input id="sh-cp" class="sh-in" inputmode="numeric" maxlength="11" placeholder="মোবাইল নম্বর (১১ ডিজিট) *" value="'+esc(p['_sh-cp']||'')+'"></div>'+
       '<textarea id="sh-ca" rows="2" placeholder="সম্পূর্ণ ঠিকানা *">'+esc(p['_sh-ca']||'')+'</textarea>'+
       '<textarea id="sh-note" rows="2" style="margin-top:8px" placeholder="অতিরিক্ত নোট (ঐচ্ছিক)">'+esc(p['_sh-note']||'')+'</textarea>'+
