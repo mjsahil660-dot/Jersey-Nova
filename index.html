@@ -245,6 +245,14 @@
 
         /* Focus visible for keyboard accessibility */
         button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline:2px solid #a855f7; outline-offset:2px; }
+        .swal2-container{z-index:999999 !important}
+        .sh-step{margin:14px 0 6px;font-weight:800;color:#22d3ee;font-size:14px;border-left:3px solid #22d3ee;padding-left:8px}
+        .sh-fab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+        .sh-fab{border:1px solid #2a3a4a;border-radius:8px;padding:8px;cursor:pointer;background:#0b1424;text-align:center;font-size:12px;color:#cde}
+        .sh-fab.on{border-color:#22d3ee;box-shadow:0 0 10px rgba(34,211,238,.5)}
+        .sh-fab b{display:block;color:#fff;font-size:13px;margin-bottom:3px}
+        .sh-neck{display:flex;gap:8px;margin-top:8px}.sh-neck button{flex:1;padding:8px;border-radius:8px;border:1px solid #2a3a4a;background:#0b1424;color:#cde;cursor:pointer}
+        .sh-neck button.on{border-color:#22d3ee;color:#22d3ee}
     </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4873,7 +4881,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
   }
 
   window.jnShopOpen = function(id){
-    cur = Object.assign({id:id}, P[id]); mode='single'; roster=[{name:'',num:'',size:'L'}];
+    cur = Object.assign({id:id}, P[id]); cur._fab=0; cur._neck='c'; mode='single'; roster=[{name:'',num:'',size:'L'}];
     draw(); document.getElementById('sh-modal').style.display='flex';
   };
   window.jnShopClose = function(){ document.getElementById('sh-modal').style.display='none'; };
@@ -4887,13 +4895,18 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     });
     ['sh-cn','sh-cp','sh-ca','sh-team','sh-note'].forEach(function(id){var e=document.getElementById(id);if(e)cur['_'+id]=e.value;});
   }
+  var FAB_DEF=[{n:'ব্রাশ জ্যাকার্ড / নাইকি',c:500,r:500},{n:'লিভ জ্যাকার্ড',c:480,r:480},{n:'হানিকম্ব / হানিকম্ব ম্যাশ',c:380,r:360},{n:'পিপি / ম্যাশ / বল ম্যাশ',c:340,r:320},{n:'রোলেক্স',c:250,r:230}];
+  function fabs(){ return (cur.fabrics&&cur.fabrics.length)?cur.fabrics:FAB_DEF; }
+  function unitPrice(){ var f=fabs()[cur._fab]; if(!f) return n(cur.price); return n(cur._neck==='r'?f.r:f.c); }
+  window.jnShopFab=function(i){ collect(); cur._fab=i; if(!cur._neck) cur._neck='c'; draw(); };
+  window.jnShopNeck=function(k){ collect(); cur._neck=k; draw(); };
+  window.jnCopyBk=function(){ try{navigator.clipboard.writeText('01907966882');}catch(e){} Swal.fire({toast:true,position:'top',timer:1500,showConfirmButton:false,icon:'success',title:'নম্বর কপি হয়েছে'}); };
   function calc(){
     var printC = n(cur.printCharge), qty = roster.length;
     var named = roster.filter(function(r){return r.name||r.num;}).length;
-    var sub = qty*n(cur.price) + named*printC;
+    var sub = qty*unitPrice() + named*printC;
     return {qty:qty, named:named, sub:sub, total:sub};
   }
-  window.jnShopRecalc = function(){ collect(); var c=calc(); document.getElementById('sh-sum').innerHTML='মোট পিস: <b>'+c.qty+'</b> · নাম/নম্বর প্রিন্ট: <b>'+c.named+'</b><br>মোট দাম: <b>৳'+c.sub+'</b> <small style="color:#7a9">(ডেলিভারি চার্জ আলাদা)</small>'; };
 
   window.jnShopPaste = function(){
     var t = document.getElementById('sh-paste').value; if(!t.trim()) return;
@@ -4917,19 +4930,24 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
       '<button class="sh-x" onclick="jnShopClose()">×</button><h2>'+esc(p.name)+'</h2>'+
       (ims.length?'<div class="sh-gal">'+ims.map(function(u){return '<img src="'+esc(u)+'">';}).join('')+'</div>':'')+
       (p.desc?'<p style="color:#9bb;margin:0 0 8px;white-space:pre-line">'+esc(p.desc)+'</p>':'')+
-      '<div style="font-size:18px;font-weight:800;color:#22d3ee">৳'+n(p.price)+' / পিস'+(n(p.printCharge)?' <small style="color:#9bb;font-weight:600">+ নাম-নম্বর ৳'+n(p.printCharge)+'</small>':'')+'</div>'+
+      '<div style="font-size:18px;font-weight:800;color:#22d3ee">৳'+unitPrice()+' / পিস'+(n(p.printCharge)?' <small style="color:#9bb;font-weight:600">+ নাম-নম্বর ৳'+n(p.printCharge)+'</small>':'')+'</div>'+
+      '<div class="sh-step">ধাপ ১: জার্সি ও সাইজ (সিঙ্গেল / টিম)</div>'+
       '<div class="sh-tabs"><button class="'+(mode==='single'?'on':'')+'" onclick="jnShopMode(\'single\')">সিঙ্গেল জার্সি</button><button class="'+(mode==='team'?'on':'')+'" onclick="jnShopMode(\'team\')">টিম জার্সি</button></div>'+
       (mode==='team'?'<input id="sh-team" class="sh-in" style="margin-bottom:8px" placeholder="টিমের নাম (ঐচ্ছিক)" value="'+esc(p['_sh-team']||'')+'">'+
         '<details style="margin-bottom:8px"><summary style="cursor:pointer;color:#22d3ee">📋 মেসেঞ্জার থেকে পুরো লিস্ট পেস্ট করুন</summary><textarea id="sh-paste" rows="5" placeholder="প্রতি লাইনে একজন, যেমন:\nSAHIL 10 L\nRAFI 7 XL"></textarea><button class="sh-btn o" style="margin-top:6px" onclick="jnShopPaste()">টেবিলে বসান</button></details>':'')+
       '<div style="overflow-x:auto"><table class="sh-tbl" id="sh-roster" oninput="jnShopRecalc()" onchange="jnShopRecalc()"><tr><th>#</th><th>প্রিন্ট নাম</th><th>নম্বর</th><th>সাইজ</th>'+(mode==='team'?'<th></th>':'')+'</tr>'+rows+'</table></div>'+
       (mode==='team'?'<button class="sh-btn o" style="margin-top:8px" onclick="jnShopAdd()">+ প্লেয়ার যোগ করুন</button>':'<small style="color:#7a9">নাম/নম্বর না চাইলে ফাঁকা রাখুন</small>')+
+      '<div class="sh-step">ধাপ ২: কাপড় ও গলা নির্বাচন</div>'+
+      '<div class="sh-fab-grid">'+fabs().map(function(f,i){return '<div class="sh-fab'+(cur._fab===i?' on':'')+'" onclick="jnShopFab('+i+')"><b>'+esc(f.n)+'</b>'+(n(f.c)===n(f.r)?'৳'+n(f.c):'কলার ৳'+n(f.c)+'<br>গোল গলা ৳'+n(f.r))+'</div>';}).join('')+'</div>'+
+      '<div class="sh-neck"><button class="'+(cur._neck!=='r'?'on':'')+'" onclick="jnShopNeck(\'c\')">👔 কলার</button><button class="'+(cur._neck==='r'?'on':'')+'" onclick="jnShopNeck(\'r\')">⚪ গোল গলা</button></div>'+
       '<div class="sh-sum" id="sh-calc-box"></div>'+
+      '<div class="sh-step">ধাপ ৩: আপনার তথ্য ও ৩০% অগ্রিম (bKash)</div>'+
       '<div class="sh-row"><input id="sh-cn" class="sh-in" placeholder="আপনার নাম *" value="'+esc(p['_sh-cn']||'')+'"><input id="sh-cp" class="sh-in" inputmode="numeric" maxlength="11" placeholder="মোবাইল নম্বর (১১ ডিজিট) *" value="'+esc(p['_sh-cp']||'')+'"></div>'+
       '<textarea id="sh-ca" rows="2" placeholder="সম্পূর্ণ ঠিকানা *">'+esc(p['_sh-ca']||'')+'</textarea>'+
       '<textarea id="sh-note" rows="2" style="margin-top:8px" placeholder="অতিরিক্ত নোট (ঐচ্ছিক)">'+esc(p['_sh-note']||'')+'</textarea>'+
         '<div class="sh-pay-box">'+
-  '<div class="sh-pay-title">💳 ৩০% অগ্রিম পরিশোধ (bKash / Nagad Send Money)</div>'+
-  '<div style="font-size:12px;color:#8fb3c4;margin-bottom:8px">পার্সোনাল নম্বর: <b style="color:#22d3ee;font-size:14px;letter-spacing:1px">01907966882</b> (কপি করুন)</div>'+
+  '<div class="sh-pay-title">💳 ৩০% অগ্রিম পরিশোধ (শুধু bKash Send Money)</div>'+
+  '<div style="font-size:12px;color:#8fb3c4;margin-bottom:8px">পার্সোনাল নম্বর: <b style="color:#22d3ee;font-size:14px;letter-spacing:1px">01907966882</b> <button type="button" class="sh-btn o" style="padding:3px 8px;font-size:11px" onclick="jnCopyBk()">📋 কপি</button></div>'+
   '<div class="sh-row">'+
     '<input id="sh-trx" class="sh-in" placeholder="TrxID (যেমন: 9J4K2L...)" style="text-transform:uppercase">'+
     '<input id="sh-sender" class="sh-in" placeholder="যে নম্বর থেকে টাকা পাঠিয়েছেন">'+
@@ -4947,26 +4965,26 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     collect();
     var c = calc();
     var adv30 = Math.ceil(c.sub * 0.30);
-    var restCod = Math.max(0, c.total - adv30);
+    var restCod = Math.max(0, c.sub - adv30); var f=fabs()[cur._fab];
     var box = document.getElementById('sh-calc-box') || document.getElementById('sh-sum');
     if(box){
-      box.innerHTML = 'মোট জার্সি: <b>'+c.qty+' টি</b> | জার্সি বিল: <b>৳'+c.sub+'</b> <small style="color:#7a99a8">(ডেলিভারি চার্জ কুরিয়ারে আলাদা)</small><br>'+
+      box.innerHTML = (f?'কাপড়: <b>'+esc(f.n)+' ('+(cur._neck==='r'?'গোল গলা':'কলার')+')</b> · ৳'+unitPrice()+'/পিস<br>':'')+'মোট জার্সি: <b>'+c.qty+' টি</b> | জার্সি বিল: <b>৳'+c.sub+'</b> <small style="color:#7a99a8">(ডেলিভারি চার্জ কুরিয়ারে আলাদা)</small><br>'+
         '<div style="margin-top:8px;font-size:15px;color:#22d3ee;font-weight:800">'+
           'সর্বমোট বিল: ৳'+c.total+
         '</div>'+
         '<div style="margin-top:6px;padding:8px;background:rgba(239,68,68,0.12);border:1px solid #ef4444;border-radius:6px;font-size:12px;color:#fca5a5">'+
-          '⚠️ <b>কাস্টম অর্ডার পলিসি:</b> ন্যূনতম ৩০% অগ্রিম = <b style="color:#fff;font-size:13px">৳'+adv30+'</b> পরিশোধ করতে হবে। বাকি ৳'+restCod+' (+ডেলিভারি চার্জ) ক্যাশ-অন ডেলিভারিতে।'+
+          '⚠️ <b>কাস্টম অর্ডার পলিসি:</b> ন্যূনতম ৩০% অগ্রিম = <b style="color:#fff;font-size:13px">৳'+adv30+'</b> পরিশোধ করতে হবে। বাকি ৳'+restCod+' (+ডেলিভারি চার্জ) ডেলিভারির সময়। অগ্রিম না দিলে WhatsApp-এ কথা বলে কনফার্ম করুন।'+
         '</div>';
     }
   };
     function summaryText(o){
-    var t='🛒 Jersey Nova অর্ডার\nজার্সি: '+o.product+'\n'+(o.team?'টিম: '+o.team+'\n':'')+'মোট: '+o.qty+' পিস · ৳'+o.subtotal+'\n\n';
+    var t='🛒 Jersey Nova অর্ডার\nজার্সি: '+o.product+'\n'+(o.fabric?'কাপড়: '+o.fabric+' ('+o.neck+') ৳'+o.price+'/পিস\n':'')+(o.team?'টিম: '+o.team+'\n':'')+'মোট: '+o.qty+' পিস · ৳'+o.subtotal+'\n৩০% অগ্রিম: ৳'+Math.ceil(o.subtotal*0.30)+'\n\n';
     o.items.forEach(function(r,i){t+=(i+1)+'. '+(r.name||'-')+'  #'+(r.num||'-')+'  ('+r.size+')\n';});
     return t+'\nনাম: '+o.name+'\nফোন: '+o.phone+'\nঠিকানা: '+o.address+(o.trxId?'\n\n💳 অগ্রিম TrxID: '+o.trxId+(o.senderPhone?' ('+o.senderPhone+')':''):'')+(o.note?'\nনোট: '+o.note:'');
   }
-  function build(){
-    collect(); var c=calc();
-    var o={product:cur.name||'',productId:cur.id,price:n(cur.price),printCharge:n(cur.printCharge),type:mode,team:(cur['_sh-team']||'').slice(0,60),
+  function build(skipTrx){
+    collect(); var c=calc(); var fb=fabs()[cur._fab];
+    var o={product:cur.name||'',productId:cur.id,price:unitPrice(),fabric:fb?fb.n:'',neck:fb?(cur._neck==='r'?'গোল গলা':'কলার'):'',payMethod:'bKash',printCharge:n(cur.printCharge),type:mode,team:(cur['_sh-team']||'').slice(0,60),
       items:roster.map(function(r){return {name:(r.name||'').slice(0,30),num:(r.num||'').slice(0,4),size:r.size};}),
       qty:c.qty,subtotal:c.sub,name:(cur['_sh-cn']||'').trim().slice(0,60),phone:(cur['_sh-cp']||'').replace(/\D/g,''),
        address:(cur['_sh-ca']||'').trim().slice(0,300),note:(cur['_sh-note']||'').trim().slice(0,300),
@@ -4975,7 +4993,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     status:'New',createdAt:Date.now()};
     if(!o.name||!o.address||!/^01\d{9}$/.test(o.phone)){ Swal.fire('তথ্য দিন','নাম, ঠিক ১১ ডিজিটের মোবাইল নম্বর ও ঠিকানা লিখুন!','warning'); return null; }
     if(o.qty>200){ Swal.fire('অনেক বেশি','একবারে সর্বোচ্চ ২০০ পিস!','warning'); return null; }
-    if(!o.trxId){
+    if(!o.trxId && !skipTrx){
       Swal.fire({
         title: '৩০% অগ্রিম বা আলোচনা প্রয়োজন',
         text: 'কাস্টম জার্সিতে ন্যূনতম ৩০% অগ্রিম ছাড়া অর্ডার কনফার্ম হয় না। আপনি কি সরাসরি আমাদের WhatsApp-এ কথা বলে অর্ডারটি কনফার্ম করতে চান?',
@@ -5000,7 +5018,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
         .then(function(r){ if(r.isConfirmed&&CFG.whatsapp) window.open('https://wa.me/88'+CFG.whatsapp+'?text='+encodeURIComponent(summaryText(o)),'_blank'); });
     }).catch(function(){ Swal.fire('দুঃখিত','অর্ডার জমা হয়নি, WhatsApp-এ পাঠান।','error'); });
   };
-  window.jnShopWa = function(){ var o=build(); if(o) window.open('https://wa.me/88'+CFG.whatsapp+'?text='+encodeURIComponent(summaryText(o)),'_blank'); };
+  window.jnShopWa = function(){ var o=build(true); if(!o) return; if(!CFG.whatsapp){ Swal.fire('সেটিং নেই','এডমিন প্যানেলে WhatsApp নম্বর সেভ করুন।','info'); return; } window.open('https://wa.me/88'+CFG.whatsapp+'?text='+encodeURIComponent(summaryText(o)),'_blank'); };
 
   /* ---------- ADMIN ---------- */
   function isOwner(){ var u=firebase.auth().currentUser; return !!(u && u.email==='mjsahil660@gmail.com'); }
@@ -5018,10 +5036,10 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     var h='<button class="sh-x" onclick="jnShopAdminClose()">×</button><h2>🛍️ শপ ম্যানেজার</h2><div class="sh-tabs"><button class="'+(aTab==='orders'?'on':'')+'" onclick="jnShopAdmin(\'orders\')">শপ অর্ডার ('+Object.keys(SO).length+')</button><button class="'+(aTab==='products'?'on':'')+'" onclick="jnShopAdmin(\'products\')">জার্সি / ছবি</button></div>';
     if(aTab==='orders'){
       var ids=Object.keys(SO).sort(function(a,b){return (SO[b].createdAt||0)-(SO[a].createdAt||0);});
-      h+= ids.length?ids.map(function(k){var o=SO[k];return '<div class="sh-sum"><b>'+esc(o.name)+'</b> · '+esc(o.phone)+' · '+(o.type==='team'?'🧑‍🤝‍🧑 টিম: '+esc(o.team):'⚡সিঙ্গেল')+' · '+o.qty+' পিস · ৳'+o.subtotal+' <span style="float:right;color:'+(o.status==='New'?'#facc15':'#4ade80')+'">'+esc(o.status)+'</span><br><small style="color:#8ab">'+esc(o.product)+(o.team?' — '+esc(o.team):'')+' · '+new Date(o.createdAt).toLocaleString('bn-BD')+'<br>'+esc(o.address)+'</small>'+(o.trxId?'<div style="margin-top:4px;color:#22d3ee;font-size:12px;font-weight:bold">💳 TrxID: '+esc(o.trxId)+' <span style="color:#cbd5e1;font-weight:normal">(প্রেরক: '+esc(o.senderPhone||'—')+')</span></div>':'')+'<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="sh-btn" onclick="jnFactorySlip(\''+k+'\')">🖨️ ফ্যাক্টরি স্লিপ</button><button class="sh-btn g" onclick="jnSlipWa(\''+k+'\')"><i class="fab fa-whatsapp"></i> কারিগরকে</button><a class="sh-btn o" style="text-decoration:none" href="https://wa.me/88'+esc(o.phone)+'" target="_blank">কাস্টমার</a><button class="sh-btn o" onclick="jnSoStatus(\''+k+'\')">✔ কনফার্ম</button><button class="sh-btn o" style="color:#f77" onclick="jnSoDel(\''+k+'\')">মুছুন</button></div></div>';}).join(''):'<div class="sh-empty">এখনো কোনো শপ অর্ডার নেই</div>';
+      h+= ids.length?ids.map(function(k){var o=SO[k];return '<div class="sh-sum"><b>'+esc(o.name)+'</b> · '+esc(o.phone)+' · '+(o.type==='team'?'🧑‍🤝‍🧑 টিম: '+esc(o.team):'⚡সিঙ্গেল')+' · '+o.qty+' পিস · ৳'+o.subtotal+' <span style="float:right;color:'+(o.status==='New'?'#facc15':'#4ade80')+'">'+esc(o.status)+'</span><br><small style="color:#8ab">'+esc(o.product)+(o.team?' — '+esc(o.team):'')+' · '+new Date(o.createdAt).toLocaleString('bn-BD')+'<br>'+esc(o.address)+'</small>'+(o.fabric?'<div style="margin-top:4px;color:#facc15;font-size:12px">🧵 '+esc(o.fabric)+' ('+esc(o.neck||'')+') · ৳'+o.price+'/পিস</div>':'')+(o.trxId?'<div style="margin-top:4px;color:#22d3ee;font-size:12px;font-weight:bold">💳 TrxID: '+esc(o.trxId)+' <span style="color:#cbd5e1;font-weight:normal">(প্রেরক: '+esc(o.senderPhone||'—')+')</span></div>':'')+'<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="sh-btn" onclick="jnFactorySlip(\''+k+'\')">🖨️ ফ্যাক্টরি স্লিপ</button><button class="sh-btn g" onclick="jnSlipWa(\''+k+'\')"><i class="fab fa-whatsapp"></i> কারিগরকে</button><a class="sh-btn o" style="text-decoration:none" href="https://wa.me/88'+esc(o.phone)+'" target="_blank">কাস্টমার</a><button class="sh-btn o" onclick="jnSoStatus(\''+k+'\')">✔ কনফার্ম</button><button class="sh-btn o" style="color:#f77" onclick="jnSoDel(\''+k+'\')">মুছুন</button></div></div>';}).join(''):'<div class="sh-empty">এখনো কোনো শপ অর্ডার নেই</div>';
     } else {
       h+='<div class="sh-sum"><b>শপ সেটিংস</b><div class="sh-row" style="margin-top:6px"><input id="as-wa" class="sh-in" placeholder="WhatsApp নম্বর (01XXXXXXXXX)" value="'+esc(CFG.whatsapp||'')+'"><button class="sh-btn" onclick="jnShopSaveCfg()">সেভ</button></div><small>কাস্টমার লিংক: '+esc(location.origin+location.pathname)+'<br>এডমিন লিংক: '+esc(location.origin+location.pathname)+'#admin</small></div>';
-      h+='<div class="sh-sum"><b>নতুন জার্সি যোগ করুন</b><input id="ap-name" class="sh-in" style="margin:6px 0" placeholder="জার্সির নাম"><div class="sh-row"><input id="ap-price" class="sh-in" type="number" placeholder="দাম / পিস"><input id="ap-print" class="sh-in" type="number" placeholder="নাম-নম্বর প্রিন্ট চার্জ"></div><textarea id="ap-desc" rows="2" placeholder="বিবরণ (ফেব্রিক, ডেলিভারি সময়...)"></textarea><label class="sh-btn o" style="display:block;text-align:center;margin:8px 0;cursor:pointer">📷 গ্যালারি থেকে একসাথে অনেক ছবি বাছুন (সর্বোচ্চ ৮)<input id="ap-img" type="file" accept="image/*" multiple hidden onchange="document.getElementById(\'ap-cnt\').textContent=this.files.length+\' টি ছবি সিলেক্টেড\'"></label><small id="ap-cnt"></small><button class="sh-btn" style="width:100%;margin-top:6px" onclick="jnShopAddProduct()">➕ শপে যোগ করুন</button></div>';
+      h+='<div class="sh-sum"><b>নতুন জার্সি যোগ করুন</b><input id="ap-name" class="sh-in" style="margin:6px 0" placeholder="জার্সির নাম"><div class="sh-row"><input id="ap-price" class="sh-in" type="number" placeholder="দাম / পিস"><input id="ap-print" class="sh-in" type="number" placeholder="নাম-নম্বর প্রিন্ট চার্জ"></div><div style="margin:8px 0"><b style="font-size:12px">🧵 কাপড়ের রেট (ডিফল্ট দেওয়া, চাইলে বদলান)</b>'+FAB_DEF.map(function(f,i){return '<div class="sh-row" style="margin-top:4px;align-items:center"><span style="flex:2;font-size:12px">'+f.n+'</span><input id="apf-c'+i+'" class="sh-in" type="number" value="'+f.c+'" placeholder="কলার"><input id="apf-r'+i+'" class="sh-in" type="number" value="'+f.r+'" placeholder="গোল গলা"></div>';}).join('')+'<small>বাম ঘর = কলার, ডান ঘর = গোল গলা</small></div><textarea id="ap-desc" rows="2" placeholder="বিবরণ (ফেব্রিক, ডেলিভারি সময়...)"></textarea><label class="sh-btn o" style="display:block;text-align:center;margin:8px 0;cursor:pointer">📷 গ্যালারি থেকে একসাথে অনেক ছবি বাছুন (সর্বোচ্চ ৮)<input id="ap-img" type="file" accept="image/*" multiple hidden onchange="document.getElementById(\'ap-cnt\').textContent=this.files.length+\' টি ছবি সিলেক্টেড\'"></label><small id="ap-cnt"></small><button class="sh-btn" style="width:100%;margin-top:6px" onclick="jnShopAddProduct()">➕ শপে যোগ করুন</button></div>';
       h+=Object.keys(P).reverse().map(function(k){var p=P[k];return '<div class="sh-sum" style="display:flex;gap:10px;align-items:center"><img src="'+esc((p.images||[])[0]||'')+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px"><div style="flex:1">'+esc(p.name)+'<br><b>৳'+n(p.price)+'</b> · '+(p.images||[]).length+' ছবি'+(p.hidden?' · <span style="color:#f99">লুকানো</span>':'')+'</div><button class="sh-btn o" onclick="jnShopHide(\''+k+'\')">'+(p.hidden?'দেখান':'লুকান')+'</button><button class="sh-btn o" style="color:#f77" onclick="jnShopDelP(\''+k+'\')">✕</button></div>';}).join('');
     }
     document.getElementById('sh-admin-box').innerHTML=h;
@@ -5029,11 +5047,12 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
   window.jnShopSaveCfg=function(){var w=document.getElementById('as-wa').value.replace(/\D/g,'');rdb().ref('shop_public/settings').update({whatsapp:w}).then(function(){CFG.whatsapp=w;Swal.fire('সেভ হয়েছে','','success');}).catch(function(){Swal.fire('সেভ হয়নি','Firebase rules আপডেট করুন','error');});};
   window.jnShopAddProduct=async function(){
     var name=document.getElementById('ap-name').value.trim(),price=n(document.getElementById('ap-price').value),files=document.getElementById('ap-img').files;
-    if(!name||!price||!files.length){Swal.fire('নাম, দাম ও অন্তত ১টি ছবি দিন','','warning');return;}
+    if(!price) price=n(document.getElementById('apf-c0').value);
+    if(!name||!files.length){Swal.fire('নাম ও অন্তত ১টি ছবি দিন','','warning');return;}
     Swal.fire({title:'ছবি আপলোড হচ্ছে...',allowOutsideClick:false,didOpen:function(){Swal.showLoading();}});
     try{
       var imgs=[];for(var i=0;i<Math.min(files.length,8);i++) imgs.push(await compress(files[i]));
-      await rdb().ref('shop_public/products').push({name:name,price:price,printCharge:n(document.getElementById('ap-print').value),desc:document.getElementById('ap-desc').value.trim(),images:imgs,createdAt:Date.now()});
+      await rdb().ref('shop_public/products').push({name:name,price:price,printCharge:n(document.getElementById('ap-print').value),desc:document.getElementById('ap-desc').value.trim(),fabrics:FAB_DEF.map(function(f,i){return {n:f.n,c:n(document.getElementById('apf-c'+i).value),r:n(document.getElementById('apf-r'+i).value)};}),images:imgs,createdAt:Date.now()});
       var s=await rdb().ref('shop_public/products').once('value');P=s.val()||{};Swal.fire('শপে যোগ হয়েছে!','','success');aDraw();
     }catch(e){Swal.fire('যোগ হয়নি','Firebase rules আপডেট করুন','error');}
   };
