@@ -4801,27 +4801,63 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
 /* --- ৩০% অগ্রিম পেমেন্ট বক্স --- */
 .sh-pay-box{background:rgba(34,211,238,0.05);border:1px solid #1d4b63;border-radius:8px;padding:12px;margin:12px 0}
 .sh-pay-title{font-size:13px;font-weight:800;color:#22d3ee;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+/* ===== NEW BRAND HEADER + CINEMATIC HERO ===== */
+.nx-strip{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;padding:7px 12px;font-size:12px;font-weight:700;color:#bff4ff;background:linear-gradient(90deg,#04121a,#0a3242,#04121a);border-bottom:1px solid #12384a}
+.nx-top{gap:14px;backdrop-filter:blur(10px)}
+.nx-brand{display:flex;align-items:center;gap:10px}
+.nx-logo{width:40px;height:40px;border-radius:8px;display:grid;place-items:center;font-family:Sora;font-weight:800;color:#04121a;background:#22d3ee;box-shadow:0 0 18px rgba(34,211,238,.55)}
+.sh-brand{text-shadow:0 0 14px rgba(34,211,238,.45)}
+.nx-tick{color:#3b9dff;font-size:15px;margin-left:3px}
+.nx-sub{font-size:11px;color:#7fa9bb;font-weight:600}
+.nx-search{flex:1;max-width:420px;display:flex;align-items:center;gap:8px;background:#071019;border:1px solid #1d3b4f;border-radius:8px;padding:0 12px}
+.nx-search i{color:#5d8597}.nx-search input{flex:1;background:none;border:0;outline:0;color:#e6f7ff;padding:10px 0;font-size:14px}
+.nx-search:focus-within{border-color:#22d3ee}
+.nx-act{display:flex;align-items:center;gap:8px}
+.nx-ic{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;color:#fff;text-decoration:none}
+.nx-ic.fb{background:#1877f2}.nx-ic.wa{background:#25d366}
+.d-mob{display:none}
+.nx-hero{position:relative;width:100%;height:min(56vw,520px);min-height:260px;overflow:hidden;background:#05080f}
+.nx-track{position:absolute;inset:0}
+.nx-slide{position:absolute;inset:0;opacity:0;transition:opacity .9s ease;background-size:cover;background-position:center}
+.nx-slide.on{opacity:1}
+.nx-slide .bg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(24px) brightness(.45)}
+.nx-slide img{position:relative;height:100%;width:100%;object-fit:contain;display:block;transform:scale(1.02);transition:transform 6s ease}
+.nx-slide.on img{transform:scale(1.07)}
+.nx-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,rgba(5,8,15,.95) 0%,rgba(5,8,15,.2) 45%,rgba(5,8,15,0) 70%),linear-gradient(90deg,rgba(5,8,15,.7),transparent 45%)}
+.nx-arr{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(5,8,15,.45);color:#fff;font-size:16px;cursor:pointer;z-index:3}
+.nx-arr:hover{border-color:#22d3ee;color:#22d3ee}.nx-arr.l{left:18px}.nx-arr.r{right:18px}
+.nx-info{position:absolute;left:28px;bottom:26px;z-index:3;max-width:70%}
+.nx-info h1{font-family:Sora;font-size:clamp(22px,3.4vw,40px);margin:0 0 8px;font-weight:800}
+.nx-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:#c9dbe4}.nx-meta i{color:#4b6676;font-style:normal}
+.nx-cta{margin-top:14px}
+.nx-dots{position:absolute;right:26px;bottom:30px;display:flex;gap:7px;z-index:3}
+.nx-dots b{width:9px;height:9px;border-radius:9px;background:rgba(255,255,255,.35);cursor:pointer;transition:.3s}
+.nx-dots b.on{width:28px;background:#fff}
+.nx-bar{max-width:1100px;margin:18px auto 0;padding:0 18px}
+.nx-pills{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.nx-pills button{flex:none;padding:8px 16px;border-radius:99px;border:1px solid #1d4b63;background:#071019;color:#cfe;font-weight:700;cursor:pointer;font-size:13px}
+.nx-pills button.on{background:#22d3ee;color:#04121a;border-color:#22d3ee}
+@media(max-width:768px){.d-desk{display:none}.d-mob{display:flex;max-width:none;margin-bottom:10px}.nx-strip{gap:4px 14px;font-size:11px}.nx-arr{width:36px;height:36px;font-size:13px}.nx-arr.l{left:8px}.nx-arr.r{right:8px}.nx-info{left:14px;bottom:34px;max-width:92%}.nx-dots{right:auto;left:14px;bottom:12px}.nx-cta{display:none}.nx-meta{font-size:11px}.nx-sub{display:none}}
 </style>
 
 <div id="jn-shop" style="display:none">
-  <div class="sh-top"><div class="sh-brand">JERSEY <b>NOVA</b></div><a href="#admin" class="sh-lock" title="Admin"><i class="fas fa-lock"></i></a></div>
-    <!-- হিরো সেকশন + ফ্লোটিং স্লাইডার -->
-  <div class="sh-hero-wrap">
-    <div>
-      <span class="sh-hero-badge">🔥 NEW SEASON 2026 COLLECTION</span>
-      <h1 style="font-family:Sora;font-size:30px;margin:0 0 10px;line-height:1.2">আপনার পছন্দের জার্সি,<br><span style="color:#22d3ee">নিজের নাম ও নম্বরে</span></h1>
-      <p style="color:#8fb3c4;margin:0 0 16px;font-size:14px">১০০% প্রিমিয়াম ড্রাই-ফিট ফেব্রিক · নিখুঁত প্রিন্টিং ও দ্রুত ডেলিভারি</p>
-      <a href="#sh-grid" class="sh-btn" style="text-decoration:none;display:inline-block">সব কালেকশন দেখুন ↓</a>
-    </div>
-    <div class="sh-slider" id="sh-hero-slider"></div>
+  <div class="nx-strip"><span>🛡️ অফিশিয়াল অনলাইন স্টোর</span><span>👥 টিম ও ক্লাব জার্সি স্পেশালিস্ট (মিনিমাম ৫ পিস)</span><span>🚚 সমগ্র বাংলাদেশে নিরাপদ হোম ডেলিভারি</span></div>
+  <div class="sh-top nx-top">
+    <div class="nx-brand"><div class="nx-logo">JN</div><div><div class="sh-brand">JERSEY <b>NOVA</b> <i class="fas fa-circle-check nx-tick" title="Verified Official Store"></i></div><div class="nx-sub">Verified Official Store · Team Kits</div></div></div>
+    <div class="nx-search d-desk"><i class="fas fa-magnifying-glass"></i><input id="nx-q" placeholder="পছন্দের জার্সি সার্চ করুন..." oninput="jnShopFilter()"></div>
+    <div class="nx-act"><a id="nx-fb" class="nx-ic fb" href="https://facebook.com" target="_blank" rel="noopener" title="Facebook Page"><i class="fab fa-facebook-f"></i></a><a id="nx-wa" class="nx-ic wa" href="#" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a><a href="#admin" class="sh-lock" title="Admin"><i class="fas fa-lock"></i></a></div>
   </div>
-
-  <!-- ৪টি ট্রাস্ট ব্যাজ -->
-  <div class="sh-trust">
-    <div class="sh-trust-item"><i class="fas fa-truck-fast"></i><div><b>সারা দেশে হোম ডেলিভারি</b><div style="color:#7a99a8">২৪-৭২ ঘণ্টায় পৌঁছাবে</div></div></div>
-    <div class="sh-trust-item"><i class="fas fa-shirt"></i><div><b>প্রিমিয়াম ড্রাই-ফিট</b><div style="color:#7a99a8">কালার ও প্রিন্ট গ্যারান্টি</div></div></div>
-    <div class="sh-trust-item"><i class="fas fa-users"></i><div><b>টিম অর্ডার সুবিধা</b><div style="color:#7a99a8">১০+ পিসে বিশেষ ছাড়</div></div></div>
-    <div class="sh-trust-item"><i class="fas fa-handshake"></i><div><b>কাস্টম অর্ডার পলিসি</b><div style="color:#7a99a8">৩০% অগ্রিম বা আলোচনা সাপেক্ষে</div></div></div>
+  <div class="nx-hero" id="nx-hero">
+    <div class="nx-track" id="nx-track"></div>
+    <div class="nx-shade"></div>
+    <button class="nx-arr l" onclick="jnHero(-1)" aria-label="আগের"><i class="fas fa-chevron-left"></i></button>
+    <button class="nx-arr r" onclick="jnHero(1)" aria-label="পরের"><i class="fas fa-chevron-right"></i></button>
+    <div class="nx-info"><h1 id="nx-title">JERSEY NOVA</h1><div class="nx-meta"><span>⚡ টিম কাস্টমাইজেশন</span><i>|</i><span>মিনিমাম অর্ডার: ৫ পিস</span><i>|</i><span>১০০% প্রিন্ট ও কালার গ্যারান্টি</span></div><button class="sh-btn nx-cta" id="nx-cta">বিস্তারিত দেখুন</button></div>
+    <div class="nx-dots" id="nx-dots"></div>
+  </div>
+  <div class="nx-bar">
+    <div class="nx-search d-mob"><i class="fas fa-magnifying-glass"></i><input id="nx-q2" placeholder="পছন্দের জার্সি সার্চ করুন..." oninput="document.getElementById('nx-q').value=this.value;jnShopFilter()"></div>
+    <div class="nx-pills" id="nx-pills"><button class="on" data-c="">সব জার্সি</button><button data-c="ফুটবল|football">⚽ ফুটবল</button><button data-c="ক্রিকেট|cricket">🏏 ক্রিকেট</button><button data-c="টিম|team|club|ক্লাব">👥 টিম স্পেশাল</button></div>
   </div>
   <div class="sh-grid" id="sh-grid"><div class="sh-empty">লোড হচ্ছে...</div></div>
 </div>
@@ -4847,38 +4883,50 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
   var loaded=false;
   function loadShop(){
     if(loaded) return; loaded=true;
-    rdb().ref('shop_public/settings').on('value', function(s){ CFG = s.val()||{}; });
+    rdb().ref('shop_public/settings').on('value', function(s){ CFG = s.val()||{}; setLinks(); });
     rdb().ref('shop_public/products').on('value', function(s){ P = s.val()||{}; renderGrid(); },
       function(){ document.getElementById('sh-grid').innerHTML='<div class="sh-empty">শপ এখনো চালু হয়নি।</div>'; });
-  }  function updateHeroSlider(){
-    var sl = document.getElementById('sh-hero-slider');
-    if(!sl) return;
-    var ids = Object.keys(P).filter(function(k){return P[k] && !P[k].hidden;});
-    if(!ids.length){ sl.innerHTML = ''; return; }
-    var pick = ids.slice(0, 5);
-    var h = '';
-    var rot = [-6, 3, -2, 5, -4];
-    pick.forEach(function(k, idx){
-      var pr = P[k];
-      var im = (pr.images && pr.images[0]) || '';
-      var r = rot[idx % rot.length];
-      var leftOffset = (idx * 28) - 15;
-      var delay = (idx * 0.4).toFixed(1);
-      h += '<div class="sh-slide-card" onclick="jnShopOpen(\''+k+'\')" style="left:calc(50% - 85px + '+leftOffset+'px);transform:rotate('+r+'deg);animation:floatJersey 4s ease-in-out infinite '+delay+'s;z-index:'+(idx+1)+'">'+
-           '<img src="'+esc(im)+'" alt="'+esc(pr.name)+'">'+
-           '<h4>'+esc(pr.name)+'</h4>'+
-           '<div class="sp">৳'+n(pr.price)+'</div></div>';
-    });
-    sl.innerHTML = h;
   }
-  function renderGrid(){
-    var ids = Object.keys(P).filter(function(k){return P[k] && !P[k].hidden;}).reverse();
-    var g = document.getElementById('sh-grid');
-    if(!ids.length){ g.innerHTML='<div class="sh-empty">শীঘ্রই নতুন জার্সি আসছে...</div>'; return; }
+  var HI=0, HT=null, HIDS=[], CAT='';
+  function visIds(){ return Object.keys(P).filter(function(k){return P[k] && !P[k].hidden;}).reverse(); }
+  function setLinks(){
+    var w=String(CFG.whatsapp||'').replace(/\D/g,''); var wa=document.getElementById('nx-wa');
+    if(wa) wa.href = w ? 'https://wa.me/'+(w.length===11?'88'+w:w)+'?text='+encodeURIComponent('হ্যালো Jersey Nova, আমি টিম জার্সি (মিনিমাম ৫ পিস) নিয়ে কথা বলতে চাই।') : '#';
+    var fb=document.getElementById('nx-fb'); if(fb && CFG.facebook) fb.href=CFG.facebook;
+  }
+  function showHero(i){
+    if(!HIDS.length) return; HI=(i+HIDS.length)%HIDS.length;
+    document.querySelectorAll('#nx-track .nx-slide').forEach(function(e,j){e.classList.toggle('on',j===HI);});
+    document.querySelectorAll('#nx-dots b').forEach(function(e,j){e.classList.toggle('on',j===HI);});
+    var p=P[HIDS[HI]]; document.getElementById('nx-title').textContent=p.name||'JERSEY NOVA';
+    var id=HIDS[HI]; document.getElementById('nx-cta').onclick=function(){jnShopOpen(id);};
+  }
+  window.jnHero=function(d){ showHero(HI+d); restartHero(); };
+  function restartHero(){ clearInterval(HT); if(HIDS.length>1) HT=setInterval(function(){showHero(HI+1);},4500); }
+  function updateHeroSlider(){
+    var tr=document.getElementById('nx-track'); if(!tr) return;
+    HIDS=visIds().slice(0,8);
+    if(!HIDS.length){ tr.innerHTML=''; document.getElementById('nx-dots').innerHTML=''; return; }
+    tr.innerHTML=HIDS.map(function(k){var im=esc((P[k].images||[])[0]||'');
+      return '<div class="nx-slide" onclick="jnShopOpen(\''+k+'\')"><div class="bg" style="background-image:url(\''+im+'\')"></div><img src="'+im+'" alt="'+esc(P[k].name)+'"></div>';}).join('');
+    document.getElementById('nx-dots').innerHTML=HIDS.map(function(_,j){return '<b onclick="jnHero('+(j-HI)+')"></b>';}).join('');
+    var dots=document.querySelectorAll('#nx-dots b'); dots.forEach(function(b,j){b.onclick=function(){showHero(j);restartHero();};});
+    showHero(Math.min(HI,HIDS.length-1)); restartHero();
+  }
+  window.jnShopFilter=function(){ renderCards(); };
+  document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#nx-pills button'); if(!b) return;
+    document.querySelectorAll('#nx-pills button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); CAT=b.dataset.c; renderCards();});
+  function renderCards(){
+    var g=document.getElementById('sh-grid'); var q=((document.getElementById('nx-q')||{}).value||'').trim().toLowerCase();
+    var re=CAT?new RegExp(CAT,'i'):null;
+    var ids=visIds().filter(function(k){var p=P[k]; var txt=[p.name,p.desc,p.description,p.category,p.tags].join(' ');
+      return (!q||txt.toLowerCase().indexOf(q)>-1) && (!re||re.test(txt));});
+    if(!visIds().length){ g.innerHTML='<div class="sh-empty">শীঘ্রই নতুন জার্সি আসছে...</div>'; return; }
+    if(!ids.length){ g.innerHTML='<div class="sh-empty">কোনো জার্সি পাওয়া যায়নি।</div>'; return; }
     g.innerHTML = ids.map(function(k){var p=P[k];var im=(p.images||[])[0]||'';
-      return '<div class="sh-card" onclick="jnShopOpen(\''+k+'\')"><img loading="lazy" src="'+esc(im)+'" alt="'+esc(p.name)+'"><div class="b"><h3>'+esc(p.name)+'</h3><div class="p">৳'+n(p.price)+'</div></div></div>';}).join('');
-          updateHeroSlider();
+      return '<div class="sh-card" onclick="jnShopOpen(\''+k+'\')"><img loading="lazy" src="'+esc(im)+'" alt="'+esc(p.name)+'"><div class="b"><h3>'+esc(p.name)+'</h3><div class="p">৳'+n(p.price)+' <span style="color:#7a99a8;font-size:11px;font-weight:600">/ পিস · মিনিমাম ৫ পিস</span></div></div></div>';}).join('');
   }
+  function renderGrid(){ setLinks(); renderCards(); updateHeroSlider(); }
 
   window.jnShopOpen = function(id){
     cur = Object.assign({id:id}, P[id]); cur._fab=0; cur._neck='c'; mode='single'; roster=[{name:'',num:'',size:'L'}];
