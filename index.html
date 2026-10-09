@@ -5093,7 +5093,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
     }
     document.getElementById('sh-admin-box').innerHTML=h;
   }
-  window.jnShopSaveCfg=function(){var w=document.getElementById('as-wa').value.replace(/\D/g,'');rdb().ref('shop_public/settings').update({whatsapp:w}).then(function(){CFG.whatsapp=w;Swal.fire('সেভ হয়েছে','','success');}).catch(function(){Swal.fire('সেভ হয়নি','Firebase rules আপডেট করুন','error');});};
+window.jnShopSaveCfg=function(){var w=document.getElementById('as-wa').value.replace(/\D/g,''),fb=(document.getElementById('as-fb')?document.getElementById('as-fb').value.trim():'');rdb().ref('shop_public/settings').update({whatsapp:w,facebook:fb}).then(function(){CFG.whatsapp=w;CFG.facebook=fb;setLinks();Swal.fire('সেভ হয়েছে!','ফেসবুক ও হোয়াটসঅ্যাপ আপডেট হয়েছে','success');}).catch(function(){Swal.fire('সেভ হয়নি','Firebase rules আপডেট করুন','error');});};
   window.jnShopAddProduct=async function(){
     var name=document.getElementById('ap-name').value.trim(),price=n(document.getElementById('ap-price').value),files=document.getElementById('ap-img').files;
     if(!price) price=n(document.getElementById('apf-c0').value);
