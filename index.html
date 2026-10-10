@@ -5108,15 +5108,36 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
   /* ---------- ADMIN ---------- */
   function isOwner(){ var u=firebase.auth().currentUser; return !!(u && u.email==='mjsahil660@gmail.com'); }
   function compress(file){ return new Promise(function(res){ var r=new FileReader(); r.onload=function(){ var im=new Image(); im.onload=function(){ var s=Math.min(1,800/Math.max(im.width,im.height)); var c=document.createElement('canvas'); c.width=im.width*s; c.height=im.height*s; c.getContext('2d').drawImage(im,0,0,c.width,c.height); res(c.toDataURL('image/jpeg',0.72)); }; im.src=r.result; }; r.readAsDataURL(file); }); }
-  var aTab='orders', SO={}, soBound=false;
-  window.jnShopAdmin = function(tab){
+  var aTab='orders', SO={}, soBound=false, editProdKey=null, editExistingImgs=[];
+  window.jnShopAdmin = function(tab, keepEdit){
     if(!isOwner()){ Swal.fire('শুধু এডমিন','শপ ম্যানেজ শুধু মূল এডমিন করতে পারবে।','info'); return; }
+    if(tab && tab !== 'add'){ editProdKey = null; editExistingImgs = []; }
+    else if(tab === 'add' && !keepEdit){ editProdKey = null; editExistingImgs = []; }
     aTab=tab||aTab; document.getElementById('sh-admin').style.display='flex';
     if(!soBound){ soBound=true; rdb().ref('shop_orders').on('value',function(s){SO=s.val()||{}; if(aTab==='orders') aDraw();}); }
     rdb().ref('shop_public').once('value').then(function(s){var v=s.val()||{};P=v.products||{};CFG=v.settings||{};aDraw();});
     aDraw();
   };
   window.jnShopAdminClose=function(){document.getElementById('sh-admin').style.display='none';};
+  window.jnShopEditP=function(k){
+    if(!P[k]) return;
+    editProdKey = k;
+    editExistingImgs = (P[k].images || []).slice();
+    aTab = 'add';
+    aDraw();
+  };
+  window.jnShopCancelEdit=function(){
+    editProdKey = null;
+    editExistingImgs = [];
+    aTab = 'list';
+    aDraw();
+  };
+  window.jnShopDelEditImg=function(idx){
+    if(editExistingImgs && editExistingImgs.length > idx){
+      editExistingImgs.splice(idx, 1);
+      aDraw();
+    }
+  };
   function aDraw(){
     if(aTab==='products') aTab='list';
     var pKeys = Object.keys(P||{});
@@ -5125,7 +5146,7 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
       + '<h2 style="margin:0 0 10px;font-size:20px;font-weight:800;color:#e6f7ff">🛍️ শপ ম্যানেজার</h2>'
       + '<div class="sh-tabs" style="display:flex;gap:4px;overflow-x:auto;padding-bottom:6px;margin:8px 0 12px;scrollbar-width:thin">'
       + '<button class="'+(aTab==='orders'?'on':'')+'" style="flex:none;white-space:nowrap;padding:7px 12px;font-size:13px" onclick="jnShopAdmin(\'orders\')">📋 অর্ডার ('+soCount+')</button>'
-      + '<button class="'+(aTab==='add'?'on':'')+'" style="flex:none;white-space:nowrap;padding:7px 12px;font-size:13px" onclick="jnShopAdmin(\'add\')">➕ নতুন জার্সি</button>'
+      + '<button class="'+(aTab==='add'?'on':'')+'" style="flex:none;white-space:nowrap;padding:7px 12px;font-size:13px" onclick="jnShopAdmin(\'add\')">'+(editProdKey?'✏️ জার্সি এডিট':'➕ নতুন জার্সি')+'</button>'
       + '<button class="'+(aTab==='list'?'on':'')+'" style="flex:none;white-space:nowrap;padding:7px 12px;font-size:13px" onclick="jnShopAdmin(\'list\')">👕 জার্সি তালিকা ('+pKeys.length+')</button>'
       + '<button class="'+(aTab==='fabrics'?'on':'')+'" style="flex:none;white-space:nowrap;padding:7px 12px;font-size:13px" onclick="jnShopAdmin(\'fabrics\')">🧵 কাপড়ের রেট</button>'
       + '<button class="'+(aTab==='settings'?'on':'')+'" style="flex:none;white-space:nowrap;padding:7px 12px;font-size:13px" onclick="jnShopAdmin(\'settings\')">⚙️ সেটিংস</button>'
@@ -5134,23 +5155,70 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
       var ids=Object.keys(SO).sort(function(a,b){return (SO[b].createdAt||0)-(SO[a].createdAt||0);});
       h+= ids.length?ids.map(function(k){var o=SO[k];return '<div class="sh-sum"><b>'+esc(o.name)+'</b> · '+esc(o.phone)+' · '+(o.type==='team'?'🧑‍🤝‍🧑 টিম: '+esc(o.team):'⚡সিঙ্গেল')+' · '+o.qty+' পিস · ৳'+o.subtotal+' <span style="float:right;color:'+(o.status==='New'?'#facc15':'#4ade80')+'">'+esc(o.status)+'</span><br><small style="color:#8ab">'+esc(o.product)+(o.team?' — '+esc(o.team):'')+' · '+new Date(o.createdAt).toLocaleString('bn-BD')+'<br>'+esc(o.address)+'</small>'+(o.fabric?'<div style="margin-top:4px;color:#facc15;font-size:12px">🧵 '+esc(o.fabric)+' ('+esc(o.neck||'')+') · ৳'+o.price+'/পিস</div>':'')+(o.trxId?'<div style="margin-top:4px;color:#22d3ee;font-size:12px;font-weight:bold">💳 TrxID: '+esc(o.trxId)+' <span style="color:#cbd5e1;font-weight:normal">(প্রেরক: '+esc(o.senderPhone||'—')+')</span></div>':'')+'<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="sh-btn" onclick="jnFactorySlip(\''+k+'\')">🖨️ ফ্যাক্টরি স্লিপ</button><button class="sh-btn g" onclick="jnSlipWa(\''+k+'\')"><i class="fab fa-whatsapp"></i> কারিগরকে</button><a class="sh-btn o" style="text-decoration:none" href="https://wa.me/88'+esc(o.phone)+'" target="_blank">কাস্টমার</a><button class="sh-btn o" onclick="jnSoStatus(\''+k+'\')">✔ কনফার্ম</button><button class="sh-btn o" style="color:#f77" onclick="jnSoDel(\''+k+'\')">মুছুন</button></div></div>';}).join(''):'<div class="sh-empty">এখনো কোনো শপ অর্ডার নেই</div>';
     } else if(aTab==='add'){
-      h+='<div class="sh-sum" style="margin-top:0"><div style="font-weight:800;font-size:15px;color:#22d3ee;margin-bottom:8px">➕ নতুন জার্সি যোগ করুন</div>'
-        +'<input id="ap-name" class="sh-in" style="margin-bottom:8px" placeholder="জার্সির নাম">'
-        +'<div class="sh-row"><input id="ap-price" class="sh-in" type="number" placeholder="দাম / পিস (৳)"><input id="ap-print" class="sh-in" type="number" placeholder="নাম-নম্বর প্রিন্ট চার্জ (৳)"></div>'
+      var isEdit = Boolean(editProdKey && P[editProdKey]);
+      var ep = isEdit ? P[editProdKey] : null;
+      h+='<div class="sh-sum" style="margin-top:0">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+        +'<div style="font-weight:800;font-size:15px;color:#22d3ee">'+(isEdit?'✏️ জার্সি এডিট করুন':'➕ নতুন জার্সি যোগ করুন')+'</div>'
+        +(isEdit?'<button class="sh-btn o" style="padding:4px 10px;font-size:12px" onclick="jnShopCancelEdit()">✕ বাতিল</button>':'')
+        +'</div>'
+        +'<input id="ap-name" class="sh-in" style="margin-bottom:8px" placeholder="জার্সির নাম" value="'+esc(isEdit?(ep.name||''):'')+'">'
+        +'<div class="sh-row"><input id="ap-price" class="sh-in" type="number" placeholder="দাম / পিস (৳)" value="'+(isEdit&&ep.price!=null?ep.price:'')+'"><input id="ap-print" class="sh-in" type="number" placeholder="নাম-নম্বর প্রিন্ট চার্জ (৳)" value="'+(isEdit&&ep.printCharge!=null?ep.printCharge:'')+'"></div>'
         +'<details style="margin:10px 0;background:#050c14;border:1px solid #1a3e52;border-radius:8px;padding:8px 10px">'
         +'<summary style="cursor:pointer;font-size:12px;font-weight:700;color:#22d3ee;outline:none;display:flex;justify-content:space-between;align-items:center">'
         +'<span>🧵 কাপড়ের কাস্টম রেট বদলান (ঐচ্ছিক)</span><span style="font-size:11px;color:#8ab">▼ ট্যাপ করে খুলুন</span>'
         +'</summary>'
         +'<div style="font-size:11px;color:#8ab;margin:6px 0 8px">ডিফল্ট রেট সেট আছে, এই জার্সির জন্য আলাদা দাম হলে নিচে বদলান (বাম=কলার, ডান=গোল গলা):</div>'
-        +FAB_DEF.map(function(f,i){return '<div class="sh-row" style="margin-top:4px;align-items:center"><span style="flex:2;font-size:12px">'+f.n+'</span><input id="apf-c'+i+'" class="sh-in" type="number" value="'+f.c+'" placeholder="কলার"><input id="apf-r'+i+'" class="sh-in" type="number" value="'+f.r+'" placeholder="গোল গলা"></div>';}).join('')
+        +FAB_DEF.map(function(f,i){
+          var cVal = f.c, rVal = f.r;
+          if(isEdit && ep && ep.fabrics){
+            var ef = ep.fabrics.find(function(x){return x && x.n===f.n;}) || ep.fabrics[i];
+            if(ef){ if(ef.c!=null) cVal=ef.c; if(ef.r!=null) rVal=ef.r; }
+          }
+          return '<div class="sh-row" style="margin-top:4px;align-items:center"><span style="flex:2;font-size:12px">'+f.n+'</span><input id="apf-c'+i+'" class="sh-in" type="number" value="'+cVal+'" placeholder="কলার"><input id="apf-r'+i+'" class="sh-in" type="number" value="'+rVal+'" placeholder="গোল গলা"></div>';
+        }).join('')
         +'</details>'
-        +'<textarea id="ap-desc" rows="2" placeholder="বিবরণ (ফেব্রিক, ডেলিভারি সময়...)" style="margin-bottom:8px"></textarea>'
-        +'<label class="sh-btn o" style="display:block;text-align:center;margin:8px 0;cursor:pointer">📷 গ্যালারি থেকে একসাথে অনেক ছবি বাছুন (সর্বোচ্চ ৮)<input id="ap-img" type="file" accept="image/*" multiple hidden onchange="document.getElementById(\'ap-cnt\').textContent=this.files.length+\' টি ছবি সিলেক্টেড\'"></label><small id="ap-cnt" style="display:block;text-align:center;color:#22d3ee;margin-bottom:6px"></small>'
-        +'<button class="sh-btn" style="width:100%;margin-top:6px;font-size:14px" onclick="jnShopAddProduct()">➕ শপে যোগ করুন</button>'
-        +'</div>';
+        +'<textarea id="ap-desc" rows="2" placeholder="বিবরণ (ফেব্রিক, ডেলিভারি সময়...)" style="margin-bottom:8px">'+esc(isEdit?(ep.desc||''):'')+'</textarea>';
+
+      if(isEdit){
+        h+='<div style="margin:8px 0;background:#050c14;border:1px solid #1a3e52;border-radius:8px;padding:8px 10px">'
+          +'<div style="font-size:12px;font-weight:700;color:#22d3ee;margin-bottom:6px">📷 বর্তমান ছবি ('+editExistingImgs.length+' টি)</div>';
+        if(editExistingImgs.length){
+          h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
+            +editExistingImgs.map(function(im,idx){
+              return '<div style="position:relative;width:56px;height:56px;border-radius:6px;overflow:hidden;border:1px solid #334155;background:#0b1520">'
+                +'<img src="'+esc(im)+'" style="width:100%;height:100%;object-fit:cover">'
+                +'<button type="button" onclick="jnShopDelEditImg('+idx+')" title="মুছুন" style="position:absolute;top:2px;right:2px;background:rgba(239,68,68,0.9);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;line-height:18px;text-align:center;cursor:pointer;padding:0">✕</button>'
+                +'</div>';
+            }).join('')
+            +'</div>';
+        } else {
+          h+='<div style="font-size:11px;color:#f87171;margin-bottom:6px">⚠️ কোনো ছবি নেই। নিচে নতুন ছবি যোগ করুন।</div>';
+        }
+        h+='<label class="sh-btn o" style="display:block;text-align:center;margin:4px 0 6px;cursor:pointer">➕ আরো নতুন ছবি যোগ করুন<input id="ap-img" type="file" accept="image/*" multiple hidden onchange="document.getElementById(\'ap-cnt\').textContent=this.files.length+\' টি নতুন ছবি সিলেক্টেড\'"></label><small id="ap-cnt" style="display:block;text-align:center;color:#22d3ee;margin-bottom:6px"></small>'
+          +'</div>'
+          +'<button class="sh-btn" style="width:100%;margin-top:6px;font-size:14px;background:#10b981;font-weight:700" onclick="jnShopSaveProduct()">💾 জার্সি আপডেট করুন</button>'
+          +'<button class="sh-btn o" style="width:100%;margin-top:6px;font-size:13px" onclick="jnShopCancelEdit()">বাতিল ও তালিকায় ফিরুন</button>'
+          +'</div>';
+      } else {
+        h+='<label class="sh-btn o" style="display:block;text-align:center;margin:8px 0;cursor:pointer">📷 গ্যালারি থেকে একসাথে অনেক ছবি বাছুন (সর্বোচ্চ ৮)<input id="ap-img" type="file" accept="image/*" multiple hidden onchange="document.getElementById(\'ap-cnt\').textContent=this.files.length+\' টি ছবি সিলেক্টেড\'"></label><small id="ap-cnt" style="display:block;text-align:center;color:#22d3ee;margin-bottom:6px"></small>'
+          +'<button class="sh-btn" style="width:100%;margin-top:6px;font-size:14px" onclick="jnShopAddProduct()">➕ শপে যোগ করুন</button>'
+          +'</div>';
+      }
     } else if(aTab==='list'){
       h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:14px;color:#22d3ee">👕 বিদ্যমান জার্সি ক্যাটালগ ('+pKeys.length+' টি)</b><button class="sh-btn" style="padding:6px 10px;font-size:12px" onclick="jnShopAdmin(\'add\')">➕ নতুন জার্সি</button></div>';
-      h+= pKeys.length ? pKeys.reverse().map(function(k){var p=P[k];return '<div class="sh-sum" style="display:flex;gap:10px;align-items:center;margin:6px 0"><img src="'+esc((p.images||[])[0]||'')+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px;background:#050c14"><div style="flex:1"><b>'+esc(p.name)+'</b><br><b>৳'+n(p.price)+'</b> · '+(p.images||[]).length+' ছবি'+(p.hidden?' · <span style="color:#f99">লুকানো</span>':'')+'</div><button class="sh-btn o" style="padding:6px 10px;font-size:12px" onclick="jnShopHide(\''+k+'\')">'+(p.hidden?'দেখান':'লুকান')+'</button><button class="sh-btn o" style="color:#f77;padding:6px 10px;font-size:12px" onclick="jnShopDelP(\''+k+'\')">✕</button></div>';}).join('') : '<div class="sh-empty">এখনো কোনো জার্সি যোগ করা হয়নি। উপরে "নতুন জার্সি" বোতামে চাপ দিন।</div>';
+      h+= pKeys.length ? pKeys.reverse().map(function(k){
+        var p=P[k];
+        return '<div class="sh-sum" style="display:flex;gap:10px;align-items:center;margin:6px 0;flex-wrap:wrap">'
+          +'<img src="'+esc((p.images||[])[0]||'')+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px;background:#050c14;flex:none">'
+          +'<div style="flex:1;min-width:140px"><b>'+esc(p.name)+'</b><br><b>৳'+n(p.price)+'</b> · '+(p.images||[]).length+' ছবি'+(p.hidden?' · <span style="color:#f99">লুকানো</span>':'')+'</div>'
+          +'<div style="display:flex;gap:6px;align-items:center">'
+            +'<button class="sh-btn o" style="padding:6px 10px;font-size:12px;color:#22d3ee;border-color:#22d3ee" onclick="jnShopEditP(\''+k+'\')">✏️ এডিট</button>'
+            +'<button class="sh-btn o" style="padding:6px 10px;font-size:12px" onclick="jnShopHide(\''+k+'\')">'+(p.hidden?'দেখান':'লুকান')+'</button>'
+            +'<button class="sh-btn o" style="color:#f77;padding:6px 10px;font-size:12px" onclick="jnShopDelP(\''+k+'\')">✕</button>'
+          +'</div>'
+          +'</div>';
+      }).join('') : '<div class="sh-empty">এখনো কোনো জার্সি যোগ করা হয়নি। উপরে "নতুন জার্সি" বোতামে চাপ দিন।</div>';
     } else if(aTab==='fabrics'){
       h+='<div class="sh-sum" style="margin-top:0"><b style="font-size:15px;color:#22d3ee">🧵 কাপড় ও দাম সেটিংস</b><div style="color:#9bb;font-size:12px;margin:4px 0 8px">দাম বদলান, ছবি দিন, তারপর "সব কাপড় সেভ" চাপুন।</div>'+fabs().map(function(f,i){return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 0;border-top:1px solid #1e293b"><img id="aff-pv'+i+'" src="'+esc(f.img||'')+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px;background:#111827;border:1px solid #334155'+(f.img?'':';opacity:.3')+'"><input id="aff-n'+i+'" class="sh-in" style="flex:1;min-width:130px" value="'+esc(f.n)+'"><label style="font-size:11px;color:#9bb">কলার ৳<input id="aff-c'+i+'" class="sh-in" type="number" style="width:80px" value="'+n(f.c)+'"></label><label style="font-size:11px;color:#9bb">গোল গলা ৳<input id="aff-r'+i+'" class="sh-in" type="number" style="width:80px" value="'+n(f.r)+'"></label><label style="font-size:11px;color:#9bb"><input id="aff-o'+i+'" type="checkbox"'+(f.one?' checked':'')+'> এক দাম</label><label class="sh-btn o" style="cursor:pointer;font-size:12px">📷 ছবি<input id="aff-f'+i+'" type="file" accept="image/*" style="display:none" onchange="jnFabPrev('+i+',this)"></label>'+(f.img?'<button class="sh-btn o" style="font-size:12px;color:#f77" onclick="jnFabImgDel('+i+')">ছবি মুছুন</button>':'')+'</div>';}).join('')+'<button class="sh-btn" style="width:100%;margin-top:8px" onclick="jnFabSave()">💾 সব কাপড় সেভ</button></div>';
     } else if(aTab==='settings'){
@@ -5160,15 +5228,45 @@ body:has(#app-wrapper.hidden) #neon-mobile-dock{display:none!important}#neon-mob
   }
 window.jnShopSaveCfg=function(){var w=document.getElementById('as-wa').value.replace(/\D/g,''),fb=(document.getElementById('as-fb')?document.getElementById('as-fb').value.trim():'');rdb().ref('shop_public/settings').update({whatsapp:w,facebook:fb}).then(function(){CFG.whatsapp=w;CFG.facebook=fb;setLinks();Swal.fire('সেভ হয়েছে!','ফেসবুক ও হোয়াটসঅ্যাপ আপডেট হয়েছে','success');}).catch(function(){Swal.fire('সেভ হয়নি','Firebase rules আপডেট করুন','error');});};
   window.jnShopAddProduct=async function(){
-    var name=document.getElementById('ap-name').value.trim(),price=n(document.getElementById('ap-price').value),files=document.getElementById('ap-img').files;
+    var name=document.getElementById('ap-name').value.trim(),price=n(document.getElementById('ap-price').value),fileInput=document.getElementById('ap-img'),files=(fileInput?fileInput.files:[]);
     if(!price) price=n(document.getElementById('apf-c0').value);
     if(!name||!files.length){Swal.fire('নাম ও অন্তত ১টি ছবি দিন','','warning');return;}
     Swal.fire({title:'ছবি আপলোড হচ্ছে...',allowOutsideClick:false,didOpen:function(){Swal.showLoading();}});
     try{
       var imgs=[];for(var i=0;i<Math.min(files.length,8);i++) imgs.push(await compress(files[i]));
       await rdb().ref('shop_public/products').push({name:name,price:price,printCharge:n(document.getElementById('ap-print').value),desc:document.getElementById('ap-desc').value.trim(),fabrics:FAB_DEF.map(function(f,i){return {n:f.n,c:n(document.getElementById('apf-c'+i).value),r:n(document.getElementById('apf-r'+i).value)};}),images:imgs,createdAt:Date.now()});
-      var s=await rdb().ref('shop_public/products').once('value');P=s.val()||{};Swal.fire('শপে যোগ হয়েছে!','','success');aTab='list';aDraw();
+      var s=await rdb().ref('shop_public/products').once('value');P=s.val()||{};
+      editProdKey=null; editExistingImgs=[];
+      Swal.fire('শপে যোগ হয়েছে!','','success');aTab='list';aDraw();
     }catch(e){Swal.fire('যোগ হয়নি','Firebase rules আপডেট করুন','error');}
+  };
+  window.jnShopSaveProduct=async function(){
+    if(!editProdKey) return;
+    var name=document.getElementById('ap-name').value.trim(),price=n(document.getElementById('ap-price').value),fileInput=document.getElementById('ap-img'),files=(fileInput?fileInput.files:[]);
+    if(!price) price=n(document.getElementById('apf-c0').value);
+    if(!name){Swal.fire('জার্সির নাম দিন','','warning');return;}
+    if(!editExistingImgs.length && !files.length){Swal.fire('অন্তত ১টি ছবি দিন','','warning');return;}
+    Swal.fire({title:'আপডেট হচ্ছে...',allowOutsideClick:false,didOpen:function(){Swal.showLoading();}});
+    try{
+      var imgs=editExistingImgs.slice();
+      if(files.length){
+        for(var i=0;i<Math.min(files.length,8);i++) imgs.push(await compress(files[i]));
+      }
+      if(imgs.length>8) imgs=imgs.slice(0,8);
+      await rdb().ref('shop_public/products/'+editProdKey).update({
+        name:name,
+        price:price,
+        printCharge:n(document.getElementById('ap-print').value),
+        desc:document.getElementById('ap-desc').value.trim(),
+        fabrics:FAB_DEF.map(function(f,i){return {n:f.n,c:n(document.getElementById('apf-c'+i).value),r:n(document.getElementById('apf-r'+i).value)};}),
+        images:imgs,
+        updatedAt:Date.now()
+      });
+      var s=await rdb().ref('shop_public/products').once('value');P=s.val()||{};
+      editProdKey=null; editExistingImgs=[];
+      Swal.fire('আপডেট সম্পন্ন!','জার্সির তথ্য সফলভাবে পরিবর্তন হয়েছে।','success');
+      aTab='list';aDraw();
+    }catch(e){Swal.fire('আপডেট হয়নি','Firebase rules আপডেট করুন','error');}
   };
   window.jnShopHide=function(k){rdb().ref('shop_public/products/'+k+'/hidden').set(!P[k].hidden).then(function(){P[k].hidden=!P[k].hidden;aDraw();});};
   window.jnShopDelP=function(k){Swal.fire({title:'মুছে ফেলবেন?',showCancelButton:true,icon:'warning'}).then(function(r){if(r.isConfirmed)rdb().ref('shop_public/products/'+k).remove().then(function(){delete P[k];aDraw();});});};
